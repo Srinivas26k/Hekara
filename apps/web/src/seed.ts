@@ -84,7 +84,7 @@ async function main() {
   const patientNames = [...patientPool];
   const TARGET = 142;
   const extra = people.slice(FEATURED.length);
-  const cursor = new Map(extra.map((p) => [p.name, 7 + Math.floor(rand() * 6) / 2]));
+  const cursor = new Map(extra.map((p) => [p.name, 7 + Math.floor(rand() * 12) / 2]));
   for (let round = 0; visits.length < TARGET && round < 12; round++) {
     for (const p of extra) {
       if (visits.length >= TARGET) break;
@@ -92,7 +92,7 @@ async function main() {
       const dur = pick([1, 1.5, 2]);
       if (start + dur > 19) continue;
       visits.push({ caregiver: p.name, label: pick(patientNames), start, end: start + dur, status: "scheduled", req: p.skills.includes("HHA") && rand() < 0.3 ? "HHA" : null });
-      cursor.set(p.name, start + dur + pick([0.5, 1, 1.5]));
+      cursor.set(p.name, start + dur + pick([1, 1.5, 2, 2.5]));
     }
   }
   if (visits.length < TARGET) throw new Error(`Could only place ${visits.length} visits`);
