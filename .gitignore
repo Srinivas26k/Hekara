@@ -9,3 +9,5 @@ dist
 coverage
 .gstack/
 .shots
+apps/web/public
+.data
