@@ -64,5 +64,5 @@ export interface OverviewDto {
 }
 export interface SearchHitDto { kind: "patient" | "caregiver" | "claim"; id: string; title: string; subtitle?: string }
 
-export interface MeDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean; agencyId: string }
+export interface MeDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean; agencyId: string; agencyName: string }
 export interface UserDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean }

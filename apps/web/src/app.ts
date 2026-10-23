@@ -80,9 +80,13 @@ export function createApp(deps: AppDeps): Hono<Env> {
     return { ports, agencyId: id.agencyId, userId: id.userId, now };
   };
 
-  api.get("/me", (c) => {
+  api.get("/me", async (c) => {
     const i = c.get("identity");
-    const me: MeDto = { id: i.userId ?? "", name: i.name, email: i.email, role: i.role, twoFactorEnabled: i.twoFactorEnabled, agencyId: i.agencyId };
+    const agency = await ports.repo.agency(i.agencyId);
+    const me: MeDto = {
+      id: i.userId ?? "", name: i.name, email: i.email, role: i.role, twoFactorEnabled: i.twoFactorEnabled,
+      agencyId: i.agencyId, agencyName: agency?.name ?? "",
+    };
     return c.json(me);
   });
 
