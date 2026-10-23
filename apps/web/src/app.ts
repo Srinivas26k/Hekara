@@ -66,18 +66,20 @@ export function createApp(deps: AppDeps): Hono<Env> {
     return c.json(await svc.overview(ctx(c, q.at)));
   });
 
+  const AtSchema = v.object({ at: v.optional(v.pipe(v.string(), v.regex(/^\d{2}:\d{2}$/))) });
+  const atOf = (c: Context<Env>) => parse(AtSchema, { at: c.req.query("at") }).at;
   const idParam = v.pipe(v.string(), v.uuid());
   api.post("/visits/:id/fill", async (c) => {
     const id = parse(idParam, c.req.param("id"));
     const body = parse(FillInputSchema, await c.req.json().catch(() => ({})));
-    return c.json(await svc.fillVisit(ctx(c), id, body.caregiverId));
+    return c.json(await svc.fillVisit(ctx(c, atOf(c)), id, body.caregiverId));
   });
-  api.post("/visits/:id/unfill", async (c) => c.json(await svc.unfillVisit(ctx(c), parse(idParam, c.req.param("id")))));
+  api.post("/visits/:id/unfill", async (c) => c.json(await svc.unfillVisit(ctx(c, atOf(c)), parse(idParam, c.req.param("id")))));
 
-  api.post("/optimize", async (c) => c.json(await svc.optimize(ctx(c))));
+  api.post("/optimize", async (c) => c.json(await svc.optimize(ctx(c, atOf(c)))));
   api.post("/suggestions/apply", async (c) => {
     const body = parse(ApplyInputSchema, await c.req.json().catch(() => ({})));
-    return c.json(await svc.applySuggestions(ctx(c), body.visitIds));
+    return c.json(await svc.applySuggestions(ctx(c, atOf(c)), body.visitIds));
   });
 
   api.get("/search", async (c) => c.json(await svc.search(ctx(c), parse(SearchQuerySchema, c.req.query()).q)));
