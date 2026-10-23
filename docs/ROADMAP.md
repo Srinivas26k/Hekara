@@ -48,7 +48,9 @@ Done: Better Auth with roles, invite-only accounts, Argon2id, TOTP and passkey e
 - Key re-wrap tool.
 - `deploy/docker/`, `deploy/kubernetes/`.
 
-## M6: Billing, compliance, reports
+## M6: Billing, compliance, reports (billing started)
+
+Done: Patients, Caregivers and Billing & Claims pages with the claim status workflow, role-based navigation. Remaining: claim creation from completed visits, export formats, credentials tracking, reports and the warehouse.
 
 - Claims workflow and export.
 - Credentials tracking and audit viewer.

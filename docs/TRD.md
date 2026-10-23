@@ -89,10 +89,13 @@ REST over HTTPS, typed through Hono RPC. JSON only. All routes under `/api`, all
 | POST `/api/patients` | Create patient | scheduler, admin |
 | GET `/api/events` | Realtime stream (SSE or WebSocket upgrade) | authenticated |
 | GET `/api/me` | Current user, role and agency | any signed-in user |
+| GET `/api/patients?limit&offset`, GET `/api/patients/:id` | Patient list (newest first) and full record | admin, scheduler |
+| GET `/api/caregivers` | Caregiver load, skills, today's visits, next visit | admin, scheduler |
+| GET `/api/claims?status&limit&offset` | Claims with visit details, per-status counts and allowed next steps | admin, billing |
+| POST `/api/claims/:id/status` | Move a claim along draft, submitted, paid or denied | admin, billing |
 | `/api/auth/*` | Sign-in, sign-out, passkeys, two-factor, password reset (Better Auth) | public or session, rate limited |
 | GET/POST `/api/admin/users` | List users, create an invite | admin |
 | GET `/api/admin/audit`, POST `/api/admin/audit/verify` | Browse the activity log, check chain integrity | admin |
-| GET/POST `/api/claims` | Billing | billing, admin (not built yet) |
 | POST `/api/admin/export` and `/api/admin/import` | Portable agency export/import | admin |
 
 Error shape: `{ "error": { "code": "string", "message": "generic text" } }`. No internals.
