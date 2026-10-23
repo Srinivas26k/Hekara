@@ -132,6 +132,16 @@ describe("sign-in", () => {
     expect(codes.slice(5).every((c) => c === 429)).toBe(true);
   });
 
+  it("locks an account after repeated failures even when the attacker rotates addresses", async () => {
+    const victim = await mkUser("victim", "scheduler");
+    const codes: number[] = [];
+    for (let i = 0; i < 12; i++) codes.push((await signIn(victim, "wrong-password-12345", nextIp())).status); // new IP every time
+    expect(codes.slice(0, 10).every((c) => c === 401)).toBe(true);
+    expect(codes.slice(10)).toEqual([429, 429]);
+    expect((await signIn(victim, PASSWORD, nextIp())).status).toBe(429); // even the right password waits
+    expect((await signIn(users.admin!.email, PASSWORD, nextIp())).status).toBe(200); // other accounts are unaffected
+  });
+
   it("blocks cross-origin sign-in and self-signup", async () => {
     expect((await post("/api/auth/sign-in/email", { email: users.admin!.email, password: PASSWORD }, {}, "https://evil.example")).status).toBe(403);
     expect((await post("/api/auth/sign-in/email", { email: users.admin!.email, password: PASSWORD }, {}, null)).status).toBe(403);

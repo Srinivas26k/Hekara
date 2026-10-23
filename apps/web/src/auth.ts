@@ -1,12 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
+import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { twoFactor } from "better-auth/plugins";
 import { passkey } from "@better-auth/passkey";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as schema from "@hekara/db/schema";
 import type { Audit, PasswordHasher } from "@hekara/ports";
+import { FailureThrottle } from "./throttle";
 
 export type Role = "admin" | "scheduler" | "caregiver" | "billing";
 
@@ -30,6 +31,10 @@ export function createAuth(deps: AuthDeps) {
   const secure = url.protocol === "https:";
   /** Links produced by requestPasswordReset, captured so an admin can hand them over (there is no email service yet). */
   const links = new Map<string, string>();
+
+  /** 10 wrong passwords in 15 minutes lock that account for 15 minutes, from any address. */
+  const throttle = new FailureThrottle({ maxFailures: 10, windowMs: 15 * 60_000, lockMs: 15 * 60_000 });
+  const emailKey = (body: unknown) => String((body as { email?: unknown } | null)?.email ?? "").trim().toLowerCase();
 
   const agencyOf = async (userId: string) => {
     const [u] = await deps.db.select({ agencyId: schema.user.agencyId }).from(schema.user).where(eq(schema.user.id, userId)).limit(1);
@@ -96,11 +101,21 @@ export function createAuth(deps: AuthDeps) {
     hooks: {
       // Sign-out is recorded before it runs, while the session still exists.
       before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path === "/sign-in/email") {
+          const wait = throttle.retryAfter(emailKey(ctx.body));
+          if (wait > 0) throw new APIError("TOO_MANY_REQUESTS", { message: "Too many attempts. Try again later." });
+          return;
+        }
         if (ctx.path !== "/sign-out") return;
         const session = await getSessionFromCtx(ctx).catch(() => null);
         await record(session?.user.id, "auth.logout", "session");
       }),
       after: createAuthMiddleware(async (ctx) => {
+        if (ctx.path === "/sign-in/email") {
+          const key = emailKey(ctx.body);
+          if (ctx.context.returned instanceof APIError) throttle.fail(key); else throttle.succeed(key);
+          return;
+        }
         const audited: Record<string, string> = {
           "/two-factor/enable": "auth.2fa.enable", "/two-factor/disable": "auth.2fa.disable",
           "/passkey/verify-registration": "auth.passkey.add", "/passkey/delete-passkey": "auth.passkey.remove",
