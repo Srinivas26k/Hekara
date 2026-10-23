@@ -173,6 +173,34 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@26.6.5)(vite@7.3.7(@types/node@26.6.5)(tsx@4.23.15))
 
+  packages/adapters-node:
+    dependencies:
+      '@hekara/core':
+        specifier: workspace:*
+        version: link:../core
+      '@hekara/db':
+        specifier: workspace:*
+        version: link:../db
+      '@hekara/ports':
+        specifier: workspace:*
+        version: link:../ports
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(postgres@3.4.9)
+      postgres:
+        specifier: ^3.4.9
+        version: 3.4.9
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@26.6.5)(tsx@4.23.15)
+
   packages/core:
     devDependencies:
       typescript:
