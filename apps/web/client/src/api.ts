@@ -1,5 +1,5 @@
 import type {
-  MeDto, UserDto, Role,
+  AuditDto, AuditVerifyDto, MeDto, UserDto, Role,
   DayScheduleDto, OverviewDto, SearchHitDto, SuggestionDto, VisitDto, WeekScheduleDto, PersonDto,
 } from "@hekara/core";
 
@@ -32,6 +32,8 @@ const post = <T>(path: string, body?: unknown) => call<T>(`${path}${pinned ? `?a
 
 export const api = {
   me: () => call<MeDto>("/me"),
+  audit: (before?: number) => call<AuditDto[]>(`/admin/audit${qs({ limit: "30", before: before ? String(before) : undefined })}`),
+  verifyAudit: () => post<AuditVerifyDto>("/admin/audit/verify"),
   users: () => call<UserDto[]>("/admin/users"),
   invite: (input: { email: string; name: string; role: Role; caregiverId?: string }) =>
     post<{ userId: string; link: string }>("/admin/users", input),

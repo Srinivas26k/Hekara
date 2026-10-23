@@ -27,6 +27,7 @@ const ports: Ports = {
 const { auth, links } = createAuth({ db, hasher, audit: ports.audit, appUrl: APP, secret: "x".repeat(40) });
 const app = createApp({
   ports, identify: identifyFromSession(auth), authHandler: (r) => auth.handler(r),
+  userNames: async (agencyId, ids) => new Map((await db.select({ id: s.user.id, name: s.user.name }).from(s.user).where(eq(s.user.agencyId, agencyId))).filter((u) => ids.includes(u.id)).map((u) => [u.id, u.name])),
   invites: createInvites({ auth, links, db, appUrl: APP }), clientKey: () => "test", allowedOrigin: APP, allowTimeTravel: true,
 });
 
@@ -246,6 +247,44 @@ describe("invites", () => {
     expect((await call("POST", "/api/admin/users", admin, { email: "x2@example.test", name: "X", role: "caregiver" })).status).toBe(400);
     const foreign = (await db.insert(s.caregivers).values({ agencyId: B, name: await crypto.encrypt(B, "Other") }).returning())[0]!.id;
     expect((await call("POST", "/api/admin/users", admin, { email: "x3@example.test", name: "X", role: "caregiver", caregiverId: foreign })).status).toBe(400);
+  });
+});
+
+describe("audit viewer", () => {
+  it("is admin only", async () => {
+    const cookie = await login(users.scheduler!.email);
+    expect((await get("/api/admin/audit", cookie)).status).toBe(403);
+    expect((await call("POST", "/api/admin/audit/verify", cookie)).status).toBe(403);
+  });
+
+  it("lists this agency's entries newest first with user names, and pages backwards", async () => {
+    const cookie = await login(users.admin!.email);
+    const page1 = await (await get("/api/admin/audit?limit=3", cookie)).json() as { seq: number; userName: string | null; action: string }[];
+    expect(page1).toHaveLength(3);
+    expect(page1[0]!.seq).toBeGreaterThan(page1[1]!.seq);
+    expect(page1.some((e) => e.userName === "admin")).toBe(true);
+    const page2 = await (await get(`/api/admin/audit?limit=3&before=${page1[2]!.seq}`, cookie)).json() as { seq: number }[];
+    expect(page2.every((e) => e.seq < page1[2]!.seq)).toBe(true);
+    expect((await get("/api/admin/audit?limit=abc", cookie)).status).toBe(400);
+  });
+
+  it("never shows another agency's log", async () => {
+    const cookie = await login(users.outsider!.email);
+    const rows = await (await get("/api/admin/audit?limit=100", cookie)).json() as { userId: string | null; action: string }[];
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((e) => e.userId === users.outsider!.id)).toBe(true); // only their own agency's entries
+    expect(rows.some((e) => e.action === "user.invite")).toBe(false);
+  });
+
+  it("verifies the chain and reports tampering", async () => {
+    const cookie = await login(users.admin!.email);
+    const ok = await (await call("POST", "/api/admin/audit/verify", cookie)).json() as { ok: boolean; brokenAt: number | null };
+    expect(ok).toMatchObject({ ok: true, brokenAt: null });
+    const [row] = await db.select().from(s.auditLog).where(and(eq(s.auditLog.agencyId, A), eq(s.auditLog.seq, 1)));
+    await db.update(s.auditLog).set({ action: "tampered" }).where(eq(s.auditLog.id, row!.id));
+    const bad = await (await call("POST", "/api/admin/audit/verify", cookie)).json() as { ok: boolean; brokenAt: number };
+    expect(bad).toMatchObject({ ok: false, brokenAt: 0 });
+    await db.update(s.auditLog).set({ action: row!.action }).where(eq(s.auditLog.id, row!.id)); // restore
   });
 });
 

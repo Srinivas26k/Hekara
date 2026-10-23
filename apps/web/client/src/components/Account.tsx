@@ -1,5 +1,5 @@
 import { createResource, createSignal, For, Show } from "solid-js";
-import type { Role } from "@hekara/core";
+import type { AuditDto, Role } from "@hekara/core";
 import { api, ApiError } from "../api";
 import { authClient } from "../auth";
 import { store } from "../store";
@@ -92,6 +92,53 @@ function Authenticator() {
   );
 }
 
+const LABELS: Record<string, string> = {
+  "auth.login": "Signed in", "auth.logout": "Signed out", "auth.2fa.enable": "Turned on two-step", "auth.2fa.disable": "Turned off two-step",
+  "auth.passkey.add": "Added a passkey", "auth.passkey.remove": "Removed a passkey", "auth.password.reset": "Set a password",
+  "visit.fill": "Filled a shift", "visit.unfill": "Reopened a shift", "suggestion.apply": "Applied a suggestion",
+  "patient.create": "Added a patient", "user.invite": "Invited a user", "audit.verify": "Checked the log",
+  "schedule.read": "Viewed the schedule", "search": "Searched", "suggestions.compute": "Computed suggestions",
+};
+
+function ActivityLog() {
+  const [rows, setRows] = createSignal<AuditDto[]>([]);
+  const [open, setOpen] = createSignal(false);
+  const [more, setMore] = createSignal(true);
+  const [status, setStatus] = createSignal("");
+  const [busy, setBusy] = createSignal(false);
+  const load = async (before?: number) => {
+    const page = await api.audit(before).catch(() => []);
+    setRows(before ? [...rows(), ...page] : page); setMore(page.length === 30);
+  };
+  const toggle = async () => { const next = !open(); setOpen(next); if (next && rows().length === 0) await load(); };
+  const verify = async () => {
+    setBusy(true);
+    try {
+      const r = await api.verifyAudit();
+      setStatus(r.ok ? "Log is intact. No entry has been changed or removed." : `Log was altered at entry ${r.brokenAt! + 1}. Contact support.`);
+    } catch { setStatus("Couldn't check the log."); } finally { setBusy(false); }
+  };
+  return (
+    <section>
+      <h3>Activity log</h3>
+      <p class="hint">Every sign-in, schedule change and account change, tamper-evident.</p>
+      <div class="row-actions">
+        <button class="ghost" onClick={toggle}>{open() ? "Hide" : "Show recent activity"}</button>
+        <button class="ghost" disabled={busy()} onClick={verify}>Check integrity</button>
+      </div>
+      <Show when={status()}><p class="hint" role="status">{status()}</p></Show>
+      <Show when={open()}>
+        <ul class="log">
+          <For each={rows()}>{(r) => (
+            <li><span>{LABELS[r.action] ?? r.action}</span><small>{r.userName ?? "System"} · {new Date(r.at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</small></li>
+          )}</For>
+        </ul>
+        <Show when={more()}><button class="ghost" onClick={() => void load(rows()[rows().length - 1]?.seq)}>Load older</button></Show>
+      </Show>
+    </section>
+  );
+}
+
 function Team() {
   const [users, { refetch }] = createResource(() => api.users().catch(() => []));
   const [email, setEmail] = createSignal("");
@@ -147,7 +194,7 @@ export function AccountModal(props: { onClose: () => void }) {
         <p class="who"><b>{me()?.name}</b><span>{me()?.email} · {me()?.role}</span></p>
         <Passkeys />
         <Authenticator />
-        <Show when={me()?.role === "admin"}><Team /></Show>
+        <Show when={me()?.role === "admin"}><Team /><ActivityLog /></Show>
         <footer>
           <button class="ghost" onClick={() => { props.onClose(); void store.signOut(); }}>Sign out</button>
         </footer>

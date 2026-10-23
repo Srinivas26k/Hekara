@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { getConnInfo } from "@hono/node-server/conninfo";
+import { and, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { fileURLToPath } from "node:url";
@@ -29,12 +30,28 @@ const ports: Ports = {
   queue: memoryQueue(), blob: fsBlob(process.env.BLOB_DIR ?? "./.data/blobs"), scheduler: intervalScheduler(),
 };
 
+const userNames = async (agencyId: string, ids: string[]) => {
+  if (ids.length === 0) return new Map<string, string>();
+  const rows = await db.select({ id: schema.user.id, name: schema.user.name }).from(schema.user)
+    .where(and(eq(schema.user.agencyId, agencyId), inArray(schema.user.id, ids)));
+  return new Map(rows.map((r) => [r.id, r.name]));
+};
+
+/** Verifies every agency's audit chain once a day and shouts if one is broken. Run it on one instance only. */
+ports.scheduler.every("audit-verify", "@every 86400s", async () => {
+  for (const a of await db.select({ id: schema.agencies.id }).from(schema.agencies)) {
+    const broken = await ports.audit.verify(a.id);
+    if (broken !== null) console.error(`AUDIT CHAIN BROKEN for agency ${a.id} at entry ${broken}`);
+  }
+});
+
 const { auth, links } = createAuth({ db, hasher: argon2idHasher(), audit: ports.audit, appUrl: cfg.appUrl, secret: cfg.authSecret });
 const api = createApp({
   ports,
   identify: identifyFromSession(auth),
   authHandler: (req) => auth.handler(req),
   invites: createInvites({ auth, links, db, appUrl: cfg.appUrl }),
+  userNames,
   clientKey: (c) => getConnInfo(c).remote.address ?? "unknown",
   allowedOrigin: new URL(cfg.appUrl).origin,
   allowTimeTravel: !cfg.production, // dev only: ?at=HH:MM pins the clock

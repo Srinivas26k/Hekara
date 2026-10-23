@@ -3,8 +3,8 @@ import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
 import * as v from "valibot";
 import {
-  ApplyInputSchema, FillInputSchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
-  type MeDto, type Role,
+  ApplyInputSchema, AuditQuerySchema, FillInputSchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
+  type AuditDto, type AuditVerifyDto, type MeDto, type Role,
 } from "@hekara/core";
 import type { Ports } from "@hekara/ports";
 import { HttpError } from "./errors";
@@ -25,6 +25,8 @@ export interface AppDeps {
   /** Handles /api/auth/* (sign-in, passkeys, two-factor, password reset). Mounted ahead of the session check. */
   authHandler?: (req: Request) => Promise<Response>;
   invites?: Invites;
+  /** Resolves user ids to names for the audit viewer. */
+  userNames?: (agencyId: string, ids: string[]) => Promise<Map<string, string>>;
   allowedOrigin: string;
   /** Dev only: lets `?at=HH:MM` pretend it is that time today, to compare against the design. */
   allowTimeTravel?: boolean;
@@ -142,6 +144,25 @@ export function createApp(deps: AppDeps): Hono<Env> {
     const r = await deps.invites.invite(me.agencyId, input);
     await ports.audit.append({ agencyId: me.agencyId, userId: me.userId, action: "user.invite", entity: "user", entityId: r.userId, meta: { role: input.role } });
     return c.json(r, 201);
+  });
+
+  api.get("/admin/audit", allow("admin"), async (c) => {
+    const q = parse(AuditQuerySchema, c.req.query());
+    const me = c.get("identity");
+    const rows = await ports.audit.list(me.agencyId, { limit: Number(q.limit ?? 50), beforeSeq: q.before ? Number(q.before) : undefined });
+    const names = deps.userNames ? await deps.userNames(me.agencyId, [...new Set(rows.flatMap((r) => (r.userId ? [r.userId] : [])))]) : new Map<string, string>();
+    const out: AuditDto[] = rows.map((r) => ({
+      seq: r.seq, at: r.at.toISOString(), userId: r.userId, userName: r.userId ? names.get(r.userId) ?? null : null,
+      action: r.action, entity: r.entity, entityId: r.entityId,
+    }));
+    return c.json(out);
+  });
+  api.post("/admin/audit/verify", allow("admin"), async (c) => {
+    const me = c.get("identity");
+    const brokenAt = await ports.audit.verify(me.agencyId);
+    await ports.audit.append({ agencyId: me.agencyId, userId: me.userId, action: "audit.verify", entity: "audit", meta: { ok: brokenAt === null } });
+    const out: AuditVerifyDto = { ok: brokenAt === null, brokenAt, checkedAt: new Date().toISOString() };
+    return c.json(out);
   });
 
   api.get("/events", (c) => {

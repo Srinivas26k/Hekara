@@ -311,3 +311,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .people small { color: var(--muted); }
 .invite-link { display: flex; flex-direction: column; gap: 10px; }
 .grow { flex: 1; }
+
+.row-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.log { list-style: none; display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
+.log li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.log small { color: var(--muted); text-align: right; }
