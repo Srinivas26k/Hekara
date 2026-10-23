@@ -1,4 +1,4 @@
-import type { Caregiver, Id, StoredStatus, Visit } from "@hekara/core";
+import type { Caregiver, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
 
 /** Ports: the only surface the app may use to reach a platform. No platform types in signatures. */
 
@@ -24,7 +24,12 @@ export interface KeyProvider {
 export interface PatientInput { name: string; dob?: string; address?: string; notes?: string }
 export interface Patient { id: Id; agencyId: Id; name: string; createdAt: Date }
 
-export interface ClaimRow { id: Id; agencyId: Id; visitId: Id | null; amountCents: number; status: "draft" | "submitted" | "paid" | "denied"; createdAt: Date }
+export interface ClaimRow { id: Id; agencyId: Id; visitId: Id | null; amountCents: number; status: ClaimStatus; createdAt: Date }
+/** A claim with the visit it bills for (label and start are decrypted). */
+export interface ClaimDetail extends ClaimRow { visitLabel: string | null; visitStart: Date | null }
+export interface PatientSummary { id: Id; name: string; createdAt: Date }
+export interface PatientDetail extends PatientSummary { dob: string | null; address: string | null; notes: string | null }
+export interface Page { limit: number; offset: number }
 
 export interface VisitQuery { from: Date; to: Date; caregiverId?: Id }
 
@@ -40,6 +45,13 @@ export interface Repository {
   createPatient(agencyId: Id, input: PatientInput): Promise<Patient>;
   countPatientsSince(agencyId: Id, since: Date): Promise<number>;
   claims(agencyId: Id): Promise<ClaimRow[]>;
+  /** Newest first. Names are encrypted at rest, so patient lists page by creation time, not alphabetically. */
+  patients(agencyId: Id, page: Page): Promise<{ items: PatientSummary[]; total: number }>;
+  patient(agencyId: Id, id: Id): Promise<PatientDetail | null>;
+  claimsPage(agencyId: Id, q: Page & { status?: ClaimStatus }): Promise<{ items: ClaimDetail[]; total: number }>;
+  claimCounts(agencyId: Id): Promise<Record<ClaimStatus, number>>;
+  claim(agencyId: Id, id: Id): Promise<ClaimRow | null>;
+  setClaimStatus(agencyId: Id, id: Id, status: ClaimStatus): Promise<ClaimRow>;
   search(agencyId: Id, query: string, limit: number): Promise<SearchHit[]>;
   transaction<T>(agencyId: Id, fn: (tx: Repository) => Promise<T>): Promise<T>;
 }

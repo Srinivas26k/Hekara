@@ -41,6 +41,12 @@ runContract("node + postgres", async () => {
         return { id: r!.id, agencyId, caregiverId: r!.caregiverId, patientId: null, label, startsAt: r!.startsAt,
           endsAt: r!.endsAt, status: r!.status as never, requirement: r!.requirement };
       },
+      async claim(agencyId, p) {
+        const [r] = await db.insert(schema.claims).values({
+          agencyId, amountCents: p.amountCents, status: p.status ?? "draft", visitId: p.visitId ?? null, createdAt: p.createdAt ?? new Date(),
+        }).returning();
+        return r!.id;
+      },
       async rawPatientName(id) {
         const [r] = await db.select({ n: schema.patients.name }).from(schema.patients).where(eq(schema.patients.id, id));
         return r!.n;

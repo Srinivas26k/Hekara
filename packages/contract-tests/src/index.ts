@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { Caregiver, Id, Visit } from "@hekara/core";
+import type { Caregiver, ClaimStatus, Id, Visit } from "@hekara/core";
 import type { Audit, Realtime, Repository } from "@hekara/ports";
 
 /** Everything an adapter must supply so the shared suite can run against it. */
@@ -12,6 +12,7 @@ export interface ContractHarness {
     agency(): Promise<Id>;
     caregiver(agencyId: Id, p?: Partial<Caregiver>): Promise<Caregiver>;
     visit(agencyId: Id, p: Pick<Visit, "startsAt" | "endsAt"> & Partial<Visit>): Promise<Visit>;
+    claim(agencyId: Id, p: { amountCents: number; status?: ClaimStatus; visitId?: Id | null; createdAt?: Date }): Promise<Id>;
     /** Raw stored value of a column, to prove PHI is not stored in plaintext. */
     rawPatientName(patientId: Id): Promise<string>;
     rawVisitLabel(visitId: Id): Promise<string>;
@@ -119,6 +120,51 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
         await h.repo.createPatient(a, { name: "New One" });
         expect(await h.repo.countPatientsSince(a, new Date(Date.now() - 60_000))).toBe(1);
         expect(await h.repo.countPatientsSince(a, new Date(Date.now() + 60_000))).toBe(0);
+      });
+    });
+
+    describe("patients", () => {
+      it("pages newest first, decrypts, scopes by agency and returns encrypted details on request", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const first = await h.repo.createPatient(a, { name: "Alma Baker" });
+        await new Promise((r) => setTimeout(r, 15));
+        const second = await h.repo.createPatient(a, { name: "Bruce Collins", dob: "1941-03-02", address: "12 Elm St", notes: "uses a walker" });
+        await h.repo.createPatient(b, { name: "Other Agency Patient" });
+        const page = await h.repo.patients(a, { limit: 1, offset: 0 });
+        expect(page.total).toBe(2);
+        expect(page.items.map((p) => p.name)).toEqual(["Bruce Collins"]);
+        expect((await h.repo.patients(a, { limit: 1, offset: 1 })).items.map((p) => p.id)).toEqual([first.id]);
+        expect(await h.repo.patient(a, second.id)).toMatchObject({ name: "Bruce Collins", dob: "1941-03-02", address: "12 Elm St", notes: "uses a walker" });
+        expect(await h.repo.patient(a, first.id)).toMatchObject({ dob: null, address: null, notes: null });
+        expect(await h.repo.patient(b, second.id)).toBeNull();
+      });
+    });
+
+    describe("claims", () => {
+      it("pages with visit details, filters by status, counts, and scopes by agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const v = await h.fixtures.visit(a, { startsAt: at(9), endsAt: at(10), label: "Helen Park" });
+        const d1 = await h.fixtures.claim(a, { amountCents: 1000, status: "draft", visitId: v.id, createdAt: new Date(Date.now() - 2000) });
+        const d2 = await h.fixtures.claim(a, { amountCents: 2000, status: "draft", createdAt: new Date(Date.now() - 1000) });
+        await h.fixtures.claim(a, { amountCents: 3000, status: "paid" });
+        await h.fixtures.claim(b, { amountCents: 9999, status: "draft" });
+        const drafts = await h.repo.claimsPage(a, { status: "draft", limit: 10, offset: 0 });
+        expect(drafts.total).toBe(2);
+        expect(drafts.items.map((c) => c.id)).toEqual([d2, d1]);
+        expect(drafts.items[1]).toMatchObject({ visitLabel: "Helen Park", amountCents: 1000 });
+        expect(drafts.items[0]).toMatchObject({ visitLabel: null, visitStart: null });
+        expect((await h.repo.claimsPage(a, { limit: 10, offset: 0 })).total).toBe(3);
+        expect(await h.repo.claimCounts(a)).toEqual({ draft: 2, submitted: 0, paid: 1, denied: 0 });
+        expect(await h.repo.claimCounts(b)).toEqual({ draft: 1, submitted: 0, paid: 0, denied: 0 });
+      });
+      it("updates status only within the agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const id = await h.fixtures.claim(a, { amountCents: 500, status: "draft" });
+        expect((await h.repo.setClaimStatus(a, id, "submitted")).status).toBe("submitted");
+        expect((await h.repo.claim(a, id))?.status).toBe("submitted");
+        expect(await h.repo.claim(b, id)).toBeNull();
+        await expect(h.repo.setClaimStatus(b, id, "paid")).rejects.toThrow();
+        expect((await h.repo.claim(a, id))?.status).toBe("submitted");
       });
     });
 

@@ -1,9 +1,9 @@
-import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lt, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as Schema from "@hekara/db/schema";
 import { agencies, caregivers, claims, patients, visits } from "@hekara/db/schema";
-import type { Caregiver, Id, StoredStatus, Visit } from "@hekara/core";
-import type { ClaimRow, Crypto, Patient, PatientInput, Repository, SearchHit, VisitQuery } from "@hekara/ports";
+import type { Caregiver, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
+import type { ClaimDetail, ClaimRow, Crypto, Page, Patient, PatientDetail, PatientInput, PatientSummary, Repository, SearchHit, VisitQuery } from "@hekara/ports";
 
 type Db = PostgresJsDatabase<typeof Schema>;
 
@@ -74,6 +74,57 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
 
     async claims(agencyId): Promise<ClaimRow[]> {
       return d.select().from(claims).where(eq(claims.agencyId, agencyId)).orderBy(asc(claims.createdAt));
+    },
+
+    async patients(agencyId, { limit, offset }) {
+      const where = eq(patients.agencyId, agencyId);
+      const [rows, [c]] = await Promise.all([
+        d.select().from(patients).where(where).orderBy(desc(patients.createdAt), desc(patients.id)).limit(limit).offset(offset),
+        d.select({ n: sql<number>`count(*)::int` }).from(patients).where(where),
+      ]);
+      const items: PatientSummary[] = await Promise.all(rows.map(async (r) => ({ id: r.id, name: await crypto.decrypt(agencyId, r.name), createdAt: r.createdAt })));
+      return { items, total: c?.n ?? 0 };
+    },
+
+    async patient(agencyId, id): Promise<PatientDetail | null> {
+      const [r] = await d.select().from(patients).where(and(eq(patients.agencyId, agencyId), eq(patients.id, id))).limit(1);
+      if (!r) return null;
+      const dec = (v: string | null) => (v ? crypto.decrypt(agencyId, v) : Promise.resolve(null));
+      const [name, dob, address, notes] = await Promise.all([crypto.decrypt(agencyId, r.name), dec(r.dob), dec(r.address), dec(r.notes)]);
+      return { id: r.id, name, dob, address, notes, createdAt: r.createdAt };
+    },
+
+    async claimsPage(agencyId, q: Page & { status?: ClaimStatus }) {
+      const where = and(eq(claims.agencyId, agencyId), q.status ? eq(claims.status, q.status) : undefined);
+      const [rows, [c]] = await Promise.all([
+        d.select({ c: claims, label: visits.label, start: visits.startsAt }).from(claims)
+          .leftJoin(visits, and(eq(visits.id, claims.visitId), eq(visits.agencyId, agencyId)))
+          .where(where).orderBy(desc(claims.createdAt), desc(claims.id)).limit(q.limit).offset(q.offset),
+        d.select({ n: sql<number>`count(*)::int` }).from(claims).where(where),
+      ]);
+      const items: ClaimDetail[] = await Promise.all(rows.map(async (r) => ({
+        ...r.c, visitLabel: r.label ? await crypto.decrypt(agencyId, r.label) : null, visitStart: r.start ?? null,
+      })));
+      return { items, total: c?.n ?? 0 };
+    },
+
+    async claimCounts(agencyId) {
+      const rows = await d.select({ status: claims.status, n: sql<number>`count(*)::int` }).from(claims)
+        .where(eq(claims.agencyId, agencyId)).groupBy(claims.status);
+      const out: Record<ClaimStatus, number> = { draft: 0, submitted: 0, paid: 0, denied: 0 };
+      for (const r of rows) out[r.status] = r.n;
+      return out;
+    },
+
+    async claim(agencyId, id): Promise<ClaimRow | null> {
+      const [r] = await d.select().from(claims).where(and(eq(claims.agencyId, agencyId), eq(claims.id, id))).limit(1);
+      return r ?? null;
+    },
+
+    async setClaimStatus(agencyId, id, status): Promise<ClaimRow> {
+      const [r] = await d.update(claims).set({ status }).where(and(eq(claims.agencyId, agencyId), eq(claims.id, id))).returning();
+      if (!r) throw new Error("Claim not found");
+      return r;
     },
 
     async search(agencyId, query, limit) {
