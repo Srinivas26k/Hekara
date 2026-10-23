@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "packageManager": "pnpm@12.4.2",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "pnpm --filter @hekara/web dev",
     "build": "pnpm --filter @hekara/web build",
@@ -14,5 +16,9 @@
     "db:generate": "pnpm --filter @hekara/db generate",
     "db:migrate": "pnpm --filter @hekara/db migrate",
     "db:seed": "pnpm --filter @hekara/db seed"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
   }
 }
