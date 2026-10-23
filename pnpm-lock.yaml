@@ -208,6 +208,10 @@ importers:
         version: 7.0.2
 
   packages/ports:
+    dependencies:
+      '@hekara/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       typescript:
         specifier: ^7.0.2
