@@ -116,7 +116,7 @@ Summary here; full detail in SECURITY.md.
 - TLS 1.3 only, HSTS preload; database connections `verify-full`.
 - Field-level AES-256-GCM for PHI.
 - Passkeys, Argon2id, `HttpOnly` `Secure` `SameSite=Strict` cookies, rotating short-lived sessions.
-- Strict CSP with nonces, Trusted Types, COOP/COEP, no external origins.
+- Strict same-origin CSP (no inline script), COOP/COEP, no external origins, `innerHTML` banned in client code.
 - CSRF protection, rate limits, body size limits, Valibot on every route.
 - Agency scoping enforced in the repository layer, not only in handlers.
 - Append-only hash-chained audit log.

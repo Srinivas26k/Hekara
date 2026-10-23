@@ -81,7 +81,8 @@ describe("security", () => {
   it("sets strict headers", async () => {
     const r = await app.request("/healthz");
     expect(r.headers.get("content-security-policy")).toContain("default-src 'self'");
-    expect(r.headers.get("content-security-policy")).toContain("require-trusted-types-for 'script'");
+    expect(r.headers.get("content-security-policy")).toContain("script-src 'self'");
+    expect(r.headers.get("content-security-policy")).not.toContain("unsafe-inline");
     expect(r.headers.get("x-content-type-options")).toBe("nosniff");
     expect(r.headers.get("strict-transport-security")).toContain("preload");
   });

@@ -11,7 +11,7 @@ Hekara stores PHI. Security is the top design priority. This document is the sin
 | Accounts | Phishing, credential stuffing | Passkeys first, Argon2id, rate limits, Turnstile, optional TOTP |
 | Sessions | Hijack, CSRF | `HttpOnly` `Secure` `SameSite=Strict` cookies, rotation, CSRF tokens |
 | Tenant isolation | One agency reading another's data | Scoped repository, physical shard isolation where available, tests |
-| Browser | XSS, clickjacking, third-party leakage | Nonce CSP, Trusted Types, frame denial, no third-party origins |
+| Browser | XSS, clickjacking, third-party leakage | Strict same-origin CSP with no inline script, a ban on `innerHTML` in client code, frame denial, no third-party origins |
 | Server | Injection, abuse, DoS | Valibot validation, parameterized queries, body limits, WAF, rate limits |
 | Insiders | Unauthorized access, tampering | Roles, least privilege, hash-chained audit log |
 | Supply chain | Malicious dependency | Minimal dependencies, frozen lockfile, audit in CI, SBOM, pinned digests |
@@ -43,7 +43,7 @@ Cryptography uses WebCrypto and audited libraries only. No custom primitives.
 
 | Control | Setting |
 |---|---|
-| CSP | `default-src 'self'; script-src 'self' 'nonce-…'; style-src 'self' 'nonce-…'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; require-trusted-types-for 'script'` |
+| CSP | `default-src 'self'; script-src 'self' 'nonce-…'; style-src 'self' 'nonce-…'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'` |
 | Other headers | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` denying unused features, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp` |
 | Cookies | `HttpOnly; Secure; SameSite=Strict; Path=/` with `__Host-` prefix |
 | CSRF | Double-submit token for unsafe methods plus `Origin` check |

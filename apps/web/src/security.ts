@@ -2,14 +2,13 @@ import type { MiddlewareHandler } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 import { HttpError } from "./errors";
 
-/** Strict, same-origin-only headers. No inline script or style, no third-party origins, Trusted Types enforced. */
+/** Strict, same-origin-only headers. No inline script, no third-party origins. Trusted Types is not enforced: Solid's compiled templates assign innerHTML, which it blocks (see ADR-014). */
 export const securityHeaders = (): MiddlewareHandler =>
   secureHeaders({
     contentSecurityPolicy: {
       defaultSrc: ["'self'"], scriptSrc: ["'self'"], styleSrc: ["'self'"], imgSrc: ["'self'", "data:"],
       fontSrc: ["'self'"], connectSrc: ["'self'"], frameAncestors: ["'none'"], baseUri: ["'none'"],
       formAction: ["'self'"], objectSrc: ["'none'"],
-      requireTrustedTypesFor: ["'script'"], trustedTypes: ["hekara"],
     },
     strictTransportSecurity: "max-age=63072000; includeSubDomains; preload",
     xContentTypeOptions: "nosniff",

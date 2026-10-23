@@ -23,7 +23,7 @@ Format: context, decision, consequences. Add a new record for any change that af
 ## ADR-004: SolidJS with Vite for the client
 **Status:** accepted
 **Context:** Low JS budget (under 100 KB gzipped), frequent fine-grained updates on a live timeline.
-**Decision:** SolidJS, Vite, Tailwind.
+**Decision:** SolidJS and Vite with a hand-written stylesheet ported from the design prototype (Tailwind was dropped: the design is a fixed set of tokens and one screen).
 **Consequences:** Small runtime and fast updates; smaller ecosystem than React.
 
 ## ADR-005: Two data backends behind one Repository port
@@ -79,3 +79,9 @@ Format: context, decision, consequences. Add a new record for any change that af
 **Context:** Suggestions must be explainable, cheap and free of PHI leakage.
 **Decision:** Start with the deterministic engine in `packages/core`. Add a model only behind a port, with redaction and a signed BAA.
 **Consequences:** Lower cost and risk now; model capability is optional later.
+
+## ADR-014: No Trusted Types enforcement
+**Status:** accepted
+**Context:** Solid compiles JSX to templates that are inserted with `innerHTML`. A CSP with `require-trusted-types-for 'script'` blocks that, and the page renders blank. A permissive `default` policy would satisfy the browser but would also allow any other `innerHTML` sink, so it adds little protection.
+**Decision:** Do not enforce Trusted Types. Keep `script-src 'self'` with no inline script, `object-src 'none'`, `base-uri 'none'`, same-origin `connect-src`, and a test that fails if client code uses `innerHTML`, `outerHTML` or `insertAdjacentHTML`.
+**Consequences:** Defense in depth against DOM XSS is weaker than with Trusted Types. The main control is that user data is only ever rendered through Solid's text bindings. Revisit if the client moves to a framework without `innerHTML` templates.
