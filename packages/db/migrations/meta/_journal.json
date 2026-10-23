@@ -22,6 +22,13 @@
       "when": 1792741054312,
       "tag": "0002_broken_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792759279415,
+      "tag": "0003_living_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

@@ -18,6 +18,9 @@ export const user = pgTable("user", {
   image: text("image"),
   role: roleEnum("role").notNull().default("scheduler"),
   agencyId: uuid("agency_id"),
+  /** Set for caregiver accounts: limits them to their own visits. */
+  caregiverId: uuid("caregiver_id"),
+  twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -57,6 +60,31 @@ export const verification = pgTable("verification", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const twoFactor = pgTable("two_factor", {
+  id: text("id").primaryKey(),
+  /** Encrypted by Better Auth. */
+  secret: text("secret").notNull(),
+  backupCodes: text("backup_codes").notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  verified: boolean("verified").notNull().default(true),
+  failedVerificationCount: integer("failed_verification_count").notNull().default(0),
+  lockedUntil: timestamp("locked_until"),
+}, (t) => [index("two_factor_user_idx").on(t.userId)]);
+
+export const passkey = pgTable("passkey", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  publicKey: text("public_key").notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  credentialID: text("credential_id").notNull().unique(),
+  counter: integer("counter").notNull(),
+  deviceType: text("device_type").notNull(),
+  backedUp: boolean("backed_up").notNull(),
+  transports: text("transports"),
+  aaguid: text("aaguid"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => [index("passkey_user_idx").on(t.userId)]);
 
 /* ---------- Domain ---------- */
 export const agencies = pgTable("agencies", {
