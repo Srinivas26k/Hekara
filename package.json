@@ -15,7 +15,7 @@
     "test": "pnpm -r test",
     "db:generate": "pnpm --filter @hekara/db generate",
     "db:migrate": "pnpm --filter @hekara/db migrate",
-    "db:seed": "pnpm --filter @hekara/db seed"
+    "db:seed": "pnpm --filter @hekara/web seed"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
