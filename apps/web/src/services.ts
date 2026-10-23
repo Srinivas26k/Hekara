@@ -1,9 +1,10 @@
 import {
-  bestCandidate, buildSuggestions, deriveStatus, isEligible, overtimeWatch, summarize,
-  type Caregiver, type DayScheduleDto, type OverviewDto, type PersonDto, type RowDto, type SearchHitDto,
+  bestCandidate, buildSuggestions, canTransitionClaim, deriveStatus, isEligible, nextClaimStatuses, overtimeWatch, summarize,
+  type Caregiver, type CaregiverCardDto, type ClaimDto, type ClaimListDto, type ClaimStatus, type DayScheduleDto,
+  type PatientDetailDto, type PatientListDto, type OverviewDto, type PersonDto, type RowDto, type SearchHitDto,
   type Suggestion, type SuggestionDto, type Visit, type VisitDto, type WeekScheduleDto, visitHours,
 } from "@hekara/core";
-import type { PatientInput, Ports } from "@hekara/ports";
+import type { ClaimDetail, PatientInput, Ports } from "@hekara/ports";
 import { HttpError } from "./errors";
 
 export interface Ctx { ports: Ports; agencyId: string; userId: string | null; now: Date }
@@ -13,13 +14,13 @@ const DAY = 86_400_000;
 /** Reads are audited once per user and view every 5 minutes, so polling and live refreshes don't flood the log. */
 const READ_AUDIT_WINDOW_MS = 5 * 60_000;
 const lastRead = new Map<string, number>();
-async function auditRead(ctx: Ctx, action: string, entityId: string) {
+async function auditRead(ctx: Ctx, action: string, entityId: string, entity = "schedule") {
   const key = `${ctx.agencyId}|${ctx.userId}|${action}|${entityId}`;
   const t = Date.now();
   if (t - (lastRead.get(key) ?? 0) < READ_AUDIT_WINDOW_MS) return;
   lastRead.set(key, t);
   if (lastRead.size > 5000) for (const [k, v] of lastRead) if (t - v > READ_AUDIT_WINDOW_MS) lastRead.delete(k);
-  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action, entity: "schedule", entityId });
+  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action, entity, entityId });
 }
 
 /** Local-day bounds. The server timezone (TZ) defines the agency day until per-agency timezones exist. */
@@ -203,4 +204,63 @@ export async function createPatient(ctx: Ctx, input: PatientInput) {
   await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action: "patient.create", entity: "patient", entityId: p.id });
   await ctx.ports.realtime.publish({ type: "patient.created", agencyId: ctx.agencyId, entityId: p.id });
   return { id: p.id, name: p.name };
+}
+
+
+const clampPage = (limit?: number, offset?: number) => ({ limit: Math.min(Math.max(limit ?? 25, 1), 100), offset: Math.max(offset ?? 0, 0) });
+
+export async function patientsPage(ctx: Ctx, limit?: number, offset?: number): Promise<PatientListDto> {
+  const page = clampPage(limit, offset);
+  const r = await ctx.ports.repo.patients(ctx.agencyId, page);
+  await auditRead(ctx, "patient.list", `offset:${page.offset}`, "patient");
+  return { items: r.items.map((p) => ({ id: p.id, name: p.name, createdAt: p.createdAt.toISOString() })), total: r.total, ...page };
+}
+
+export async function patientDetail(ctx: Ctx, id: string): Promise<PatientDetailDto> {
+  const p = await ctx.ports.repo.patient(ctx.agencyId, id);
+  if (!p) throw new HttpError(404, "not_found", "Not found");
+  await auditRead(ctx, "patient.read", id, "patient"); // a full record was opened
+  return { id: p.id, name: p.name, dob: p.dob, address: p.address, notes: p.notes, createdAt: p.createdAt.toISOString() };
+}
+
+export async function caregiverCards(ctx: Ctx): Promise<CaregiverCardDto[]> {
+  const { from, to } = dayRange(ctx.now);
+  const [people, visits] = await Promise.all([ctx.ports.repo.caregivers(ctx.agencyId), ctx.ports.repo.visits(ctx.agencyId, { from, to })]);
+  await auditRead(ctx, "caregiver.list", ymd(from), "caregiver");
+  return people.map((c) => {
+    const mine = visits.filter((v) => v.caregiverId === c.id);
+    const next = mine.filter((v) => v.startsAt > ctx.now).sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+    return {
+      id: c.id, name: c.name, skills: c.skills, weeklyHours: c.weeklyHours, weeklyLimit: c.weeklyLimit, flagged: c.flagged,
+      todayVisits: mine.length, todayHours: Math.round(mine.reduce((n, v) => n + visitHours(v), 0) * 10) / 10,
+      nextVisit: next ? { label: next.label, start: next.startsAt.toISOString() } : null,
+    };
+  });
+}
+
+const claimDto = (c: ClaimDetail): ClaimDto => ({
+  id: c.id, amountCents: c.amountCents, status: c.status, createdAt: c.createdAt.toISOString(),
+  visitLabel: c.visitLabel, visitStart: c.visitStart?.toISOString() ?? null, next: [...nextClaimStatuses(c.status)],
+});
+
+export async function claimsList(ctx: Ctx, q: { status?: ClaimStatus; limit?: number; offset?: number }): Promise<ClaimListDto> {
+  const page = clampPage(q.limit, q.offset);
+  const [r, counts] = await Promise.all([
+    ctx.ports.repo.claimsPage(ctx.agencyId, { ...page, status: q.status }),
+    ctx.ports.repo.claimCounts(ctx.agencyId),
+  ]);
+  await auditRead(ctx, "claim.list", `${q.status ?? "all"}:${page.offset}`, "claim");
+  return { items: r.items.map(claimDto), total: r.total, counts, ...page };
+}
+
+export async function changeClaimStatus(ctx: Ctx, id: string, to: ClaimStatus): Promise<{ id: string; status: ClaimStatus }> {
+  const updated = await ctx.ports.repo.transaction(ctx.agencyId, async (tx) => {
+    const c = await tx.claim(ctx.agencyId, id);
+    if (!c) throw new HttpError(404, "not_found", "Not found");
+    if (!canTransitionClaim(c.status, to)) throw new HttpError(409, "invalid_transition", "That change isn't allowed from the claim's current status");
+    return { from: c.status, row: await tx.setClaimStatus(ctx.agencyId, id, to) };
+  });
+  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action: "claim.status", entity: "claim", entityId: id, meta: { from: updated.from, to } });
+  await ctx.ports.realtime.publish({ type: "claim.updated", agencyId: ctx.agencyId, entityId: id });
+  return { id, status: updated.row.status };
 }

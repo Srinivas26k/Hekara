@@ -3,7 +3,7 @@ import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
 import * as v from "valibot";
 import {
-  ApplyInputSchema, AuditQuerySchema, FillInputSchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
+  ApplyInputSchema, AuditQuerySchema, ClaimStatusInputSchema, ClaimsQuerySchema, FillInputSchema, PageQuerySchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
   type AuditDto, type AuditVerifyDto, type MeDto, type Role,
 } from "@hekara/core";
 import type { Ports } from "@hekara/ports";
@@ -128,6 +128,23 @@ export function createApp(deps: AppDeps): Hono<Env> {
   api.post("/patients", allow(...STAFF), async (c) => {
     const input = parse(PatientInputSchema, await c.req.json().catch(() => null));
     return c.json(await svc.createPatient(ctx(c), input), 201);
+  });
+
+  api.get("/patients", allow(...STAFF), async (c) => {
+    const q = parse(PageQuerySchema, c.req.query());
+    return c.json(await svc.patientsPage(ctx(c), q.limit ? Number(q.limit) : undefined, q.offset ? Number(q.offset) : undefined));
+  });
+  api.get("/patients/:id", allow(...STAFF), async (c) => c.json(await svc.patientDetail(ctx(c), parse(idParam, c.req.param("id")))));
+  api.get("/caregivers", allow(...STAFF), async (c) => c.json(await svc.caregiverCards(ctx(c, atOf(c)))));
+
+  const BILLING: Role[] = ["admin", "billing"];
+  api.get("/claims", allow(...BILLING), async (c) => {
+    const q = parse(ClaimsQuerySchema, c.req.query());
+    return c.json(await svc.claimsList(ctx(c), { status: q.status, limit: q.limit ? Number(q.limit) : undefined, offset: q.offset ? Number(q.offset) : undefined }));
+  });
+  api.post("/claims/:id/status", allow(...BILLING), async (c) => {
+    const body = parse(ClaimStatusInputSchema, await c.req.json().catch(() => null));
+    return c.json(await svc.changeClaimStatus(ctx(c), parse(idParam, c.req.param("id")), body.status));
   });
 
   api.get("/admin/users", allow("admin"), async (c) => {
