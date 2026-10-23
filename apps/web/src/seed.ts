@@ -1,12 +1,14 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { randomBytes } from "node:crypto";
+import { argon2idHasher } from "@hekara/adapters-node";
 import { createCrypto } from "@hekara/crypto";
 import * as s from "@hekara/db/schema";
 import { loadConfig } from "./config";
 
 /**
- * Demo agency matching the design reference: 62 caregivers, 142 visits today, 14 draft claims, 10 new patients.
+ * Demo agency and one user per role, matching the design reference: 62 caregivers, 142 visits today, 14 draft claims, 10 new patients.
  * Deterministic. Use --reset to rebuild. Never run against production.
  */
 const NAME = "Juniper Home Health";
@@ -52,6 +54,7 @@ async function main() {
   const [existing] = await db.select().from(s.agencies).where(eq(s.agencies.name, NAME));
   if (existing) {
     if (!process.argv.includes("--reset")) { console.log(`${NAME} already exists (${existing.id}). Use --reset to rebuild.`); return; }
+    await db.delete(s.user).where(eq(s.user.agencyId, existing.id)); // cascades to sessions, accounts, passkeys
     await db.delete(s.auditLog).where(eq(s.auditLog.agencyId, existing.id));
     await db.delete(s.agencies).where(eq(s.agencies.id, existing.id));
   }
@@ -116,7 +119,24 @@ async function main() {
     createdAt: ago(i % 20),
   })));
 
+  // Demo accounts, one per role. The password comes from DEMO_PASSWORD or is generated and printed once.
+  const password = process.env.DEMO_PASSWORD ?? randomBytes(15).toString("base64url");
+  const hash = await argon2idHasher().hash(password);
+  const demo = [
+    { name: "Dana Admin", email: "admin@juniper.test", role: "admin" as const, caregiverId: null },
+    { name: "Sam Scheduler", email: "scheduler@juniper.test", role: "scheduler" as const, caregiverId: null },
+    { name: "Maria Lopez", email: "caregiver@juniper.test", role: "caregiver" as const, caregiverId: cgId.get("Maria Lopez")! },
+    { name: "Bea Billing", email: "billing@juniper.test", role: "billing" as const, caregiverId: null },
+  ];
+  for (const u of demo) {
+    const id = globalThis.crypto.randomUUID();
+    await db.insert(s.user).values({ id, name: u.name, email: u.email, emailVerified: true, role: u.role, agencyId: A, caregiverId: u.caregiverId });
+    await db.insert(s.account).values({ id: globalThis.crypto.randomUUID(), accountId: id, providerId: "credential", userId: id, password: hash });
+  }
+
   console.log(`Seeded ${NAME}: agency ${A}`);
+  console.log(`  demo sign-ins (${password}):`);
+  for (const u of demo) console.log(`    ${u.role.padEnd(10)} ${u.email}`);
   console.log(`  ${people.length} caregivers, ${visitRows.length} visits, ${patRows.length} patients, ${statuses.length} claims`);
 }
 
