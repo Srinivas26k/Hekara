@@ -3,8 +3,11 @@ import type { SearchHitDto } from "@hekara/core";
 import { api } from "../api";
 import { Icon } from "../icons";
 import { longDate } from "../lib";
+import { router } from "../router";
 import { store } from "../store";
 import { Avatar } from "./Avatar";
+
+const TITLES = { schedule: "Schedule", patients: "Patients", caregivers: "Caregivers", billing: "Billing & Claims" } as const;
 
 function Search() {
   let input!: HTMLInputElement;
@@ -86,7 +89,7 @@ export function Topbar(props: { onAddPatient: () => void; onAccount: () => void 
         <span class="org-badge">{abbr()}</span>
         <div>
           <div class="org-name">{name() || "Hekara"}</div>
-          <div class="org-sub">Schedule · {store.day() ? longDate(store.day()!.date) : store.overview() ? longDate(store.overview()!.date) : ""}</div>
+          <div class="org-sub">{TITLES[router.route()]}{router.route() === "schedule" ? ` · ${store.day() ? longDate(store.day()!.date) : store.overview() ? longDate(store.overview()!.date) : ""}` : ""}</div>
         </div>
       </div>
       <Show when={store.isStaff()} fallback={<div class="grow" />}><Search /></Show>

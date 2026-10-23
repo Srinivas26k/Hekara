@@ -75,3 +75,18 @@ export function copilotCopy(count: number, hoursSaved: number, filled: number): 
   if (filled > 0) parts.push(`${parts.length ? "fill" : "Fill"} ${plural(filled, "open shift")}`);
   return { title: `${plural(count, "suggestion")} ready`, body: `${parts.join(" and ")}.` };
 }
+
+export const money = (cents: number): string =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+
+export const shortDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+export const dayTime = (iso: string): string =>
+  new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+/** "1941-03-02" to "Mar 2, 1941" without time-zone drift. */
+export function plainDate(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number) as [number, number, number];
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}

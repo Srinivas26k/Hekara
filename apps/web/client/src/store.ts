@@ -20,6 +20,7 @@ const EVENT_TEXT: Record<string, string> = {
   "visit.updated": "A visit changed",
   "suggestions.changed": "Copilot suggestions updated",
   "patient.created": "A patient was added",
+  "claim.updated": "A claim changed",
 };
 
 function createStore() {
@@ -38,6 +39,8 @@ function createStore() {
   const [online, setOnline] = createSignal(true);
   const [me, setMe] = createSignal<MeDto | null>(null);
   const [auth, setAuth] = createSignal<"loading" | "out" | "in">("loading");
+  /** Bumps whenever the server reports a change, so pages can refetch what they show. */
+  const [version, setVersion] = createSignal(0);
   let seq = 0;
   let events: EventSource | undefined;
 
@@ -87,6 +90,7 @@ function createStore() {
     es.onopen = () => void refresh();
     for (const type of Object.keys(EVENT_TEXT)) {
       es.addEventListener(type, () => {
+        setVersion((v) => v + 1);
         setActivity((a) => [{ id: ++seq, text: EVENT_TEXT[type]!, at: new Date() }, ...a].slice(0, 20));
         setUnread((n) => n + 1);
         scheduleRefresh();
@@ -117,7 +121,7 @@ function createStore() {
     setBusy((s) => { const n = new Set(s); on ? n.add(id) : n.delete(id); return n; });
 
   return {
-    me, auth, isStaff, loadMe, signOut,
+    me, auth, version, isStaff, loadMe, signOut,
     now, overview, day, week, everyone, view, filter, suggestions, toasts, activity, unread, busy, online,
     toast, refresh,
     pinned,

@@ -1,5 +1,5 @@
 import type {
-  AuditDto, AuditVerifyDto, MeDto, UserDto, Role,
+  AuditDto, AuditVerifyDto, CaregiverCardDto, ClaimListDto, ClaimStatus, MeDto, PatientDetailDto, PatientListDto, UserDto, Role,
   DayScheduleDto, OverviewDto, SearchHitDto, SuggestionDto, VisitDto, WeekScheduleDto, PersonDto,
 } from "@hekara/core";
 
@@ -32,6 +32,12 @@ const post = <T>(path: string, body?: unknown) => call<T>(`${path}${pinned ? `?a
 
 export const api = {
   me: () => call<MeDto>("/me"),
+  patients: (offset: number, limit: number) => call<PatientListDto>(`/patients${qs({ offset: String(offset), limit: String(limit) })}`),
+  patient: (id: string) => call<PatientDetailDto>(`/patients/${id}`),
+  caregivers: (at?: string) => call<CaregiverCardDto[]>(`/caregivers${qs({ at })}`),
+  claims: (status: ClaimStatus | undefined, offset: number, limit: number) =>
+    call<ClaimListDto>(`/claims${qs({ status, offset: String(offset), limit: String(limit) })}`),
+  setClaimStatus: (id: string, status: ClaimStatus) => post<{ id: string; status: ClaimStatus }>(`/claims/${id}/status`, { status }),
   audit: (before?: number) => call<AuditDto[]>(`/admin/audit${qs({ limit: "30", before: before ? String(before) : undefined })}`),
   verifyAudit: () => post<AuditVerifyDto>("/admin/audit/verify"),
   users: () => call<UserDto[]>("/admin/users"),
