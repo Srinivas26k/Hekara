@@ -175,9 +175,15 @@ importers:
 
   packages/adapters-node:
     dependencies:
+      '@hekara/contract-tests':
+        specifier: workspace:*
+        version: link:../contract-tests
       '@hekara/core':
         specifier: workspace:*
         version: link:../core
+      '@hekara/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@hekara/db':
         specifier: workspace:*
         version: link:../db
@@ -194,6 +200,22 @@ importers:
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@26.6.5)(tsx@4.23.15)
+
+  packages/contract-tests:
+    dependencies:
+      '@hekara/core':
+        specifier: workspace:*
+        version: link:../core
+      '@hekara/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
