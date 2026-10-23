@@ -85,3 +85,15 @@ Format: context, decision, consequences. Add a new record for any change that af
 **Context:** Solid compiles JSX to templates that are inserted with `innerHTML`. A CSP with `require-trusted-types-for 'script'` blocks that, and the page renders blank. A permissive `default` policy would satisfy the browser but would also allow any other `innerHTML` sink, so it adds little protection.
 **Decision:** Do not enforce Trusted Types. Keep `script-src 'self'` with no inline script, `object-src 'none'`, `base-uri 'none'`, same-origin `connect-src`, and a test that fails if client code uses `innerHTML`, `outerHTML` or `insertAdjacentHTML`.
 **Consequences:** Defense in depth against DOM XSS is weaker than with Trusted Types. The main control is that user data is only ever rendered through Solid's text bindings. Revisit if the client moves to a framework without `innerHTML` templates.
+
+## ADR-015: CSRF defence by Origin check and SameSite, without tokens
+**Status:** accepted
+**Context:** The API is JSON only, cookies are `SameSite=Strict` and `HttpOnly`, and every client is our own SPA on the same origin.
+**Decision:** Every state-changing request must carry an `Origin` header equal to the app origin, and `Strict` cookies are never sent cross-site. No CSRF token.
+**Consequences:** Simpler client and no token storage. Relies on browsers sending `Origin` on writes, which all current browsers do; requests without it are rejected. Revisit if the API ever serves third-party sites or non-browser clients with cookies.
+
+## ADR-016: Invite-only accounts and an injected password hasher
+**Status:** accepted
+**Context:** PHI software should not offer open signup, and `node:crypto` provides Argon2id on Node but not on other runtimes.
+**Decision:** Self-signup is disabled; admins create accounts and share one-time links. Password hashing is a `PasswordHasher` port: Node uses Argon2id from `node:crypto`; other platforms inject their own (for example WASM) and read the same stored format.
+**Consequences:** Onboarding needs an admin until an email service exists. Hashes carry their parameters, so they stay valid across platforms and can be strengthened later.

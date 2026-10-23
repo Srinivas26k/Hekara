@@ -88,7 +88,11 @@ REST over HTTPS, typed through Hono RPC. JSON only. All routes under `/api`, all
 | GET `/api/search?q=` | Search patients, caregivers, claims | by role |
 | POST `/api/patients` | Create patient | scheduler, admin |
 | GET `/api/events` | Realtime stream (SSE or WebSocket upgrade) | authenticated |
-| GET/POST `/api/claims` | Billing | billing, admin |
+| GET `/api/me` | Current user, role and agency | any signed-in user |
+| `/api/auth/*` | Sign-in, sign-out, passkeys, two-factor, password reset (Better Auth) | public or session, rate limited |
+| GET/POST `/api/admin/users` | List users, create an invite | admin |
+| GET `/api/admin/audit`, POST `/api/admin/audit/verify` | Browse the activity log, check chain integrity | admin |
+| GET/POST `/api/claims` | Billing | billing, admin (not built yet) |
 | POST `/api/admin/export` and `/api/admin/import` | Portable agency export/import | admin |
 
 Error shape: `{ "error": { "code": "string", "message": "generic text" } }`. No internals.
@@ -117,7 +121,7 @@ Summary here; full detail in SECURITY.md.
 - Field-level AES-256-GCM for PHI.
 - Passkeys, Argon2id, `HttpOnly` `Secure` `SameSite=Strict` cookies, rotating short-lived sessions.
 - Strict same-origin CSP (no inline script), COOP/COEP, no external origins, `innerHTML` banned in client code.
-- CSRF protection, rate limits, body size limits, Valibot on every route.
+- Same-origin enforcement on writes (exact `Origin` plus `SameSite=Strict`), per-address and per-account rate limits, body size limits, Valibot on every route, role check on every route.
 - Agency scoping enforced in the repository layer, not only in handlers.
 - Append-only hash-chained audit log.
 

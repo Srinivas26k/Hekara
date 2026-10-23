@@ -25,16 +25,24 @@ TypeScript everywhere. Hono (API), SolidJS + Vite (UI), Drizzle (data), Valibot 
 
 ## Current status
 
-Scaffolded: pnpm monorepo, Postgres 17 via Docker (`docker-compose.yml`), Drizzle schema and migration `0000` in `packages/db`, static UI prototype in `web/`. Everything else is described in the docs and tracked in [docs/ROADMAP.md](docs/ROADMAP.md).
+Working locally on the Node and Postgres adapter: live schedule (day and week), open-shift fill with undo, overtime watch, AI Copilot suggestions, search, add a patient, sign-in with roles, invites, passkeys and authenticator codes, admin activity log. PHI is encrypted per field. The Cloudflare adapter, export/import tooling and the billing, patients and caregivers pages are not built yet; see [docs/ROADMAP.md](docs/ROADMAP.md).
 
-## Quick start (current scaffold)
+## Quick start
 
 ```sh
 cp .env.example .env
+pnpm keygen                              # paste the two DATA_KEYS lines it prints into .env
+openssl rand -base64 48                  # use the output as AUTH_SECRET in .env
 docker compose up -d db
 pnpm install
 pnpm db:migrate
+DEMO_PASSWORD='choose-a-long-password' pnpm db:seed
+pnpm build && pnpm start                 # http://localhost:3000
 ```
+
+The seed creates one account per role (`admin@`, `scheduler@`, `caregiver@`, `billing@juniper.test`) with that password. In development, add `?at=10:45` to the URL to freeze the clock for design comparison.
+
+Run all checks with `pnpm typecheck` and `pnpm test` (tests use the database from `docker compose`).
 
 ## License
 

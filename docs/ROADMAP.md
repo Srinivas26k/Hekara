@@ -24,7 +24,9 @@ Build order. Each milestone ends with typecheck, lint, tests and docs updated.
 - SolidJS client replacing the prototype; same-origin fonts and avatars; bundle budget in CI.
 - Derived statuses and live "now" marker driven by the `Clock` port.
 
-## M3: Security baseline
+## M3: Security baseline (mostly done)
+
+Done: Better Auth with roles, invite-only accounts, Argon2id, TOTP and passkey endpoints, rolling and absolute session limits, per-address and per-account limits, strict headers, field encryption, hash-chained audit with viewer and daily check, role and isolation tests. Remaining: manual passkey test, plaintext-PHI scan of storage and logs as an automated test, shared-store rate limiting for multi-instance setups.
 
 - Better Auth with passkeys, roles and agency scoping at the repository layer.
 - Strict CSP, headers, CSRF, rate limits, Valibot on every route.
