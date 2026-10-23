@@ -69,7 +69,7 @@ export interface Audit {
   verify(agencyId: Id): Promise<number | null>;
 }
 
-export interface AppEvent { type: "visit.updated" | "suggestions.changed" | "patient.created"; agencyId: Id; entityId?: Id }
+export interface AppEvent { type: "visit.updated" | "suggestions.changed" | "patient.created" | "claim.updated"; agencyId: Id; entityId?: Id }
 export interface Realtime {
   publish(event: AppEvent): Promise<void>;
   /** Stream events for one agency. Returns an unsubscribe function. */

@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import type { VisitStatus } from "./types";
+import type { ClaimStatus } from "./scheduling";
 
 /** Request schemas, shared by server (validation) and client (types). */
 const text = (max: number) => v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(max));
@@ -32,6 +33,14 @@ export const InviteInputSchema = v.strictObject({
   role: v.picklist(ROLES),
   caregiverId: v.optional(id),
 });
+
+const digits = (max: number) => v.pipe(v.string(), v.regex(new RegExp(`^\\d{1,${max}}$`)));
+export const PageQuerySchema = v.strictObject({ limit: v.optional(digits(3)), offset: v.optional(digits(7)) });
+export const CLAIM_STATUSES = ["draft", "submitted", "paid", "denied"] as const;
+export const ClaimsQuerySchema = v.strictObject({
+  limit: v.optional(digits(3)), offset: v.optional(digits(7)), status: v.optional(v.picklist(CLAIM_STATUSES)),
+});
+export const ClaimStatusInputSchema = v.strictObject({ status: v.picklist(CLAIM_STATUSES) });
 
 export const SearchQuerySchema = v.strictObject({ q: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(80)) });
 
@@ -73,3 +82,15 @@ export const AuditQuerySchema = v.strictObject({
   limit: v.optional(v.pipe(v.string(), v.regex(/^\d{1,3}$/))),
   before: v.optional(v.pipe(v.string(), v.regex(/^\d{1,10}$/))),
 });
+
+export interface PatientListDto { items: { id: string; name: string; createdAt: string }[]; total: number; limit: number; offset: number }
+export interface PatientDetailDto { id: string; name: string; dob: string | null; address: string | null; notes: string | null; createdAt: string }
+export interface CaregiverCardDto {
+  id: string; name: string; skills: string[]; weeklyHours: number; weeklyLimit: number; flagged: boolean;
+  todayVisits: number; todayHours: number; nextVisit: { label: string; start: string } | null;
+}
+export interface ClaimDto {
+  id: string; amountCents: number; status: ClaimStatus; createdAt: string;
+  visitLabel: string | null; visitStart: string | null; next: ClaimStatus[];
+}
+export interface ClaimListDto { items: ClaimDto[]; total: number; counts: Record<ClaimStatus, number>; limit: number; offset: number }
