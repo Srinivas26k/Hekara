@@ -8,6 +8,13 @@
       "when": 1792739279335,
       "tag": "0000_abandoned_sue_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792740587329,
+      "tag": "0001_furry_talon",
+      "breakpoints": true
     }
   ]
 }
