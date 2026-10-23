@@ -182,6 +182,22 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@26.6.5)(tsx@4.23.15)
 
+  packages/crypto:
+    dependencies:
+      '@hekara/core':
+        specifier: workspace:*
+        version: link:../core
+      '@hekara/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@26.6.5)(tsx@4.23.15)
+
   packages/db:
     dependencies:
       dotenv:
