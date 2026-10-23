@@ -6,7 +6,7 @@ import { createPgAudit, createPgRealtime, createPgRepository, fsBlob, intervalSc
 import { createCrypto, generateMasterKey, masterKeyProvider } from "@hekara/crypto";
 import * as s from "@hekara/db/schema";
 import type { Ports } from "@hekara/ports";
-import { createApp } from "./app";
+import { createApp, type Identity } from "./app";
 import { HttpError } from "./errors";
 
 const url = process.env.DATABASE_URL ?? "postgres://hekara:hekara@localhost:5442/hekara";
@@ -25,14 +25,16 @@ const at = (h: number) => new Date(midnight.getTime() + h * 3_600_000);
 let A = "", B = "";
 let me = "";
 const ids: Record<string, string> = {};
+const who = (agencyId: string, role: Identity["role"] = "admin", caregiverId: string | null = null): Identity =>
+  ({ agencyId, userId: "tester", role, caregiverId, name: "Tester", email: "t@example.test", twoFactorEnabled: false });
 const appFor = (agency: () => string) => createApp({
-  ports, identify: async () => ({ agencyId: agency(), userId: "tester" }), clientKey: () => "test",
+  ports, identify: async () => who(agency()), clientKey: () => "test",
   allowedOrigin: ORIGIN, allowTimeTravel: true,
 });
 const app = appFor(() => me);
 
 const post = (path: string, body?: unknown, origin: string | null = ORIGIN) =>
-  app.request(`/api${path}`, {
+  app.request(`/api${path}${path.includes("?") ? "&" : "?"}at=10:00`, { // pinned clock keeps the suggestions deterministic
     method: "POST", body: body === undefined ? undefined : JSON.stringify(body),
     headers: { "content-type": "application/json", ...(origin ? { origin } : {}) },
   });
@@ -102,7 +104,7 @@ describe("security", () => {
     expect((await post("/visits/not-a-uuid/fill", {})).status).toBe(400);
   });
   it("ignores time travel when disabled", async () => {
-    const strict = createApp({ ports, identify: async () => ({ agencyId: A, userId: null }), clientKey: () => "t", allowedOrigin: ORIGIN });
+    const strict = createApp({ ports, identify: async () => who(A), clientKey: () => "t", allowedOrigin: ORIGIN });
     const body = await (await strict.request("/api/overview?at=10:00")).json() as { now: string };
     expect(Math.abs(new Date(body.now).getTime() - Date.now())).toBeLessThan(5000);
   });

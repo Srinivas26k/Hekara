@@ -8,18 +8,17 @@ import { Hono } from "hono";
 import { createCrypto } from "@hekara/crypto";
 import * as schema from "@hekara/db/schema";
 import {
-  createPgAudit, createPgRealtime, createPgRepository, fsBlob, intervalScheduler, memoryQueue, envSecrets, systemClock,
+  createPgAudit, createPgRealtime, createPgRepository, fsBlob, intervalScheduler, memoryQueue, envSecrets, systemClock, argon2idHasher,
 } from "@hekara/adapters-node";
 import type { Ports } from "@hekara/ports";
 import { createApp } from "../app";
 import { securityHeaders } from "../security";
 import { loadConfig } from "../config";
-import { HttpError } from "../errors";
+import { createAuth } from "../auth";
+import { identifyFromSession } from "../identity";
+import { createInvites } from "../invites";
 
 const cfg = loadConfig();
-const production = process.env.NODE_ENV === "production";
-// Authentication arrives in a later milestone; refuse to run unauthenticated in production.
-if (production) throw new Error("Authentication is not implemented yet: refusing to start with NODE_ENV=production");
 
 const sql = postgres(cfg.databaseUrl, { max: 5, idle_timeout: 20 });
 const db = drizzle(sql, { schema });
@@ -30,23 +29,15 @@ const ports: Ports = {
   queue: memoryQueue(), blob: fsBlob(process.env.BLOB_DIR ?? "./.data/blobs"), scheduler: intervalScheduler(),
 };
 
-// Development identity: the first agency (or DEV_AGENCY_ID). Replaced by real sessions with auth.
-let devAgency = process.env.DEV_AGENCY_ID ?? "";
-async function identify() {
-  if (!devAgency) {
-    const [a] = await db.select({ id: schema.agencies.id }).from(schema.agencies).limit(1);
-    if (!a) throw new HttpError(401, "no_agency", "No agency found; run pnpm db:seed");
-    devAgency = a.id;
-  }
-  return { agencyId: devAgency, userId: "dev" };
-}
-
-const origin = process.env.APP_URL ?? `http://localhost:${cfg.port}`;
+const { auth, links } = createAuth({ db, hasher: argon2idHasher(), audit: ports.audit, appUrl: cfg.appUrl, secret: cfg.authSecret });
 const api = createApp({
-  ports, identify,
+  ports,
+  identify: identifyFromSession(auth),
+  authHandler: (req) => auth.handler(req),
+  invites: createInvites({ auth, links, db, appUrl: cfg.appUrl }),
   clientKey: (c) => getConnInfo(c).remote.address ?? "unknown",
-  allowedOrigin: new URL(origin).origin,
-  allowTimeTravel: true,
+  allowedOrigin: new URL(cfg.appUrl).origin,
+  allowTimeTravel: !cfg.production, // dev only: ?at=HH:MM pins the clock
 });
 
 const root = new Hono();

@@ -3,6 +3,9 @@ import { generateMasterKey, masterKeyProvider } from "@hekara/crypto";
 export interface Config {
   databaseUrl: string;
   port: number;
+  appUrl: string;
+  authSecret: string;
+  production: boolean;
   keys: ReturnType<typeof masterKeyProvider>;
 }
 
@@ -23,9 +26,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     if (!v) throw new Error(`${k} is not set (generate a key with: pnpm --filter @hekara/web keygen)`);
     return v;
   };
+  const production = env.NODE_ENV === "production";
+  const port = Number(env.PORT ?? 3000);
+  const appUrl = env.APP_URL ?? `http://localhost:${port}`;
+  const authSecret = need("AUTH_SECRET");
+  if (authSecret.length < 32 || /change-me/i.test(authSecret)) {
+    throw new Error("AUTH_SECRET must be at least 32 random characters (generate one with: openssl rand -base64 48)");
+  }
+  if (production && new URL(appUrl).protocol !== "https:") throw new Error("APP_URL must be https in production");
   return {
+    production, appUrl, authSecret,
     databaseUrl: need("DATABASE_URL"),
-    port: Number(env.PORT ?? 3000),
+    port,
     keys: parseKeys(need("DATA_KEYS"), need("DATA_KEY_ID")),
   };
 }
