@@ -88,3 +88,14 @@ export const summarize = (s: readonly Suggestion[]) => ({
   hoursSaved: Math.round(s.reduce((n, x) => n + x.hoursSaved, 0) * 10) / 10,
   shiftsFilled: s.filter((x) => x.kind === "fill").length,
 });
+
+export type ClaimStatus = "draft" | "submitted" | "paid" | "denied";
+
+const CLAIM_FLOW: Record<ClaimStatus, readonly ClaimStatus[]> = {
+  draft: ["submitted"],
+  submitted: ["paid", "denied"],
+  denied: ["draft"], // fix and resubmit
+  paid: [],
+};
+export const canTransitionClaim = (from: ClaimStatus, to: ClaimStatus): boolean => CLAIM_FLOW[from].includes(to);
+export const nextClaimStatuses = (from: ClaimStatus): readonly ClaimStatus[] => CLAIM_FLOW[from];
