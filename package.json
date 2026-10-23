@@ -8,14 +8,16 @@
   },
   "scripts": {
     "dev": "pnpm --filter @hekara/web dev",
-    "build": "pnpm --filter @hekara/web build",
+    "build": "pnpm --filter @hekara/web build:client",
     "start": "pnpm --filter @hekara/web start",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "db:generate": "pnpm --filter @hekara/db generate",
     "db:migrate": "pnpm --filter @hekara/db migrate",
-    "db:seed": "pnpm --filter @hekara/web seed"
+    "db:seed": "pnpm --filter @hekara/web seed",
+    "dev:client": "pnpm --filter @hekara/web dev:client",
+    "keygen": "pnpm --silent --filter @hekara/web keygen"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
