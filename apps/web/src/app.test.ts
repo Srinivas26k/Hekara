@@ -110,6 +110,17 @@ describe("security", () => {
   });
 });
 
+describe("audit noise", () => {
+  it("records repeated schedule reads once, not on every refresh", async () => {
+    const count = async () => (await db.select().from(s.auditLog).where(eq(s.auditLog.agencyId, A))).filter((r) => r.action === "schedule.read").length;
+    const before = await count();
+    for (let i = 0; i < 4; i++) await get("/schedule?date=2031-01-15");
+    expect(await count()).toBe(before + 1);
+    await get("/schedule?date=2031-01-16");
+    expect(await count()).toBe(before + 2); // a different view is a new read
+  });
+});
+
 describe("overview", () => {
   it("computes badges, open shifts, overtime and live on-shift from the data", async () => {
     const o = await (await get("/overview?at=12:00")).json() as any;

@@ -10,6 +10,18 @@ export interface Ctx { ports: Ports; agencyId: string; userId: string | null; no
 
 const DAY = 86_400_000;
 
+/** Reads are audited once per user and view every 5 minutes, so polling and live refreshes don't flood the log. */
+const READ_AUDIT_WINDOW_MS = 5 * 60_000;
+const lastRead = new Map<string, number>();
+async function auditRead(ctx: Ctx, action: string, entityId: string) {
+  const key = `${ctx.agencyId}|${ctx.userId}|${action}|${entityId}`;
+  const t = Date.now();
+  if (t - (lastRead.get(key) ?? 0) < READ_AUDIT_WINDOW_MS) return;
+  lastRead.set(key, t);
+  if (lastRead.size > 5000) for (const [k, v] of lastRead) if (t - v > READ_AUDIT_WINDOW_MS) lastRead.delete(k);
+  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action, entity: "schedule", entityId });
+}
+
 /** Local-day bounds. The server timezone (TZ) defines the agency day until per-agency timezones exist. */
 export function dayRange(now: Date, date?: string): { from: Date; to: Date; date: string } {
   const base = date ? new Date(`${date}T00:00:00`) : new Date(now);
@@ -37,7 +49,7 @@ export async function daySchedule(ctx: Ctx, opts: { date?: string; caregiver?: s
     .filter((c) => !opts.caregiver || c.id === opts.caregiver)
     .map((c) => ({ ...person(c), flagged: c.flagged, visits: visits.filter((v) => v.caregiverId === c.id).map((v) => visitDto(v, ctx.now)) }))
     .filter((r) => r.visits.length > 0);
-  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action: "schedule.read", entity: "schedule", entityId: date });
+  await auditRead(ctx, "schedule.read", date);
   return { view: "day", date, now: ctx.now.toISOString(), visitCount: visits.length, rows, open: opts.caregiver ? [] : open };
 }
 
@@ -62,7 +74,7 @@ export async function weekSchedule(ctx: Ctx, opts: { date?: string; caregiver?: 
       }),
     }))
     .filter((r) => r.days.some((d) => d.visits > 0));
-  await ctx.ports.audit.append({ agencyId: ctx.agencyId, userId: ctx.userId, action: "schedule.read", entity: "schedule", entityId: `week:${ymd(start)}` });
+  await auditRead(ctx, "schedule.read", `week:${ymd(start)}`);
   return { view: "week", days: days.map(ymd), now: ctx.now.toISOString(), rows };
 }
 
