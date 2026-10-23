@@ -149,6 +149,17 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
         await h.fixtures.tamperAudit(a, 2);
         expect(await h.audit.verify(a)).toBe(1);
       });
+      it("lists newest first, pages backwards, scopes by agency and decrypts meta", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        for (const n of [1, 2, 3, 4]) await h.audit.append({ agencyId: a, userId: "u", action: `act${n}`, entity: "e", meta: { n } });
+        await h.audit.append({ agencyId: b, userId: "u", action: "other", entity: "e" });
+        const page1 = await h.audit.list(a, { limit: 2 });
+        expect(page1.map((r) => r.action)).toEqual(["act4", "act3"]);
+        expect(page1[0]!.meta).toEqual({ n: 4 });
+        const page2 = await h.audit.list(a, { limit: 2, beforeSeq: page1[1]!.seq });
+        expect(page2.map((r) => r.action)).toEqual(["act2", "act1"]);
+        expect((await h.audit.list(b, { limit: 10 })).map((r) => r.action)).toEqual(["other"]);
+      });
       it("serializes concurrent appends without breaking the chain", async () => {
         const a = await h.fixtures.agency();
         await Promise.all(Array.from({ length: 8 }, (_, i) =>

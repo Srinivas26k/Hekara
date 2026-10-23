@@ -66,3 +66,10 @@ export interface SearchHitDto { kind: "patient" | "caregiver" | "claim"; id: str
 
 export interface MeDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean; agencyId: string; agencyName: string }
 export interface UserDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean }
+
+export interface AuditDto { seq: number; at: string; userId: string | null; userName: string | null; action: string; entity: string; entityId: string | null }
+export interface AuditVerifyDto { ok: boolean; brokenAt: number | null; checkedAt: string }
+export const AuditQuerySchema = v.strictObject({
+  limit: v.optional(v.pipe(v.string(), v.regex(/^\d{1,3}$/))),
+  before: v.optional(v.pipe(v.string(), v.regex(/^\d{1,10}$/))),
+});

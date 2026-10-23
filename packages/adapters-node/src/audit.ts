@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, lt, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as Schema from "@hekara/db/schema";
 import { auditLog } from "@hekara/db/schema";
@@ -37,6 +37,16 @@ export function createPgAudit(db: Db, crypto: Crypto): Audit {
           entityId: entry.entityId ?? null, meta, seq, prevHash, hash, createdAt,
         });
       });
+    },
+
+    async list(agencyId, { limit, beforeSeq }) {
+      const rows = await db.select().from(auditLog)
+        .where(and(eq(auditLog.agencyId, agencyId), beforeSeq ? lt(auditLog.seq, beforeSeq) : undefined))
+        .orderBy(desc(auditLog.seq)).limit(Math.min(Math.max(limit, 1), 200));
+      return Promise.all(rows.map(async (r) => ({
+        seq: r.seq, at: r.createdAt, userId: r.userId, action: r.action, entity: r.entity, entityId: r.entityId,
+        meta: r.meta ? (JSON.parse(await crypto.decrypt(agencyId, r.meta)) as Record<string, unknown>) : null,
+      })));
     },
 
     async verify(agencyId) {

@@ -45,8 +45,14 @@ export interface Repository {
 }
 
 export interface AuditEntry { agencyId: Id; userId: string | null; action: string; entity: string; entityId?: string; meta?: Record<string, unknown> }
+export interface AuditRecord {
+  seq: number; at: Date; userId: string | null; action: string; entity: string; entityId: string | null;
+  meta: Record<string, unknown> | null;
+}
 export interface Audit {
   append(entry: AuditEntry): Promise<void>;
+  /** Newest first. `beforeSeq` pages backwards. */
+  list(agencyId: Id, opts: { limit: number; beforeSeq?: number }): Promise<AuditRecord[]>;
   /** Recompute the hash chain; returns the first broken index or null when intact. */
   verify(agencyId: Id): Promise<number | null>;
 }
