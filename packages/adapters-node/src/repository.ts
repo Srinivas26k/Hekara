@@ -24,7 +24,7 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
 
   const build = (d: Db): Repository => ({
     async caregivers(agencyId) {
-      const rows = await d.select().from(caregivers).where(eq(caregivers.agencyId, agencyId)).orderBy(asc(caregivers.id));
+      const rows = await d.select().from(caregivers).where(eq(caregivers.agencyId, agencyId)).orderBy(asc(caregivers.createdAt), asc(caregivers.id));
       return Promise.all(rows.map(toCaregiver));
     },
 

@@ -78,6 +78,8 @@ export const caregivers = pgTable("caregivers", {
   weeklyLimit: real("weekly_limit").notNull().default(40),
   onShift: boolean("on_shift").notNull().default(false),
   flagged: boolean("flagged").notNull().default(false),
+  /** Stable display order: the order caregivers were added. */
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const patients = pgTable("patients", {

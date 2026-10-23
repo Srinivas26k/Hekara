@@ -1,0 +1,1 @@
+ALTER TABLE "caregivers" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;

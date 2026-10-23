@@ -15,6 +15,13 @@
       "when": 1792740587329,
       "tag": "0001_furry_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792741054312,
+      "tag": "0002_broken_misty_knight",
+      "breakpoints": true
     }
   ]
 }

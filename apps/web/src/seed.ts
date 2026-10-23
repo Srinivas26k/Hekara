@@ -66,9 +66,9 @@ async function main() {
     ...FEATURED.map((f) => ({ name: f.name, hours: f.hours, flagged: !!f.flagged, skills: ["HHA", "Companion"] })),
     ...generated.map((name) => ({ name, hours: 10 + Math.floor(rand() * 24), flagged: false, skills: rand() < 0.75 ? ["HHA", "Companion"] : ["Companion"] })),
   ];
-  const cgRows = await db.insert(s.caregivers).values(await Promise.all(people.map(async (p) => ({
+  const cgRows = await db.insert(s.caregivers).values(await Promise.all(people.map(async (p, i) => ({
     agencyId: A, name: await enc(p.name), nameIdx: await idx(p.name), weeklyHours: p.hours, weeklyLimit: 40,
-    skills: p.skills, flagged: p.flagged,
+    skills: p.skills, flagged: p.flagged, createdAt: new Date(midnight.getTime() - 86_400_000 * 90 + i * 1000),
   })))).returning();
   const cgId = new Map(people.map((p, i) => [p.name, cgRows[i]!.id]));
 
