@@ -84,3 +84,9 @@ export interface Ports {
   blob: Blob;
   scheduler: Scheduler;
 }
+
+/** Password hashing. Argon2id via node:crypto on Node; other platforms supply their own (for example WASM). */
+export interface PasswordHasher {
+  hash(password: string): Promise<string>;
+  verify(input: { hash: string; password: string }): Promise<boolean>;
+}
