@@ -1,0 +1,21 @@
+{
+  "name": "@hekara/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/entries/node.ts",
+    "start": "tsx --env-file=../../.env src/entries/node.ts",
+    "keygen": "tsx src/keygen.ts",
+    "seed": "tsx --env-file=../../.env src/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo ok",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@hekara/adapters-node": "workspace:*", "@hekara/core": "workspace:*", "@hekara/crypto": "workspace:*",
+    "@hekara/db": "workspace:*", "@hekara/ports": "workspace:*",
+    "@hono/node-server": "^1.14.4", "drizzle-orm": "^0.45.4", "hono": "^4.8.5", "postgres": "^3.4.9", "valibot": "^1.1.0"
+  },
+  "devDependencies": { "@types/node": "^26.6.5", "tsx": "^4.23.15", "typescript": "^7.0.2", "vitest": "^3.2.4" }
+}
