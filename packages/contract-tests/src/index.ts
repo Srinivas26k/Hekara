@@ -45,6 +45,14 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
       });
     });
 
+    describe("agency", () => {
+      it("returns only its own agency record", async () => {
+        const a = await h.fixtures.agency();
+        expect((await h.repo.agency(a))?.id).toBe(a);
+        expect(await h.repo.agency("00000000-0000-4000-8000-000000000000")).toBeNull();
+      });
+    });
+
     describe("visits", () => {
       it("filters by time window and caregiver, ordered by start", async () => {
         const a = await h.fixtures.agency();

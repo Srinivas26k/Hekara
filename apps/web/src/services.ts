@@ -85,7 +85,8 @@ async function suggestionsFor(ctx: Ctx, people: Caregiver[], visits: Visit[]) {
 export async function overview(ctx: Ctx): Promise<OverviewDto> {
   const { from, to, date } = dayRange(ctx.now);
   const weekAgo = new Date(ctx.now.getTime() - 7 * DAY);
-  const [people, visits, newPatients, claims] = await Promise.all([
+  const [agency, people, visits, newPatients, claims] = await Promise.all([
+    ctx.ports.repo.agency(ctx.agencyId),
     ctx.ports.repo.caregivers(ctx.agencyId),
     ctx.ports.repo.visits(ctx.agencyId, { from, to }),
     ctx.ports.repo.countPatientsSince(ctx.agencyId, weekAgo),
@@ -96,6 +97,7 @@ export async function overview(ctx: Ctx): Promise<OverviewDto> {
   const sugg = await suggestionsFor(ctx, people, visits);
   const status = (v: Visit) => deriveStatus(v, ctx.now);
   return {
+    agency: { name: agency?.name ?? "" },
     date, now: ctx.now.toISOString(), visitCount: visits.length,
     badges: {
       patients: newPatients,

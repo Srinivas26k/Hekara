@@ -32,6 +32,7 @@ export interface SearchHit { kind: "patient" | "caregiver" | "claim"; id: Id; ti
 
 /** Every method is scoped by agencyId. A method without it is a bug. */
 export interface Repository {
+  agency(agencyId: Id): Promise<{ id: Id; name: string } | null>;
   caregivers(agencyId: Id): Promise<Caregiver[]>;
   visits(agencyId: Id, q: VisitQuery): Promise<Visit[]>;
   visit(agencyId: Id, id: Id): Promise<Visit | null>;

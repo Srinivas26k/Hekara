@@ -1,7 +1,7 @@
 import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as Schema from "@hekara/db/schema";
-import { caregivers, claims, patients, visits } from "@hekara/db/schema";
+import { agencies, caregivers, claims, patients, visits } from "@hekara/db/schema";
 import type { Caregiver, Id, StoredStatus, Visit } from "@hekara/core";
 import type { ClaimRow, Crypto, Patient, PatientInput, Repository, SearchHit, VisitQuery } from "@hekara/ports";
 
@@ -23,6 +23,11 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
   });
 
   const build = (d: Db): Repository => ({
+    async agency(agencyId) {
+      const [r] = await d.select({ id: agencies.id, name: agencies.name }).from(agencies).where(eq(agencies.id, agencyId)).limit(1);
+      return r ?? null;
+    },
+
     async caregivers(agencyId) {
       const rows = await d.select().from(caregivers).where(eq(caregivers.agencyId, agencyId)).orderBy(asc(caregivers.createdAt), asc(caregivers.id));
       return Promise.all(rows.map(toCaregiver));

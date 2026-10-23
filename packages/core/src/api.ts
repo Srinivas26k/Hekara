@@ -44,6 +44,7 @@ export interface SuggestionDto {
   caregiverId: string; caregiverName: string; fromCaregiverName?: string; hoursSaved: number;
 }
 export interface OverviewDto {
+  agency: { name: string };
   date: string; now: string; visitCount: number;
   badges: { patients: number; schedule: number; claims: number };
   onShift: { count: number; total: number; avatars: PersonDto[] };
