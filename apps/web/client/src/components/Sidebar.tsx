@@ -68,11 +68,11 @@ export function Sidebar(props: { onAddPatient: () => void }) {
       </nav>
       </div>
 
-      <div class="add-patient">
+      <Show when={store.isStaff()}><div class="add-patient">
         <button class="add-btn" aria-label="Add a patient" onClick={props.onAddPatient}><Icon.plus /></button>
         <div class="add-title">Add a patient</div>
         <div class="add-sub">Or <button class="link" onClick={() => store.toast("Referral import is not available yet")}>import a referral</button></div>
-      </div>
+      </div></Show>
     </aside>
   );
 }

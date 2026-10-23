@@ -1,5 +1,6 @@
 import { batch, createRoot, createSignal } from "solid-js";
-import type { DayScheduleDto, OverviewDto, PersonDto, SuggestionDto, WeekScheduleDto } from "@hekara/core";
+import type { DayScheduleDto, MeDto, OverviewDto, PersonDto, SuggestionDto, WeekScheduleDto } from "@hekara/core";
+import { authClient } from "./auth";
 import { api, ApiError } from "./api";
 
 export interface Toast { id: number; message: string; undo?: () => void }
@@ -35,7 +36,17 @@ function createStore() {
   const [unread, setUnread] = createSignal(0);
   const [busy, setBusy] = createSignal<Set<string>>(new Set());
   const [online, setOnline] = createSignal(true);
+  const [me, setMe] = createSignal<MeDto | null>(null);
+  const [auth, setAuth] = createSignal<"loading" | "out" | "in">("loading");
   let seq = 0;
+  let events: EventSource | undefined;
+
+  const isStaff = () => me()?.role === "admin" || me()?.role === "scheduler";
+  /** Drops all data and shows the sign-in screen. */
+  const signedOut = () => {
+    events?.close(); events = undefined;
+    batch(() => { setMe(null); setOverview(null); setDay(null); setWeek(null); setEveryone([]); setSuggestions(null); setFilterSig(null); setActivity([]); setAuth("out"); });
+  };
 
   const toast = (message: string, undo?: () => void) => {
     const id = ++seq;
@@ -45,9 +56,10 @@ function createStore() {
   const fail = (e: unknown, fallback: string) => toast(e instanceof ApiError ? e.message : fallback);
 
   async function refresh() {
+    if (auth() !== "in" || !me() || me()!.role === "billing") return;
     try {
       const [o, s] = await Promise.all([
-        api.overview(pinned),
+        isStaff() ? api.overview(pinned) : Promise.resolve(null),
         api.schedule({ view: view(), caregiver: filter()?.id, at: pinned }),
       ]);
       batch(() => {
@@ -60,8 +72,8 @@ function createStore() {
         setOnline(true);
       });
     } catch (e) {
+      if (e instanceof ApiError && e.status === 401) { signedOut(); toast("Please sign in again"); return; }
       setOnline(false);
-      if (e instanceof ApiError && e.status === 401) toast("Please sign in again");
     }
   }
 
@@ -69,7 +81,9 @@ function createStore() {
   const scheduleRefresh = () => { clearTimeout(timer); timer = setTimeout(refresh, 150); };
 
   function connect() {
+    events?.close();
     const es = new EventSource("/api/events");
+    events = es;
     es.onopen = () => void refresh();
     for (const type of Object.keys(EVENT_TEXT)) {
       es.addEventListener(type, () => {
@@ -82,12 +96,30 @@ function createStore() {
     return es;
   }
 
+  async function loadMe() {
+    try {
+      const m = await api.me();
+      batch(() => { setMe(m); setAuth("in"); });
+      connect();
+      await refresh();
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) setAuth("out");
+      else { setAuth("out"); toast("Couldn't reach the server"); }
+    }
+  }
+
+  async function signOut() {
+    try { await authClient.signOut(); } catch { /* the cookie may already be gone */ }
+    signedOut();
+  }
+
   const markBusy = (id: string, on: boolean) =>
     setBusy((s) => { const n = new Set(s); on ? n.add(id) : n.delete(id); return n; });
 
   return {
+    me, auth, isStaff, loadMe, signOut,
     now, overview, day, week, everyone, view, filter, suggestions, toasts, activity, unread, busy, online,
-    toast, refresh, connect,
+    toast, refresh,
     pinned,
     tick: () => setNow(clock()),
     setView(v: "day" | "week") { setViewSig(v); void refresh(); },

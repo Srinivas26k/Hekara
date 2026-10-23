@@ -1,4 +1,5 @@
 import type {
+  MeDto, UserDto, Role,
   DayScheduleDto, OverviewDto, SearchHitDto, SuggestionDto, VisitDto, WeekScheduleDto, PersonDto,
 } from "@hekara/core";
 
@@ -30,6 +31,10 @@ const pinned = /^\d{2}:\d{2}$/.test(new URLSearchParams(location.search).get("at
 const post = <T>(path: string, body?: unknown) => call<T>(`${path}${pinned ? `?at=${pinned}` : ""}`, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
 export const api = {
+  me: () => call<MeDto>("/me"),
+  users: () => call<UserDto[]>("/admin/users"),
+  invite: (input: { email: string; name: string; role: Role; caregiverId?: string }) =>
+    post<{ userId: string; link: string }>("/admin/users", input),
   overview: (at?: string) => call<OverviewDto>(`/overview${qs({ at })}`),
   schedule: (o: { view: "day" | "week"; caregiver?: string; at?: string }) =>
     call<DayScheduleDto | WeekScheduleDto>(`/schedule${qs(o)}`),

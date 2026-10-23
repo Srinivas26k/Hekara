@@ -18,4 +18,11 @@ describe("client XSS hygiene (ADR-014)", () => {
       .filter((f) => f.endsWith(".tsx") && /\sinnerHTML=/.test(readFileSync(f, "utf8")));
     expect(offenders).toEqual([]);
   });
+  it("has no static inline styles (the CSP blocks them; use a class)", () => {
+    // A style object made only of string literals is compiled into the template as a style attribute.
+    const staticStyle = /style=\{\{\s*[\w-]+:\s*"[^"$]*"\s*(,\s*[\w-]+:\s*"[^"$]*"\s*)*\}\}/;
+    const offenders = walk(new URL(".", import.meta.url).pathname)
+      .filter((f) => f.endsWith(".tsx") && staticStyle.test(readFileSync(f, "utf8")));
+    expect(offenders).toEqual([]);
+  });
 });

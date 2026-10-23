@@ -285,3 +285,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .toast { background: var(--ink); color: #fff; border-radius: 22px; padding: 12px 22px; font-size: 16px; display: flex; gap: 18px; align-items: center; box-shadow: 0 8px 28px rgba(0,0,0,.25); }
 .toast button { color: #aab8ff; font-weight: 600; }
 .row-label.open-label { top: 55px; }
+
+/* ---------- Sign-in and account ---------- */
+.login { min-height: 100vh; display: grid; place-items: center; background: var(--lav); padding: 24px; }
+.login-card { width: min(420px, 100%); background: #fff; border-radius: 28px; padding: 36px 36px 32px; box-shadow: 0 24px 80px rgba(20,25,60,.12); }
+.login-card .brand { padding: 0; margin-bottom: 24px; }
+.login-card h1 { font-size: 24px; font-weight: 600; margin-bottom: 18px; }
+.login-card form { display: flex; flex-direction: column; gap: 14px; }
+.login-card label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.login-card input, .modal select { font: inherit; font-size: 16px; color: var(--ink); border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 14px; background: #fff; }
+.login-card .link { align-self: center; }
+.error { color: var(--red); font-size: 14px; }
+.panel.solo { grid-template-rows: minmax(0, 1fr); }
+.me-btn { border-radius: 50%; }
+.account { display: flex; flex-direction: column; gap: 22px; }
+.account .who { display: flex; flex-direction: column; gap: 2px; }
+.account .who span { color: var(--muted); font-size: 15px; }
+.account section { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+.account h3 { font-size: 16px; font-weight: 600; }
+.account form { display: flex; flex-direction: column; gap: 12px; }
+.secret, .invite-link code { display: block; background: var(--soft); border-radius: 12px; padding: 12px 14px; font-family: ui-monospace, monospace; font-size: 14px; word-break: break-all; user-select: all; }
+.codes { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-family: ui-monospace, monospace; font-size: 14px; }
+.people { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.people li { display: flex; justify-content: space-between; font-size: 15px; }
+.people small { color: var(--muted); }
+.invite-link { display: flex; flex-direction: column; gap: 10px; }
+.grow { flex: 1; }

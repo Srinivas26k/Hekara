@@ -71,10 +71,10 @@ function Search() {
   );
 }
 
-export function Topbar(props: { onAddPatient: () => void }) {
+export function Topbar(props: { onAddPatient: () => void; onAccount: () => void }) {
   const [bell, setBell] = createSignal(false);
   const [plus, setPlus] = createSignal(false);
-  const name = () => store.overview()?.agency.name ?? "";
+  const name = () => store.overview()?.agency.name ?? store.me()?.agencyName ?? "";
   const abbr = () => name().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
   const close = () => { setBell(false); setPlus(false); };
   onMount(() => document.addEventListener("click", close));
@@ -86,10 +86,10 @@ export function Topbar(props: { onAddPatient: () => void }) {
         <span class="org-badge">{abbr()}</span>
         <div>
           <div class="org-name">{name() || "Hekara"}</div>
-          <div class="org-sub">Schedule · {store.overview() ? longDate(store.overview()!.date) : ""}</div>
+          <div class="org-sub">Schedule · {store.day() ? longDate(store.day()!.date) : store.overview() ? longDate(store.overview()!.date) : ""}</div>
         </div>
       </div>
-      <Search />
+      <Show when={store.isStaff()} fallback={<div class="grow" />}><Search /></Show>
       <div class="actions">
         <button class="icon-btn" aria-label="Help" onClick={() => store.toast("Help center is not available yet")}><Icon.help /></button>
         <div class="menu-wrap" onClick={(e) => e.stopPropagation()}>
@@ -105,14 +105,14 @@ export function Topbar(props: { onAddPatient: () => void }) {
           </Show>
         </div>
         <div class="menu-wrap" onClick={(e) => e.stopPropagation()}>
-          <button class="icon-btn plus" aria-label="Create" onClick={() => { setBell(false); setPlus(!plus()); }}><Icon.plus /></button>
+          <Show when={store.isStaff()}><button class="icon-btn plus" aria-label="Create" onClick={() => { setBell(false); setPlus(!plus()); }}><Icon.plus /></button></Show>
           <Show when={plus()}>
             <div class="dropdown right" role="menu">
               <button class="item" role="menuitem" onClick={() => { close(); props.onAddPatient(); }}>Add a patient</button>
             </div>
           </Show>
         </div>
-        <Avatar name="Dev User" class="me" />
+        <button class="me-btn" aria-label="Account" onClick={props.onAccount}><Avatar name={store.me()?.name ?? "?"} class="me" /></button>
       </div>
     </header>
   );
