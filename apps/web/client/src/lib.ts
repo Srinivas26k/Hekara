@@ -1,10 +1,10 @@
 export const START = 7;          // timeline starts at 7 AM
 export const END = 19;           // and ends at 7 PM
-export const LABEL_W = 225;      // name column width (design px)
-export const HOUR_W = 88;        // design px per hour
-export const ROW_H = 49;
+export const ROW_H = 49;         // design px per caregiver row
+const SPAN = END - START;
 
-export const x = (hour: number): number => LABEL_W + (hour - START) * HOUR_W;
+/** Horizontal position of an hour as a percentage of the track, so the timeline stretches to any width. */
+export const pct = (hour: number): number => ((hour - START) / SPAN) * 100;
 
 /** Local fractional hour of an ISO timestamp, e.g. 10:45 -> 10.75. */
 export const hourOf = (iso: string | Date): number => {
@@ -28,11 +28,11 @@ export function fmtRange(startIso: string, endIso: string): string {
   return meridiem(a) === meridiem(b) ? `${t(a)} to ${t(b)} ${meridiem(b)}` : `${t(a)} ${meridiem(a)} to ${t(b)} ${meridiem(b)}`;
 }
 
-/** Horizontal placement of a visit, clipped to the visible window; null when entirely outside it. */
+/** Placement of a visit in percent of the track, clipped to the visible window; null when entirely outside it. */
 export function place(startIso: string, endIso: string): { left: number; width: number } | null {
   const a = Math.max(hourOf(startIso), START), b = Math.min(hourOf(endIso) || 24, END);
   if (b <= a) return null;
-  return { left: x(a) + 2, width: (b - a) * HOUR_W - 4 };
+  return { left: pct(a), width: pct(b) - pct(a) };
 }
 
 export type Kind = "done" | "prog" | "sched" | "attn" | "open" | "ai";

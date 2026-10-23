@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avatarColors, copilotCopy, fmtRange, hourOf, initials, kindOf, longDate, place, x } from "./lib";
+import { avatarColors, copilotCopy, fmtRange, hourOf, initials, kindOf, longDate, pct, place } from "./lib";
 
 const iso = (h: number, m = 0) => new Date(2026, 8, 30, h, m).toISOString();
 
@@ -15,12 +15,17 @@ describe("time formatting", () => {
 });
 
 describe("timeline geometry", () => {
-  it("places a visit on the hour grid", () => {
-    expect(x(7)).toBe(225);
-    expect(place(iso(8), iso(10))).toEqual({ left: 225 + 88 + 2, width: 2 * 88 - 4 });
+  it("places a visit on the hour grid as percentages of the track", () => {
+    expect(pct(7)).toBe(0);
+    expect(pct(19)).toBe(100);
+    const p = place(iso(8), iso(10))!;
+    expect(p.left).toBeCloseTo((1 / 12) * 100, 6);
+    expect(p.width).toBeCloseTo((2 / 12) * 100, 6);
   });
   it("clips to the 7 AM to 7 PM window and hides visits outside it", () => {
-    expect(place(iso(6), iso(8))).toEqual({ left: 225 + 2, width: 88 - 4 });
+    const clipped = place(iso(6), iso(8))!;
+    expect(clipped.left).toBe(0);
+    expect(clipped.width).toBeCloseTo((1 / 12) * 100, 6);
     expect(place(iso(5), iso(6))).toBeNull();
     expect(place(iso(19), iso(20))).toBeNull();
   });
