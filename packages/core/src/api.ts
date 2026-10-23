@@ -23,6 +23,16 @@ export const ScheduleQuerySchema = v.strictObject({
   at: v.optional(v.pipe(v.string(), v.regex(/^\d{2}:\d{2}$/))),
 });
 
+export const ROLES = ["admin", "scheduler", "caregiver", "billing"] as const;
+export type Role = (typeof ROLES)[number];
+
+export const InviteInputSchema = v.strictObject({
+  email: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.email(), v.maxLength(254)),
+  name: text(120),
+  role: v.picklist(ROLES),
+  caregiverId: v.optional(id),
+});
+
 export const SearchQuerySchema = v.strictObject({ q: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(80)) });
 
 /** Response shapes. Dates are ISO strings. */
@@ -53,3 +63,6 @@ export interface OverviewDto {
   suggestions: { count: number; hoursSaved: number; shiftsFilled: number; items: SuggestionDto[] };
 }
 export interface SearchHitDto { kind: "patient" | "caregiver" | "claim"; id: string; title: string; subtitle?: string }
+
+export interface MeDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean; agencyId: string }
+export interface UserDto { id: string; name: string; email: string; role: Role; twoFactorEnabled: boolean }
