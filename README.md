@@ -1,6 +1,9 @@
 <div align="center">
 
-# Hekara
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/logo-horizontal-reversed.svg">
+  <img src="brand/logo-horizontal.svg" alt="Hekara" width="340">
+</picture>
 
 **Open-source scheduling and operations for home health agencies.**
 A live caregiver timeline, one-click open-shift filling, overtime watch, AI-assisted suggestions, care plans, credential tracking, billing and reports, with patient data encrypted field by field and hosting you can move between clouds.
@@ -219,4 +222,4 @@ Hekara is licensed under the **[GNU Affero General Public License v3.0](LICENSE)
 
 ## Acknowledgements
 
-Icons are from IBM's [Carbon Design System](https://carbondesignsystem.com/elements/icons/library/) (Apache-2.0). Built on the shoulders of [Hono](https://hono.dev), [SolidJS](https://www.solidjs.com), [Drizzle](https://orm.drizzle.team), [Better Auth](https://www.better-auth.com), [Valibot](https://valibot.dev), [Vite](https://vite.dev) and [PostgreSQL](https://www.postgresql.org). Created and maintained by [Nampalli Srinivas](https://github.com/Srinivas26k).
+Icons are from IBM's [Carbon Design System](https://carbondesignsystem.com/elements/icons/library/) (Apache-2.0). Built on the shoulders of [Hono](https://hono.dev), [SolidJS](https://www.solidjs.com), [Drizzle](https://orm.drizzle.team), [Better Auth](https://www.better-auth.com), [Valibot](https://valibot.dev), [Vite](https://vite.dev) and [PostgreSQL](https://www.postgresql.org). Created and maintained by [Nampalli Srinivas](https://github.com/Srinivas26k). The logo and brand rules are in [brand/](brand/README.md); the Hekara name and logo are not covered by the AGPL.
