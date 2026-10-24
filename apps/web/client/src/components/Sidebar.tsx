@@ -45,12 +45,7 @@ export function Sidebar(props: { onAddPatient: () => void }) {
   return (
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-mark">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" stroke="#ffe23d" stroke-width="4.2" stroke-linecap="round" />
-          </svg>
-        </span>
-        <span class="brand-name">Hekara</span>
+        <img class="brand-logo" src="/logo-horizontal.svg" alt="Hekara" />
       </div>
 
       <div class="side-scroll">
