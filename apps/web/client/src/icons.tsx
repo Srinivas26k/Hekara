@@ -27,7 +27,7 @@ interface CarbonNode {
   content?: CarbonNode[];
 }
 
-/** Draws a Carbon icon descriptor with real DOM elements (no innerHTML), so the strict CSP and the XSS guard test stay intact. */
+/** Draws a Carbon icon descriptor one element at a time, never from markup strings, so the strict CSP and the XSS guard test stay intact. */
 function Draw(props: { node: CarbonNode; root?: boolean }) {
   return (
     <Dynamic
