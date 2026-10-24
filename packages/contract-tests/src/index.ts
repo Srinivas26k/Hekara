@@ -153,6 +153,8 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
         expect((await h.repo.carePlans(a, { limit: 10, offset: 0 })).total).toBe(2);
         expect((await h.repo.carePlans(a, { limit: 10, offset: 0, status: "paused" })).items.map((x) => x.id)).toEqual([paused.id]);
         expect((await h.repo.carePlans(a, { limit: 10, offset: 0, patientId: p1.id })).items.map((x) => x.id)).toEqual([plan.id]);
+        expect((await h.repo.carePlans(a, { limit: 10, offset: 0, reviewBefore: "2026-12-02" })).items.map((x) => x.id)).toEqual([plan.id]); // review date before the cutoff
+        expect((await h.repo.carePlans(a, { limit: 10, offset: 0, reviewBefore: "2026-12-01" })).total).toBe(0);
         expect(await h.repo.carePlan(b, plan.id)).toBeNull();
         expect((await h.repo.carePlans(b, { limit: 10, offset: 0 })).total).toBe(0);
         await expect(h.repo.createCarePlan(a, { patientId: outsider.id, title: "x" })).rejects.toThrow(); // another agency's patient
@@ -217,6 +219,9 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
         expect((await h.repo.claimsPage(a, { limit: 10, offset: 0 })).total).toBe(3);
         expect(await h.repo.claimCounts(a)).toEqual({ draft: 2, submitted: 0, paid: 1, denied: 0 });
         expect(await h.repo.claimCounts(b)).toEqual({ draft: 1, submitted: 0, paid: 0, denied: 0 });
+        expect(await h.repo.claimTotals(a)).toEqual({
+          counts: { draft: 2, submitted: 0, paid: 1, denied: 0 }, amountCents: { draft: 3000, submitted: 0, paid: 3000, denied: 0 },
+        });
       });
       it("updates status only within the agency", async () => {
         const a = await h.fixtures.agency(), b = await h.fixtures.agency();

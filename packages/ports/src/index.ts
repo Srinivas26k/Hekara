@@ -49,7 +49,7 @@ export interface SearchHit { kind: "patient" | "caregiver" | "claim"; id: Id; ti
 export interface Repository {
   agency(agencyId: Id): Promise<{ id: Id; name: string } | null>;
   renameAgency(agencyId: Id, name: string): Promise<void>;
-  carePlans(agencyId: Id, q: Page & { status?: CarePlanStatus; patientId?: Id }): Promise<{ items: CarePlanSummary[]; total: number }>;
+  carePlans(agencyId: Id, q: Page & { status?: CarePlanStatus; patientId?: Id; reviewBefore?: string }): Promise<{ items: CarePlanSummary[]; total: number }>;
   carePlan(agencyId: Id, id: Id): Promise<CarePlanDetail | null>;
   /** Throws when the patient is not in this agency. */
   createCarePlan(agencyId: Id, input: CarePlanInput): Promise<CarePlanDetail>;
@@ -71,6 +71,7 @@ export interface Repository {
   patient(agencyId: Id, id: Id): Promise<PatientDetail | null>;
   claimsPage(agencyId: Id, q: Page & { status?: ClaimStatus }): Promise<{ items: ClaimDetail[]; total: number }>;
   claimCounts(agencyId: Id): Promise<Record<ClaimStatus, number>>;
+  claimTotals(agencyId: Id): Promise<{ counts: Record<ClaimStatus, number>; amountCents: Record<ClaimStatus, number> }>;
   claim(agencyId: Id, id: Id): Promise<ClaimRow | null>;
   setClaimStatus(agencyId: Id, id: Id, status: ClaimStatus): Promise<ClaimRow>;
   search(agencyId: Id, query: string, limit: number): Promise<SearchHit[]>;
@@ -90,7 +91,7 @@ export interface Audit {
   verify(agencyId: Id): Promise<number | null>;
 }
 
-export interface AppEvent { type: "visit.updated" | "suggestions.changed" | "patient.created" | "claim.updated"; agencyId: Id; entityId?: Id }
+export interface AppEvent { type: "visit.updated" | "suggestions.changed" | "patient.created" | "claim.updated" | "careplan.updated" | "credential.updated"; agencyId: Id; entityId?: Id }
 export interface Realtime {
   publish(event: AppEvent): Promise<void>;
   /** Stream events for one agency. Returns an unsubscribe function. */

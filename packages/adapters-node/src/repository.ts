@@ -91,8 +91,8 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
       await d.update(agencies).set({ name }).where(eq(agencies.id, agencyId));
     },
 
-    async carePlans(agencyId, q: Page & { status?: CarePlanStatus; patientId?: Id }) {
-      const where = and(eq(carePlans.agencyId, agencyId), q.status ? eq(carePlans.status, q.status) : undefined, q.patientId ? eq(carePlans.patientId, q.patientId) : undefined);
+    async carePlans(agencyId, q: Page & { status?: CarePlanStatus; patientId?: Id; reviewBefore?: string }) {
+      const where = and(eq(carePlans.agencyId, agencyId), q.status ? eq(carePlans.status, q.status) : undefined, q.patientId ? eq(carePlans.patientId, q.patientId) : undefined, q.reviewBefore ? lt(carePlans.reviewOn, q.reviewBefore) : undefined);
       const [rows, [c]] = await Promise.all([
         d.select({ p: carePlans, patient: patients.name }).from(carePlans)
           .innerJoin(patients, and(eq(patients.id, carePlans.patientId), eq(patients.agencyId, agencyId)))
@@ -199,6 +199,15 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
       const out: Record<ClaimStatus, number> = { draft: 0, submitted: 0, paid: 0, denied: 0 };
       for (const r of rows) out[r.status] = r.n;
       return out;
+    },
+
+    async claimTotals(agencyId) {
+      const rows = await d.select({ status: claims.status, n: sql<number>`count(*)::int`, sum: sql<number>`coalesce(sum(${claims.amountCents}), 0)::bigint` }).from(claims)
+        .where(eq(claims.agencyId, agencyId)).groupBy(claims.status);
+      const counts: Record<ClaimStatus, number> = { draft: 0, submitted: 0, paid: 0, denied: 0 };
+      const amountCents: Record<ClaimStatus, number> = { draft: 0, submitted: 0, paid: 0, denied: 0 };
+      for (const r of rows) { counts[r.status] = r.n; amountCents[r.status] = Number(r.sum); }
+      return { counts, amountCents };
     },
 
     async claim(agencyId, id): Promise<ClaimRow | null> {
