@@ -47,7 +47,8 @@
     "keygen": "pnpm --silent --filter @hekara/web keygen",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "knip": "knip"
+    "knip": "knip",
+    "demo:avatars": "pnpm --filter @hekara/web demo:avatars"
   },
   "devDependencies": {
     "knip": "^6.42.1",

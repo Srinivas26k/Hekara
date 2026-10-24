@@ -6,6 +6,7 @@ import { argon2idHasher } from "@hekara/adapters-node";
 import { createCrypto } from "@hekara/crypto";
 import * as s from "@hekara/db/schema";
 import { loadConfig } from "./config";
+import { assignAvatars } from "./demo-avatars";
 
 /**
  * Demo agency and one user per role, matching the design reference: 62 caregivers, 142 visits today, 14 draft claims, 10 new patients.
@@ -224,6 +225,7 @@ async function main() {
       skills: rand() < 0.75 ? ["HHA", "Companion"] : ["Companion"],
     })),
   ];
+  const avatars = assignAvatars([...people.map((p) => p.name), "Dana Admin", "Sam Scheduler", "Bea Billing"]);
   const cgRows = await db
     .insert(s.caregivers)
     .values(
@@ -236,6 +238,7 @@ async function main() {
           weeklyLimit: 40,
           skills: p.skills,
           flagged: p.flagged,
+          avatarUrl: avatars.get(p.name) ?? null,
           createdAt: new Date(midnight.getTime() - 86_400_000 * 90 + i * 1000),
         })),
       ),
@@ -448,9 +451,16 @@ async function main() {
   ];
   for (const u of demo) {
     const id = globalThis.crypto.randomUUID();
-    await db
-      .insert(s.user)
-      .values({ id, name: u.name, email: u.email, emailVerified: true, role: u.role, agencyId: A, caregiverId: u.caregiverId });
+    await db.insert(s.user).values({
+      id,
+      name: u.name,
+      email: u.email,
+      emailVerified: true,
+      role: u.role,
+      agencyId: A,
+      caregiverId: u.caregiverId,
+      image: avatars.get(u.name) ?? null,
+    });
     await db
       .insert(s.account)
       .values({ id: globalThis.crypto.randomUUID(), accountId: id, providerId: "credential", userId: id, password: hash });

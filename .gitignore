@@ -11,3 +11,6 @@ coverage
 .shots
 apps/web/public
 .data
+
+# Demo profile photos are downloaded locally by `pnpm demo:avatars` and never committed
+apps/web/client/public/avatars/

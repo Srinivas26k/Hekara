@@ -12,7 +12,8 @@
     "lint": "echo ok",
     "test": "vitest run --passWithNoTests",
     "build:client": "vite build --config client/vite.config.ts",
-    "dev:client": "vite --config client/vite.config.ts"
+    "dev:client": "vite --config client/vite.config.ts",
+    "demo:avatars": "tsx src/fetch-avatars.ts"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.7.12",
