@@ -4,4 +4,5 @@ packages:
 
 # Only esbuild runs an install script (it verifies its platform binary); everything else stays blocked.
 allowBuilds:
+  "@carbon/icons": set this to true or false
   esbuild: true
