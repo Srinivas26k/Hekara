@@ -20,7 +20,7 @@ See every caregiver and visit on one live screen, fill open shifts in a click, c
 
 <img src="docs/images/schedule.png" alt="Hekara schedule: a live timeline of caregivers and visits with open shifts, AI Copilot suggestions and overtime watch" width="900">
 
-**Free to use, free to self-host. If it saves your agency time or money, please [sponsor it](https://rzp.io/rzp/G5kLjzP) or [hire the maintainer](COMMERCIAL.md) so it stays maintained.**
+**Free to use, free to self-host. If it saves your agency time or money, please [sponsor it](https://rzp.io/rzp/G5kLjzP) or [hire the maintainer](COMMERCIAL.md), including help with SOC 2 and HIPAA readiness, so it stays maintained.**
 
 </div>
 
@@ -87,15 +87,15 @@ All screenshots use synthetic demo data. The profile photos are placeholder port
 
 ### How it compares
 
-|                                             | Spreadsheets and chat | Hosted per-seat software | **Hekara**                                      |
-| ------------------------------------------- | --------------------- | ------------------------ | ----------------------------------------------- |
-| Live shared view of the day                 | No                    | Yes                      | **Yes**                                         |
-| One-click shift filling and overtime checks | No                    | Varies                   | **Yes**                                         |
-| You own the data and where it runs          | Yes, but scattered    | No                       | **Yes**                                         |
-| Cost grows with every user                  | No                    | Yes                      | **No**                                          |
-| You can read, change and extend the code    | n/a                   | No                       | **Yes**                                         |
-| Independent certifications                  | n/a                   | Often                    | **None yet**                                    |
-| Someone to call when it breaks              | No                    | Yes                      | **Community, or [paid support](COMMERCIAL.md)** |
+|                                             | Spreadsheets and chat | Hosted per-seat software | **Hekara**                                                                            |
+| ------------------------------------------- | --------------------- | ------------------------ | ------------------------------------------------------------------------------------- |
+| Live shared view of the day                 | No                    | Yes                      | **Yes**                                                                               |
+| One-click shift filling and overtime checks | No                    | Varies                   | **Yes**                                                                               |
+| You own the data and where it runs          | Yes, but scattered    | No                       | **Yes**                                                                               |
+| Cost grows with every user                  | No                    | Yes                      | **No**                                                                                |
+| You can read, change and extend the code    | n/a                   | No                       | **Yes**                                                                               |
+| Independent certifications                  | n/a                   | Often                    | **None yet** ([readiness help available](COMMERCIAL.md#compliance-and-risk-help-grc)) |
+| Someone to call when it breaks              | No                    | Yes                      | **Community, or [paid support](COMMERCIAL.md)**                                       |
 
 Hekara is not yet the right choice if you need certifications today or a vendor-run service with guaranteed support. For agencies that want control and are willing to self-host (or pay for help doing so), it is built for you.
 
@@ -178,7 +178,7 @@ What is **not** true yet, said plainly:
 
 ### HIPAA and certifications
 
-Software cannot be "HIPAA compliant" by itself. Compliance is a property of how an organisation operates: signed Business Associate Agreements with every vendor that touches patient data, risk assessments, policies, training and breach procedures. Hekara provides the technical safeguards (encryption, access control, audit trails, integrity checks) and [maps them to the rules](docs/HIPAA.md), but **Hekara itself holds no HIPAA, SOC 2, HITRUST or ISO 27001 certification.** If you need a deployment that supports those programmes, see [Enterprise and custom builds](#enterprise-and-custom-builds).
+Software cannot be "HIPAA compliant" by itself. Compliance is a property of how an organisation operates: signed Business Associate Agreements with every vendor that touches patient data, risk assessments, policies, training and breach procedures. Hekara provides the technical safeguards (encryption, access control, audit trails, integrity checks) and [maps them to the rules](docs/HIPAA.md), but **Hekara itself holds no HIPAA, SOC 2, HITRUST or ISO 27001 certification.** I work in governance, risk and compliance (GRC) and cybersecurity, and can help you prepare for HIPAA, SOC 2 and similar programmes. If you need a deployment that supports them, see [Enterprise and custom builds](#enterprise-and-custom-builds).
 
 ## Architecture
 
@@ -250,7 +250,7 @@ Found a vulnerability? Please **don't** open a public issue. See [SECURITY.md](S
 
 ## Enterprise and custom builds
 
-Need Hekara adapted to your organisation? I build and support custom deployments for agencies and health-tech teams, including:
+Need Hekara adapted to your organisation, or help with the compliance side? I build and support custom deployments for agencies and health-tech teams, and I work in **governance, risk and compliance (GRC) and cybersecurity**, so I can help with both the software and the programme around it:
 
 - **HIPAA-oriented deployments:** BAA-ready hosting design, encryption and key management, audit and access reviews, breach-response tooling.
 - **SOC 2 and other frameworks:** readiness work, control mapping and evidence collection for SOC 2, HITRUST and ISO 27001 programmes. (Certifications are earned by your organisation through an independent auditor; I help you prepare for and support them.)
