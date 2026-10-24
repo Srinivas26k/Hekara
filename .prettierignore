@@ -1,0 +1,20 @@
+# Dependencies and build output
+node_modules
+apps/web/public
+coverage
+.wrangler
+
+# Generated or vendored files that must stay byte for byte as produced
+pnpm-lock.yaml
+packages/db/migrations
+LICENSE
+
+# Local-only
+.env
+.data
+.shots
+brand/concepts/renders
+
+# Binary assets
+*.png
+*.svg
