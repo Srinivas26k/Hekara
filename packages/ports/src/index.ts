@@ -1,4 +1,4 @@
-import type { Caregiver, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
+import type { Caregiver, CarePlanStatus, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
 
 /** Ports: the only surface the app may use to reach a platform. No platform types in signatures. */
 
@@ -31,6 +31,16 @@ export interface PatientSummary { id: Id; name: string; createdAt: Date }
 export interface PatientDetail extends PatientSummary { dob: string | null; address: string | null; notes: string | null }
 export interface Page { limit: number; offset: number }
 
+export interface CarePlanSummary {
+  id: Id; patientId: Id; patientName: string; title: string; status: CarePlanStatus; reviewOn: string | null; taskCount: number; updatedAt: Date;
+}
+export interface CarePlanDetail extends CarePlanSummary { instructions: string | null; tasks: string[] }
+export interface CarePlanInput { patientId: Id; title: string; instructions?: string; tasks?: string[]; status?: CarePlanStatus; reviewOn?: string }
+export interface CarePlanPatch { title?: string; instructions?: string | null; tasks?: string[]; status?: CarePlanStatus; reviewOn?: string | null }
+
+export interface CredentialRow { id: Id; caregiverId: Id; caregiverName: string; kind: string; issuedOn: string | null; expiresOn: string }
+export interface CredentialInput { caregiverId: Id; kind: string; issuedOn?: string; expiresOn: string }
+
 export interface VisitQuery { from: Date; to: Date; caregiverId?: Id }
 
 export interface SearchHit { kind: "patient" | "caregiver" | "claim"; id: Id; title: string; subtitle?: string }
@@ -38,6 +48,17 @@ export interface SearchHit { kind: "patient" | "caregiver" | "claim"; id: Id; ti
 /** Every method is scoped by agencyId. A method without it is a bug. */
 export interface Repository {
   agency(agencyId: Id): Promise<{ id: Id; name: string } | null>;
+  renameAgency(agencyId: Id, name: string): Promise<void>;
+  carePlans(agencyId: Id, q: Page & { status?: CarePlanStatus; patientId?: Id }): Promise<{ items: CarePlanSummary[]; total: number }>;
+  carePlan(agencyId: Id, id: Id): Promise<CarePlanDetail | null>;
+  /** Throws when the patient is not in this agency. */
+  createCarePlan(agencyId: Id, input: CarePlanInput): Promise<CarePlanDetail>;
+  updateCarePlan(agencyId: Id, id: Id, patch: CarePlanPatch): Promise<CarePlanDetail>;
+  /** Soonest expiry first. */
+  credentials(agencyId: Id): Promise<CredentialRow[]>;
+  /** Throws when the caregiver is not in this agency. */
+  addCredential(agencyId: Id, input: CredentialInput): Promise<CredentialRow>;
+  removeCredential(agencyId: Id, id: Id): Promise<boolean>;
   caregivers(agencyId: Id): Promise<Caregiver[]>;
   visits(agencyId: Id, q: VisitQuery): Promise<Visit[]>;
   visit(agencyId: Id, id: Id): Promise<Visit | null>;

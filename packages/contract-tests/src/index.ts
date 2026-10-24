@@ -15,6 +15,7 @@ export interface ContractHarness {
     claim(agencyId: Id, p: { amountCents: number; status?: ClaimStatus; visitId?: Id | null; createdAt?: Date }): Promise<Id>;
     /** Raw stored value of a column, to prove PHI is not stored in plaintext. */
     rawPatientName(patientId: Id): Promise<string>;
+    rawCarePlanTitle(id: Id): Promise<string>;
     rawVisitLabel(visitId: Id): Promise<string>;
     /** Corrupt one stored audit entry (by sequence number). */
     tamperAudit(agencyId: Id, seq: number): Promise<void>;
@@ -137,6 +138,66 @@ export function runContract(name: string, make: () => Promise<ContractHarness>):
         expect(await h.repo.patient(a, second.id)).toMatchObject({ name: "Bruce Collins", dob: "1941-03-02", address: "12 Elm St", notes: "uses a walker" });
         expect(await h.repo.patient(a, first.id)).toMatchObject({ dob: null, address: null, notes: null });
         expect(await h.repo.patient(b, second.id)).toBeNull();
+      });
+    });
+
+    describe("care plans", () => {
+      it("creates encrypted plans, lists them with patient names and filters, and scopes by agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const p1 = await h.repo.createPatient(a, { name: "Alma Baker" }), p2 = await h.repo.createPatient(a, { name: "Bruce Collins" });
+        const outsider = await h.repo.createPatient(b, { name: "Other Patient" });
+        const plan = await h.repo.createCarePlan(a, { patientId: p1.id, title: "Mobility and safety", instructions: "Use the walker.", tasks: ["Walk daily", "Check rugs"], reviewOn: "2026-12-01" });
+        expect(plan).toMatchObject({ patientName: "Alma Baker", title: "Mobility and safety", status: "active", taskCount: 2, tasks: ["Walk daily", "Check rugs"], instructions: "Use the walker.", reviewOn: "2026-12-01" });
+        expect(await h.fixtures.rawCarePlanTitle(plan.id)).toMatch(/^v1\./);
+        const paused = await h.repo.createCarePlan(a, { patientId: p2.id, title: "Recovery", status: "paused" });
+        expect((await h.repo.carePlans(a, { limit: 10, offset: 0 })).total).toBe(2);
+        expect((await h.repo.carePlans(a, { limit: 10, offset: 0, status: "paused" })).items.map((x) => x.id)).toEqual([paused.id]);
+        expect((await h.repo.carePlans(a, { limit: 10, offset: 0, patientId: p1.id })).items.map((x) => x.id)).toEqual([plan.id]);
+        expect(await h.repo.carePlan(b, plan.id)).toBeNull();
+        expect((await h.repo.carePlans(b, { limit: 10, offset: 0 })).total).toBe(0);
+        await expect(h.repo.createCarePlan(a, { patientId: outsider.id, title: "x" })).rejects.toThrow(); // another agency's patient
+      });
+      it("updates fields, clears optional ones, and refuses other agencies", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const p = await h.repo.createPatient(a, { name: "Carol Dunn" });
+        const plan = await h.repo.createCarePlan(a, { patientId: p.id, title: "Old", tasks: ["One"], reviewOn: "2026-11-01" });
+        const next = await h.repo.updateCarePlan(a, plan.id, { title: "New", status: "completed", tasks: [], reviewOn: null, instructions: "Done" });
+        expect(next).toMatchObject({ title: "New", status: "completed", taskCount: 0, tasks: [], reviewOn: null, instructions: "Done" });
+        await expect(h.repo.updateCarePlan(b, plan.id, { title: "Hijack" })).rejects.toThrow();
+        expect((await h.repo.carePlan(a, plan.id))?.title).toBe("New");
+      });
+    });
+
+    describe("credentials", () => {
+      it("lists soonest expiry first with caregiver names, and scopes by agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const c1 = await h.fixtures.caregiver(a, { name: "Maria Lopez" }), c2 = await h.fixtures.caregiver(a, { name: "James Carter" });
+        const foreign = await h.fixtures.caregiver(b, { name: "Other Caregiver" });
+        const later = await h.repo.addCredential(a, { caregiverId: c1.id, kind: "CPR", expiresOn: "2027-05-01", issuedOn: "2026-05-01" });
+        const sooner = await h.repo.addCredential(a, { caregiverId: c2.id, kind: "TB test", expiresOn: "2026-11-15" });
+        expect((await h.repo.credentials(a)).map((c) => [c.id, c.caregiverName, c.kind])).toEqual([[sooner.id, "James Carter", "TB test"], [later.id, "Maria Lopez", "CPR"]]);
+        expect((await h.repo.credentials(a))[1]).toMatchObject({ issuedOn: "2026-05-01", expiresOn: "2027-05-01" });
+        expect(await h.repo.credentials(b)).toEqual([]);
+        await expect(h.repo.addCredential(a, { caregiverId: foreign.id, kind: "CPR", expiresOn: "2027-01-01" })).rejects.toThrow();
+      });
+      it("removes only within the agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const c = await h.fixtures.caregiver(a);
+        const cred = await h.repo.addCredential(a, { caregiverId: c.id, kind: "CPR", expiresOn: "2027-01-01" });
+        expect(await h.repo.removeCredential(b, cred.id)).toBe(false);
+        expect((await h.repo.credentials(a)).length).toBe(1);
+        expect(await h.repo.removeCredential(a, cred.id)).toBe(true);
+        expect(await h.repo.removeCredential(a, cred.id)).toBe(false);
+      });
+    });
+
+    describe("agency settings", () => {
+      it("renames only the given agency", async () => {
+        const a = await h.fixtures.agency(), b = await h.fixtures.agency();
+        const before = (await h.repo.agency(b))!.name;
+        await h.repo.renameAgency(a, "Renamed Home Health");
+        expect((await h.repo.agency(a))?.name).toBe("Renamed Home Health");
+        expect((await h.repo.agency(b))?.name).toBe(before);
       });
     });
 

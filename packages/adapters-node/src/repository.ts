@@ -1,9 +1,9 @@
 import { and, asc, desc, eq, gte, lt, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as Schema from "@hekara/db/schema";
-import { agencies, caregivers, claims, patients, visits } from "@hekara/db/schema";
-import type { Caregiver, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
-import type { ClaimDetail, ClaimRow, Crypto, Page, Patient, PatientDetail, PatientInput, PatientSummary, Repository, SearchHit, VisitQuery } from "@hekara/ports";
+import { agencies, carePlans, caregivers, claims, credentials, patients, visits } from "@hekara/db/schema";
+import type { Caregiver, CarePlanStatus, ClaimStatus, Id, StoredStatus, Visit } from "@hekara/core";
+import type { CarePlanDetail, CarePlanInput, CarePlanPatch, CarePlanSummary, CredentialInput, CredentialRow, ClaimDetail, ClaimRow, Crypto, Page, Patient, PatientDetail, PatientInput, PatientSummary, Repository, SearchHit, VisitQuery } from "@hekara/ports";
 
 type Db = PostgresJsDatabase<typeof Schema>;
 
@@ -20,6 +20,17 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
     id: r.id, agencyId: r.agencyId, caregiverId: r.caregiverId, patientId: r.patientId,
     label: await crypto.decrypt(r.agencyId, r.label), startsAt: r.startsAt, endsAt: r.endsAt,
     status: r.status as StoredStatus, requirement: r.requirement,
+  });
+
+  const taskList = async (agencyId: string, enc: string | null): Promise<string[]> =>
+    enc ? (JSON.parse(await crypto.decrypt(agencyId, enc)) as string[]) : [];
+  const summarize = async (agencyId: string, r: typeof carePlans.$inferSelect, patientName: string): Promise<CarePlanSummary> => ({
+    id: r.id, patientId: r.patientId, patientName, title: await crypto.decrypt(agencyId, r.title), status: r.status,
+    reviewOn: r.reviewOn, taskCount: (await taskList(agencyId, r.tasks)).length, updatedAt: r.updatedAt,
+  });
+  const detail = async (agencyId: string, r: typeof carePlans.$inferSelect, patientName: string): Promise<CarePlanDetail> => ({
+    ...(await summarize(agencyId, r, patientName)),
+    instructions: r.instructions ? await crypto.decrypt(agencyId, r.instructions) : null, tasks: await taskList(agencyId, r.tasks),
   });
 
   const build = (d: Db): Repository => ({
@@ -74,6 +85,80 @@ export function createPgRepository(db: Db, crypto: Crypto): Repository {
 
     async claims(agencyId): Promise<ClaimRow[]> {
       return d.select().from(claims).where(eq(claims.agencyId, agencyId)).orderBy(asc(claims.createdAt));
+    },
+
+    async renameAgency(agencyId, name) {
+      await d.update(agencies).set({ name }).where(eq(agencies.id, agencyId));
+    },
+
+    async carePlans(agencyId, q: Page & { status?: CarePlanStatus; patientId?: Id }) {
+      const where = and(eq(carePlans.agencyId, agencyId), q.status ? eq(carePlans.status, q.status) : undefined, q.patientId ? eq(carePlans.patientId, q.patientId) : undefined);
+      const [rows, [c]] = await Promise.all([
+        d.select({ p: carePlans, patient: patients.name }).from(carePlans)
+          .innerJoin(patients, and(eq(patients.id, carePlans.patientId), eq(patients.agencyId, agencyId)))
+          .where(where).orderBy(desc(carePlans.updatedAt), desc(carePlans.id)).limit(q.limit).offset(q.offset),
+        d.select({ n: sql<number>`count(*)::int` }).from(carePlans).where(where),
+      ]);
+      const items: CarePlanSummary[] = await Promise.all(rows.map(async (r) => summarize(agencyId, r.p, await crypto.decrypt(agencyId, r.patient))));
+      return { items, total: c?.n ?? 0 };
+    },
+
+    async carePlan(agencyId, id): Promise<CarePlanDetail | null> {
+      const [r] = await d.select({ p: carePlans, patient: patients.name }).from(carePlans)
+        .innerJoin(patients, and(eq(patients.id, carePlans.patientId), eq(patients.agencyId, agencyId)))
+        .where(and(eq(carePlans.agencyId, agencyId), eq(carePlans.id, id))).limit(1);
+      return r ? detail(agencyId, r.p, await crypto.decrypt(agencyId, r.patient)) : null;
+    },
+
+    async createCarePlan(agencyId, input: CarePlanInput): Promise<CarePlanDetail> {
+      const [pat] = await d.select({ id: patients.id, name: patients.name }).from(patients)
+        .where(and(eq(patients.agencyId, agencyId), eq(patients.id, input.patientId))).limit(1);
+      if (!pat) throw new Error("Patient not found");
+      const [r] = await d.insert(carePlans).values({
+        agencyId, patientId: pat.id, title: await crypto.encrypt(agencyId, input.title),
+        instructions: input.instructions ? await crypto.encrypt(agencyId, input.instructions) : null,
+        tasks: input.tasks?.length ? await crypto.encrypt(agencyId, JSON.stringify(input.tasks)) : null,
+        status: input.status ?? "active", reviewOn: input.reviewOn ?? null,
+      }).returning();
+      return detail(agencyId, r!, await crypto.decrypt(agencyId, pat.name));
+    },
+
+    async updateCarePlan(agencyId, id, patch: CarePlanPatch): Promise<CarePlanDetail> {
+      const set: Partial<typeof carePlans.$inferInsert> = { updatedAt: new Date() };
+      if (patch.title !== undefined) set.title = await crypto.encrypt(agencyId, patch.title);
+      if (patch.instructions !== undefined) set.instructions = patch.instructions ? await crypto.encrypt(agencyId, patch.instructions) : null;
+      if (patch.tasks !== undefined) set.tasks = patch.tasks.length ? await crypto.encrypt(agencyId, JSON.stringify(patch.tasks)) : null;
+      if (patch.status !== undefined) set.status = patch.status;
+      if (patch.reviewOn !== undefined) set.reviewOn = patch.reviewOn;
+      const [r] = await d.update(carePlans).set(set).where(and(eq(carePlans.agencyId, agencyId), eq(carePlans.id, id))).returning();
+      if (!r) throw new Error("Care plan not found");
+      const [pat] = await d.select({ name: patients.name }).from(patients).where(eq(patients.id, r.patientId)).limit(1);
+      return detail(agencyId, r, await crypto.decrypt(agencyId, pat!.name));
+    },
+
+    async credentials(agencyId): Promise<CredentialRow[]> {
+      const rows = await d.select({ c: credentials, name: caregivers.name }).from(credentials)
+        .innerJoin(caregivers, and(eq(caregivers.id, credentials.caregiverId), eq(caregivers.agencyId, agencyId)))
+        .where(eq(credentials.agencyId, agencyId)).orderBy(asc(credentials.expiresOn), asc(credentials.id));
+      return Promise.all(rows.map(async (r) => ({
+        id: r.c.id, caregiverId: r.c.caregiverId, caregiverName: await crypto.decrypt(agencyId, r.name),
+        kind: r.c.kind, issuedOn: r.c.issuedOn, expiresOn: r.c.expiresOn,
+      })));
+    },
+
+    async addCredential(agencyId, input: CredentialInput): Promise<CredentialRow> {
+      const [cg] = await d.select({ id: caregivers.id, name: caregivers.name }).from(caregivers)
+        .where(and(eq(caregivers.agencyId, agencyId), eq(caregivers.id, input.caregiverId))).limit(1);
+      if (!cg) throw new Error("Caregiver not found");
+      const [r] = await d.insert(credentials).values({
+        agencyId, caregiverId: cg.id, kind: input.kind, issuedOn: input.issuedOn ?? null, expiresOn: input.expiresOn,
+      }).returning();
+      return { id: r!.id, caregiverId: cg.id, caregiverName: await crypto.decrypt(agencyId, cg.name), kind: r!.kind, issuedOn: r!.issuedOn, expiresOn: r!.expiresOn };
+    },
+
+    async removeCredential(agencyId, id) {
+      const gone = await d.delete(credentials).where(and(eq(credentials.agencyId, agencyId), eq(credentials.id, id))).returning({ id: credentials.id });
+      return gone.length > 0;
     },
 
     async patients(agencyId, { limit, offset }) {

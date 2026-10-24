@@ -47,6 +47,10 @@ runContract("node + postgres", async () => {
         }).returning();
         return r!.id;
       },
+      async rawCarePlanTitle(id) {
+        const [r] = await db.select({ t: schema.carePlans.title }).from(schema.carePlans).where(eq(schema.carePlans.id, id));
+        return r!.t;
+      },
       async rawPatientName(id) {
         const [r] = await db.select({ n: schema.patients.name }).from(schema.patients).where(eq(schema.patients.id, id));
         return r!.n;
