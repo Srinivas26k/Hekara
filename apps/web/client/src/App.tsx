@@ -2,8 +2,16 @@ import { createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js"
 import { Copilot, OpenShifts, OvertimeWatch } from "./components/Cards";
 import { AccountModal } from "./components/Account";
 import { BillingPage } from "./components/Billing";
+import { CarePlansPage } from "./components/CarePlans";
 import { CaregiversPage } from "./components/Caregivers";
+import { CompliancePage } from "./components/Compliance";
+import { CopilotPage } from "./components/Copilot";
+import { OverviewPage } from "./components/Overview";
 import { PatientsPage } from "./components/Patients";
+import { ReportsPage } from "./components/Reports";
+import { SettingsPage } from "./components/Settings";
+import { TeamPage } from "./components/Team";
+import { VisitsPage } from "./components/Visits";
 import { router } from "./router";
 import { AddPatientModal, ReviewModal } from "./components/Modals";
 import { ScheduleCard } from "./components/ScheduleCard";
@@ -49,6 +57,14 @@ export function App() {
                   <Match when={router.route() === "patients"}><PatientsPage onAdd={() => setAdding(true)} /></Match>
                   <Match when={router.route() === "caregivers"}><CaregiversPage /></Match>
                   <Match when={router.route() === "billing"}><BillingPage /></Match>
+                  <Match when={router.route() === "overview"}><OverviewPage /></Match>
+                  <Match when={router.route() === "visits"}><VisitsPage /></Match>
+                  <Match when={router.route() === "careplans"}><CarePlansPage /></Match>
+                  <Match when={router.route() === "copilot"}><CopilotPage /></Match>
+                  <Match when={router.route() === "compliance"}><CompliancePage /></Match>
+                  <Match when={router.route() === "reports"}><ReportsPage /></Match>
+                  <Match when={router.route() === "settings"}><SettingsPage onAccount={() => setAccount(true)} /></Match>
+                  <Match when={router.route() === "team"}><TeamPage /></Match>
                   <Match when={true}>
                     <ScheduleCard />
                     <Show when={store.isStaff()}>

@@ -3,11 +3,14 @@ import type { SearchHitDto } from "@hekara/core";
 import { api } from "../api";
 import { Icon } from "../icons";
 import { longDate } from "../lib";
-import { router } from "../router";
+import { router, type Route } from "../router";
 import { store } from "../store";
 import { Avatar } from "./Avatar";
 
-const TITLES = { schedule: "Schedule", patients: "Patients", caregivers: "Caregivers", billing: "Billing & Claims" } as const;
+const TITLES: Record<Route, string> = {
+  overview: "Overview", schedule: "Schedule", patients: "Patients", caregivers: "Caregivers", visits: "Visits", careplans: "Care Plans",
+  copilot: "AI Copilot", billing: "Billing & Claims", compliance: "Compliance", reports: "Reports", settings: "Settings", team: "Team & Permissions",
+};
 
 function Search() {
   let input!: HTMLInputElement;

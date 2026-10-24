@@ -47,13 +47,13 @@ export function Sidebar(props: { onAddPatient: () => void }) {
         <Show when={role() !== "billing"}>
           <Section title="MENU">
             <nav class="nav" id="menu">
-              <Item icon={Icon.grid} label="Overview" />
+              <Item icon={Icon.grid} label="Overview" route="overview" />
               <Item icon={Icon.users} label="Patients" route="patients" badge={o()?.badges.patients} />
               <Item icon={Icon.steth} label="Caregivers" route="caregivers" />
               <Item icon={Icon.cal} label="Schedule" route="schedule" badge={o()?.badges.schedule} />
-              <Item icon={Icon.house} label="Visits" />
-              <Item icon={Icon.list} label="Care Plans" />
-              <Item icon={Icon.spark} label="AI Copilot" />
+              <Item icon={Icon.house} label="Visits" route="visits" />
+              <Item icon={Icon.list} label="Care Plans" route="careplans" />
+              <Item icon={Icon.spark} label="AI Copilot" route="copilot" badge={o()?.suggestions.count} />
             </nav>
           </Section>
         </Show>
@@ -62,8 +62,8 @@ export function Sidebar(props: { onAddPatient: () => void }) {
           <Section title="BUSINESS">
             <nav class="nav" id="business">
               <Item icon={Icon.receipt} label="Billing & Claims" route="billing" badge={o()?.badges.claims} />
-              <Item icon={Icon.shield} label="Compliance" />
-              <Item icon={Icon.chart} label="Reports" />
+              <Item icon={Icon.shield} label="Compliance" route="compliance" />
+              <Item icon={Icon.chart} label="Reports" route="reports" />
             </nav>
           </Section>
         </Show>
@@ -80,8 +80,8 @@ export function Sidebar(props: { onAddPatient: () => void }) {
           </Section>
 
           <nav class="nav small">
-            <Item icon={Icon.gear} label="Settings" />
-            <Item icon={Icon.user} label="Team & Permissions" />
+            <Item icon={Icon.gear} label="Settings" route="settings" />
+            <Item icon={Icon.user} label="Team & Permissions" route="team" />
           </nav>
         </Show>
       </div>
