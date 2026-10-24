@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 import type { Role } from "@hekara/core";
-import { ABSOLUTE_MS, type AuthInstance } from "./auth";
+import type { AuthInstance } from "./auth";
+import { ABSOLUTE_MS } from "./policy";
 import { HttpError } from "./errors";
 import type { Identity } from "./app";
 

@@ -10,8 +10,6 @@ import type { Audit, PasswordHasher } from "@hekara/ports";
 import { FailureThrottle } from "./throttle";
 import { IDLE_SECONDS, INVITE_TTL_SECONDS, MIN_PASSWORD_LENGTH } from "./policy";
 
-export type Role = "admin" | "scheduler" | "caregiver" | "billing";
-
 export interface AuthDeps {
   db: PostgresJsDatabase<typeof schema>;
   hasher: PasswordHasher;
@@ -20,8 +18,6 @@ export interface AuthDeps {
   appUrl: string;
   secret: string;
 }
-
-export { ABSOLUTE_MS, IDLE_SECONDS, INVITE_TTL_SECONDS } from "./policy";
 
 export function createAuth(deps: AuthDeps) {
   const url = new URL(deps.appUrl);

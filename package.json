@@ -2,6 +2,33 @@
   "name": "hekara",
   "private": true,
   "version": "0.1.0",
+  "description": "Open-source scheduling and operations for home health agencies. Live timeline, open-shift filling, overtime watch, AI suggestions, billing, care plans and compliance, with field-level encryption and portable hosting.",
+  "license": "AGPL-3.0-only",
+  "author": "Nampalli Srinivas <srinivasvarma764@gmail.com> (https://github.com/Srinivas26k)",
+  "homepage": "https://github.com/Srinivas26k/Hekara#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Srinivas26k/Hekara.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Srinivas26k/Hekara/issues"
+  },
+  "keywords": [
+    "home-health",
+    "healthcare",
+    "scheduling",
+    "hipaa",
+    "typescript",
+    "hono",
+    "solidjs",
+    "postgres",
+    "drizzle",
+    "open-source",
+    "caregiver",
+    "field-encryption",
+    "self-hosted",
+    "passkeys"
+  ],
   "packageManager": "pnpm@12.4.2",
   "engines": {
     "node": ">=20"
@@ -17,10 +44,14 @@
     "db:migrate": "pnpm --filter @hekara/db migrate",
     "db:seed": "pnpm --filter @hekara/web seed",
     "dev:client": "pnpm --filter @hekara/web dev:client",
-    "keygen": "pnpm --silent --filter @hekara/web keygen"
+    "keygen": "pnpm --silent --filter @hekara/web keygen",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "knip": "knip"
   },
   "devDependencies": {
-    "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "knip": "^6.42.1",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2"
   }
 }
