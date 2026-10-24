@@ -100,7 +100,7 @@ const LABELS: Record<string, string> = {
   "schedule.read": "Viewed the schedule", "search": "Searched", "suggestions.compute": "Computed suggestions",
 };
 
-function ActivityLog() {
+export function ActivityLog() {
   const [rows, setRows] = createSignal<AuditDto[]>([]);
   const [open, setOpen] = createSignal(false);
   const [more, setMore] = createSignal(true);
@@ -139,7 +139,7 @@ function ActivityLog() {
   );
 }
 
-function Team() {
+export function Team() {
   const [users, { refetch }] = createResource(() => api.users().catch(() => []));
   const [email, setEmail] = createSignal("");
   const [name, setName] = createSignal("");
@@ -194,7 +194,6 @@ export function AccountModal(props: { onClose: () => void }) {
         <p class="who"><b>{me()?.name}</b><span>{me()?.email} · {me()?.role}</span></p>
         <Passkeys />
         <Authenticator />
-        <Show when={me()?.role === "admin"}><Team /><ActivityLog /></Show>
         <footer>
           <button class="ghost" onClick={() => { props.onClose(); void store.signOut(); }}>Sign out</button>
         </footer>
