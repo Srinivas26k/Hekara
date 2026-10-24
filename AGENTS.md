@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for AI coding agents (Claude Code, Codex, etc.) working on Hekara. Read this first. Details live in `docs/`.
+Instructions for AI coding agents and tools that read AGENTS.md (Codex, Cursor, Copilot and others) working on Hekara. Read this first. Details live in `docs/`.
 
 ## What this project is
 
