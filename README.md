@@ -178,7 +178,7 @@ What is **not** true yet, said plainly:
 
 ### HIPAA and certifications
 
-Software cannot be "HIPAA compliant" by itself. Compliance is a property of how an organisation operates: signed Business Associate Agreements with every vendor that touches patient data, risk assessments, policies, training and breach procedures. Hekara provides the technical safeguards (encryption, access control, audit trails, integrity checks) and [maps them to the rules](docs/HIPAA.md), but **Hekara itself holds no HIPAA, SOC 2, HITRUST or ISO 27001 certification.** I work in governance, risk and compliance (GRC) and cybersecurity, and can help you prepare for HIPAA, SOC 2 and similar programmes. If you need a deployment that supports them, see [Enterprise and custom builds](#enterprise-and-custom-builds).
+Software cannot be "HIPAA compliant" by itself. Compliance is a property of how an organisation operates: signed Business Associate Agreements with every vendor that touches patient data, risk assessments, policies, training and breach procedures. Hekara provides the technical safeguards (encryption, access control, audit trails, integrity checks) and [maps them to the rules](docs/HIPAA.md), but **Hekara itself holds no HIPAA, SOC 2, HITRUST or ISO 27001 certification.** I am the CTO and a co-founder of [CyberArc MSP](https://cyberarcmsp.com), a cybersecurity and compliance firm, and can help you prepare for HIPAA, SOC 2 and similar programmes. If you need a deployment that supports them, see [Enterprise and custom builds](#enterprise-and-custom-builds).
 
 ## Architecture
 
@@ -250,7 +250,7 @@ Found a vulnerability? Please **don't** open a public issue. See [SECURITY.md](S
 
 ## Enterprise and custom builds
 
-Need Hekara adapted to your organisation, or help with the compliance side? I build and support custom deployments for agencies and health-tech teams, and I work in **governance, risk and compliance (GRC) and cybersecurity**, so I can help with both the software and the programme around it:
+Need Hekara adapted to your organisation, or help with the compliance side? I build and support custom deployments for agencies and health-tech teams, and as CTO and co-founder of [CyberArc MSP](https://cyberarcmsp.com) (cybersecurity, cloud and compliance) and co-founder of [CarcGRC](https://carcgrc.com) (an AI-native GRC platform), I work in **governance, risk and compliance (GRC) and cybersecurity** every day, so I can help with both the software and the programme around it:
 
 - **HIPAA-oriented deployments:** BAA-ready hosting design, encryption and key management, audit and access reviews, breach-response tooling.
 - **SOC 2 and other frameworks:** readiness work, control mapping and evidence collection for SOC 2, HITRUST and ISO 27001 programmes. (Certifications are earned by your organisation through an independent auditor; I help you prepare for and support them.)
