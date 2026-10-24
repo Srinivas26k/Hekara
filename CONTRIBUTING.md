@@ -66,6 +66,10 @@ New endpoints need tests for success, validation, wrong role and another agency'
 4. Fill in the PR template. Screenshots help for UI changes (synthetic data only).
 5. Be patient and kind in review. We aim to respond within a week.
 
+## Bounties
+
+Some issues carry a paid [`bounty`](https://github.com/Srinivas26k/Hekara/labels/bounty) label. The rules, payment methods and terms are in [docs/FUNDING.md](docs/FUNDING.md). Please claim a bounty in a comment before starting, and ask about payment if you are outside India.
+
 ## Licence of contributions
 
 Hekara is licensed under the [AGPL-3.0](LICENSE), and the maintainer also offers commercial licences ([COMMERCIAL.md](COMMERCIAL.md)). So that both can continue, by submitting a contribution you confirm that:

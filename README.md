@@ -201,7 +201,7 @@ Hekara is free and open source. There are several ways to get help or help it gr
 
 - **Community help:** ask in [Discussions](https://github.com/Srinivas26k/Hekara/discussions) or open an [issue](https://github.com/Srinivas26k/Hekara/issues). See [SUPPORT.md](SUPPORT.md).
 - **Paid support and consulting:** setup, hosting, migration, training and priority fixes are available. Email **[srinivasvarma764@gmail.com](mailto:srinivasvarma764@gmail.com)**.
-- **Sponsorship and donations:** funding keeps the project maintained, audited and documented. A sponsorship page is being set up; until it is live, write to the email above to sponsor a feature, fund a security review, or make a donation.
+- **Sponsorship:** funding keeps the project maintained, audited and documented, and pays contributor [bounties](docs/FUNDING.md). See the [sponsor page](https://srinivas26k.github.io/Hekara/) for how, and [docs/FUNDING.md](docs/FUNDING.md) for where the money goes. You can also write to the email above to sponsor a feature or fund a security review.
 - **Star and share:** a star on GitHub helps other agencies and developers find it.
 
 ## Enterprise and custom builds
