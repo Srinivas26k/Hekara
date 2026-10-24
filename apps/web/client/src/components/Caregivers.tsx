@@ -37,7 +37,7 @@ export function CaregiversPage() {
                   title="Open their schedule"
                 >
                   <div class="person-top">
-                    <Avatar name={c.name} />
+                    <Avatar name={c.name} src={c.avatarUrl} />
                     <b>{c.name}</b>
                     <Show when={c.flagged}>
                       <span class="warn" title="Needs attention" />

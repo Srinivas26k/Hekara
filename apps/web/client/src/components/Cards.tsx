@@ -65,7 +65,7 @@ export function OvertimeWatch() {
       <For each={list()} fallback={<p class="muted-note">Nobody is near their weekly limit.</p>}>
         {(p) => (
           <div class="ot">
-            <Avatar name={p.name} />
+            <Avatar name={p.name} src={p.avatarUrl} />
             <div class="ot-body">
               <div class="ot-top">
                 <b>{p.name}</b>

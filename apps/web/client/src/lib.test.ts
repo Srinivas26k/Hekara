@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avatarColors, copilotCopy, fmtRange, hourOf, initials, kindOf, longDate, pct, place } from "./lib";
+import { safeAvatar, avatarColors, copilotCopy, fmtRange, hourOf, initials, kindOf, longDate, pct, place } from "./lib";
 
 const iso = (h: number, m = 0) => new Date(2026, 8, 30, h, m).toISOString();
 
@@ -57,5 +57,23 @@ describe("copy and avatars", () => {
     expect(initials("Maria Lopez")).toBe("ML");
     expect(initials("Cher")).toBe("C");
     expect(avatarColors("Maria Lopez")).toEqual(avatarColors("Maria Lopez"));
+  });
+});
+
+describe("safeAvatar", () => {
+  it("accepts only same-origin demo photo paths", () => {
+    expect(safeAvatar("/avatars/w-44.jpg")).toBe("/avatars/w-44.jpg");
+    for (const bad of [
+      "https://evil.example/x.jpg",
+      "//evil.example/x.jpg",
+      "/avatars/../secret.jpg",
+      "javascript:alert(1)",
+      "/other/w-1.jpg",
+      "",
+      null,
+      undefined,
+    ]) {
+      expect([bad, safeAvatar(bad)]).toEqual([bad, null]);
+    }
   });
 });

@@ -50,6 +50,10 @@ export function kindOf(status: string, startIso: string, endIso: string, now: Da
   return "sched";
 }
 
+/** Only same-origin demo or uploaded photos are ever shown; anything else falls back to initials. */
+export const safeAvatar = (url: string | null | undefined): string | null =>
+  url && /^\/avatars\/[\w.-]+$/.test(url) ? url : null;
+
 export const initials = (name: string): string =>
   name
     .split(/\s+/)

@@ -68,7 +68,7 @@ export function ScheduleCard() {
                       store.setFilter(p);
                     }}
                   >
-                    <Avatar name={p.name} class="tiny" />
+                    <Avatar name={p.name} src={p.avatarUrl} class="tiny" />
                     {p.name}
                   </button>
                 )}

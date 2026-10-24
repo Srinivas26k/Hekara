@@ -88,7 +88,7 @@ export function Sidebar(props: { onAddPatient: () => void }) {
                 </span>
               </div>
               <div class="stack">
-                <For each={o()?.onShift.avatars ?? []}>{(p) => <Avatar name={p.name} />}</For>
+                <For each={o()?.onShift.avatars ?? []}>{(p) => <Avatar name={p.name} src={p.avatarUrl} />}</For>
                 <Show when={(o()?.onShift.count ?? 0) > 4}>
                   <span class="more">+{(o()?.onShift.count ?? 0) - 4}</span>
                 </Show>

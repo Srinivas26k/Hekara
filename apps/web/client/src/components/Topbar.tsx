@@ -230,7 +230,7 @@ export function Topbar(props: { onAddPatient: () => void; onAccount: () => void 
           </Show>
         </div>
         <button class="me-btn" aria-label="Account" onClick={props.onAccount}>
-          <Avatar name={store.me()?.name ?? "?"} class="me" />
+          <Avatar name={store.me()?.name ?? "?"} src={store.me()?.avatarUrl} class="me" />
         </button>
       </div>
     </header>

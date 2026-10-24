@@ -2116,3 +2116,14 @@ button.tile.on {
   height: auto;
   min-height: 110px;
 }
+
+/* Profile photos fill the avatar circle */
+.av {
+  overflow: hidden;
+}
+.av img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

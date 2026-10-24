@@ -61,7 +61,7 @@ export function Timeline() {
                   {(r, i) => (
                     <>
                       <div class="row-label" style={{ top: `${i() * ROW_H}px` }}>
-                        <Avatar name={r.name} />
+                        <Avatar name={r.name} src={r.avatarUrl} />
                         {r.name}
                         <Show when={r.flagged}>
                           <span class="warn" title="Needs attention" />
