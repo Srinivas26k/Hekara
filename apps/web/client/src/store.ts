@@ -21,6 +21,8 @@ const EVENT_TEXT: Record<string, string> = {
   "suggestions.changed": "Copilot suggestions updated",
   "patient.created": "A patient was added",
   "claim.updated": "A claim changed",
+  "careplan.updated": "A care plan changed",
+  "credential.updated": "A credential changed",
 };
 
 function createStore() {

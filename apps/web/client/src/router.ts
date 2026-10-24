@@ -2,15 +2,18 @@ import { createMemo, createRoot, createSignal } from "solid-js";
 import type { Role } from "@hekara/core";
 import { store } from "./store";
 
-export type Route = "schedule" | "patients" | "caregivers" | "billing";
+export type Route =
+  | "overview" | "schedule" | "patients" | "caregivers" | "visits" | "careplans" | "copilot"
+  | "billing" | "compliance" | "reports" | "settings" | "team";
 
+const STAFF: Route[] = ["overview", "schedule", "patients", "caregivers", "visits", "careplans", "copilot", "compliance", "reports"];
 const ALLOWED: Record<Role, Route[]> = {
-  admin: ["schedule", "patients", "caregivers", "billing"],
-  scheduler: ["schedule", "patients", "caregivers"],
+  admin: [...STAFF, "billing", "settings", "team"],
+  scheduler: STAFF,
   caregiver: ["schedule"],
-  billing: ["billing"],
+  billing: ["billing", "reports"],
 };
-const HOME: Record<Role, Route> = { admin: "schedule", scheduler: "schedule", caregiver: "schedule", billing: "billing" };
+const HOME: Record<Role, Route> = { admin: "overview", scheduler: "overview", caregiver: "schedule", billing: "billing" };
 
 const parse = (): string => location.hash.replace(/^#\/?/, "").split(/[?/]/)[0] ?? "";
 
