@@ -1,12 +1,13 @@
 import { relations } from "drizzle-orm";
 import {
-  boolean, integer, pgEnum, pgTable, text, timestamp, uuid, real, index, uniqueIndex,
+  boolean, date, integer, pgEnum, pgTable, text, timestamp, uuid, real, index, uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["admin", "scheduler", "caregiver", "billing"]);
 export const visitStatusEnum = pgEnum("visit_status", [
   "scheduled", "in_progress", "done", "attention", "open", "ai_suggestion",
 ]);
+export const carePlanStatusEnum = pgEnum("care_plan_status", ["active", "paused", "completed"]);
 export const claimStatusEnum = pgEnum("claim_status", ["draft", "submitted", "paid", "denied"]);
 
 /* ---------- Better Auth tables ---------- */
@@ -138,6 +139,31 @@ export const visits = pgTable("visits", {
   index("visits_agency_start_idx").on(t.agencyId, t.startsAt),
   index("visits_caregiver_start_idx").on(t.caregiverId, t.startsAt),
 ]);
+
+export const carePlans = pgTable("care_plans", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  patientId: uuid("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
+  /** title, instructions and tasks (a JSON array) are encrypted envelopes. */
+  title: text("title").notNull(),
+  instructions: text("instructions"),
+  tasks: text("tasks"),
+  status: carePlanStatusEnum("status").notNull().default("active"),
+  reviewOn: date("review_on", { mode: "string" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [index("care_plans_agency_patient_idx").on(t.agencyId, t.patientId)]);
+
+/** Caregiver credentials (CPR, TB test, background check). Kind and dates only: no ID numbers are stored. */
+export const credentials = pgTable("credentials", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  caregiverId: uuid("caregiver_id").notNull().references(() => caregivers.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(),
+  issuedOn: date("issued_on", { mode: "string" }),
+  expiresOn: date("expires_on", { mode: "string" }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [index("credentials_agency_expiry_idx").on(t.agencyId, t.expiresOn)]);
 
 export const claims = pgTable("claims", {
   id: uuid("id").primaryKey().defaultRandom(),
