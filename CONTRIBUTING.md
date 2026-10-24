@@ -33,11 +33,15 @@ pnpm dev:client                 # UI with hot reload on :5173
 Before you push:
 
 ```sh
+pnpm format          # Prettier (130 columns); `pnpm format:check` is what CI runs
 pnpm typecheck
+pnpm knip            # finds unused files, exports and dependencies
 pnpm test
 ```
 
-Both must pass. Tests use the Postgres container from `docker compose`.
+All four must pass. Tests use the Postgres container from `docker compose`.
+
+Optional: `pnpm demo:avatars` downloads placeholder profile photos for the demo people.
 
 ## The rules that matter
 
