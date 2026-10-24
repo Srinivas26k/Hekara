@@ -181,6 +181,9 @@ importers:
       '@better-auth/passkey':
         specifier: ^1.7.12
         version: 1.7.12(@better-auth/core@1.7.12(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.12(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(kysely@0.29.7)(postgres@3.4.9))(solid-js@1.9.17)(vitest@3.2.7(@types/node@26.6.5)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(better-call@1.4.4(zod@4.6.7))(nanostores@1.5.5)
+      '@carbon/icons':
+        specifier: ^11.91.0
+        version: 11.91.0
       '@fontsource-variable/inter':
         specifier: ^5.2.5
         version: 5.3.0
@@ -522,6 +525,9 @@ packages:
 
   '@better-fetch/fetch@1.3.2':
     resolution: {integrity: sha512-Gs7n99b5tqUC6cQAPbV0uED3IraHB6xQbHLQ/C3l7ZFafHScOx9pQ+DYmP5blbLFShVWLqxNUlI9wi4xU/X+ow==}
+
+  '@carbon/icons@11.91.0':
+    resolution: {integrity: sha512-XMFcuwdUHrrI+GK3ZB8TjueZoe2hD6ThCfMKT4ZO64aEvEYgqtpkQ+FvLs1KCWDysQbsMEnKdrheBx54vHTY4w==}
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
@@ -998,6 +1004,10 @@ packages:
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
+
+  '@ibm/telemetry-js@1.12.0':
+    resolution: {integrity: sha512-tNgmk2k8loNDTnPInlu7yMP9YOCr9UMwSnXN7SCEsGIV8xHfTawhXlDnp1PV0Lbv+2GoLQKSgkShlJeGPi4jTg==}
+    hasBin: true
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2491,6 +2501,10 @@ snapshots:
 
   '@better-fetch/fetch@1.3.2': {}
 
+  '@carbon/icons@11.91.0':
+    dependencies:
+      '@ibm/telemetry-js': 1.12.0
+
   '@drizzle-team/brocli@0.10.2': {}
 
   '@emnapi/core@1.11.2':
@@ -2748,6 +2762,8 @@ snapshots:
   '@hono/node-server@1.19.17(hono@4.13.13)':
     dependencies:
       hono: 4.13.13
+
+  '@ibm/telemetry-js@1.12.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:

@@ -218,4 +218,4 @@ Hekara is licensed under the **[GNU Affero General Public License v3.0](LICENSE)
 
 ## Acknowledgements
 
-Built on the shoulders of [Hono](https://hono.dev), [SolidJS](https://www.solidjs.com), [Drizzle](https://orm.drizzle.team), [Better Auth](https://www.better-auth.com), [Valibot](https://valibot.dev), [Vite](https://vite.dev) and [PostgreSQL](https://www.postgresql.org). Created and maintained by [Nampalli Srinivas](https://github.com/Srinivas26k).
+Icons are from IBM's [Carbon Design System](https://carbondesignsystem.com/elements/icons/library/) (Apache-2.0). Built on the shoulders of [Hono](https://hono.dev), [SolidJS](https://www.solidjs.com), [Drizzle](https://orm.drizzle.team), [Better Auth](https://www.better-auth.com), [Valibot](https://valibot.dev), [Vite](https://vite.dev) and [PostgreSQL](https://www.postgresql.org). Created and maintained by [Nampalli Srinivas](https://github.com/Srinivas26k).
