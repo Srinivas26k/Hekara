@@ -24,14 +24,14 @@ export function Login() {
 
   const signIn = (e: SubmitEvent) => { e.preventDefault(); void run(async () => {
     const r = await authClient.signIn.email({ email: email().trim(), password: password() });
-    if (r.error) { setError("Email or password is incorrect."); return; }
+    if (r.error) { setError(r.error.status === 429 ? "Too many attempts. Wait a minute and try again." : "Email or password is incorrect."); return; }
     if ((r.data as { twoFactorRedirect?: boolean } | null)?.twoFactorRedirect) { setStep("code"); setPassword(""); return; }
     await store.loadMe();
   }); };
 
   const verify = (e: SubmitEvent) => { e.preventDefault(); void run(async () => {
     const r = backup() ? await authClient.twoFactor.verifyBackupCode({ code: code().trim() }) : await authClient.twoFactor.verifyTotp({ code: code().trim() });
-    if (r.error) { setError("That code didn't work."); return; }
+    if (r.error) { setError(r.error.status === 429 ? "Too many attempts. Wait a minute and try again." : "That code didn't work."); return; }
     await store.loadMe();
   }); };
 
