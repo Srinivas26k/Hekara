@@ -316,6 +316,7 @@ export async function caregiverCards(ctx: Ctx): Promise<CaregiverCardDto[]> {
     return {
       id: c.id,
       name: c.name,
+      avatarUrl: c.avatarUrl,
       skills: c.skills,
       weeklyHours: c.weeklyHours,
       weeklyLimit: c.weeklyLimit,

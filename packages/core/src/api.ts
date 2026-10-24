@@ -161,6 +161,7 @@ export interface MeDto {
   twoFactorEnabled: boolean;
   agencyId: string;
   agencyName: string;
+  avatarUrl: string | null;
 }
 export interface UserDto {
   id: string;
@@ -206,6 +207,7 @@ export interface PatientDetailDto {
 export interface CaregiverCardDto {
   id: string;
   name: string;
+  avatarUrl: string | null;
   skills: string[];
   weeklyHours: number;
   weeklyLimit: number;

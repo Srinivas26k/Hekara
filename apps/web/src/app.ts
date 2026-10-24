@@ -40,6 +40,7 @@ export interface Identity {
   name: string;
   email: string;
   twoFactorEnabled: boolean;
+  avatarUrl: string | null;
 }
 
 export interface AppDeps {
@@ -135,6 +136,7 @@ export function createApp(deps: AppDeps): Hono<Env> {
       twoFactorEnabled: i.twoFactorEnabled,
       agencyId: i.agencyId,
       agencyName: agency?.name ?? "",
+      avatarUrl: i.avatarUrl,
     };
     return c.json(me);
   });

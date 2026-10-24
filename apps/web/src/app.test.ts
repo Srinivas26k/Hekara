@@ -51,6 +51,7 @@ const who = (agencyId: string, role: Identity["role"] = "admin", caregiverId: st
   name: "Tester",
   email: "t@example.test",
   twoFactorEnabled: false,
+  avatarUrl: null,
 });
 const appFor = (agency: () => string) =>
   createApp({

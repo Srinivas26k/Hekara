@@ -111,7 +111,13 @@ beforeAll(async () => {
   cgId = (
     await db
       .insert(s.caregivers)
-      .values({ agencyId: A, name: await crypto.encrypt(A, "Maria Lopez"), weeklyHours: 24, skills: ["HHA"] })
+      .values({
+        agencyId: A,
+        name: await crypto.encrypt(A, "Maria Lopez"),
+        weeklyHours: 24,
+        avatarUrl: "/avatars/w-44.jpg",
+        skills: ["HHA"],
+      })
       .returning()
   )[0]!.id;
   const visit = async (label: string, h: number) =>
@@ -196,7 +202,14 @@ describe("caregivers", () => {
   it("shows load and next visit to staff only", async () => {
     const list = (await (await get("scheduler", "/api/caregivers?at=10:00")).json()) as any[];
     const maria = list.find((c) => c.name === "Maria Lopez");
-    expect(maria).toMatchObject({ weeklyHours: 24, weeklyLimit: 40, todayVisits: 2, todayHours: 3, skills: ["HHA"] });
+    expect(maria).toMatchObject({
+      weeklyHours: 24,
+      weeklyLimit: 40,
+      avatarUrl: "/avatars/w-44.jpg",
+      todayVisits: 2,
+      todayHours: 3,
+      skills: ["HHA"],
+    });
     expect(maria.nextVisit.label).toBe("Harold K.");
     for (const k of ["billing", "caregiver"]) expect([k, (await get(k, "/api/caregivers")).status]).toEqual([k, 403]);
     expect((await (await get("admin-b", "/api/caregivers")).json()) as any[]).toEqual([]);

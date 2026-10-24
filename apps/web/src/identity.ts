@@ -31,6 +31,7 @@ export function identifyFromSession(auth: AuthInstance) {
       name: u.name,
       email: u.email,
       twoFactorEnabled: !!u.twoFactorEnabled,
+      avatarUrl: u.image ?? null,
     };
   };
 }
