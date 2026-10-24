@@ -108,6 +108,7 @@ The owner maintains the full written plan; this repo supplies the technical leve
 ## 10. Known limits
 
 - The account lockout also lets someone deliberately lock another user out for 15 minutes by typing wrong passwords for their email. Tracking is by account, so this is the cost of stopping distributed guessing. Admins can see the pattern in the log.
+- Sign-in limits count every attempt from an address, successful or not, so a large office behind one shared address could reach the 5 per minute limit. Behind a proxy, set `TRUST_PROXY=1` so the real client address is used; without it the socket address is used, and a proxy would make everyone look like one address.
 - Rate limiters and the lockout are in memory, per instance. With more than one instance, move them to a shared store (they sit behind small interfaces for that).
 - Passkey endpoints are wired but have no automated test, because they need a WebAuthn authenticator. Test them manually before relying on them.
 - The daily audit job runs inside the server process; run it on one instance only.
