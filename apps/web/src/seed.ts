@@ -112,6 +112,55 @@ async function main() {
     label: await enc(v.label), startsAt: at(v.start), endsAt: at(v.end), status: v.status, requirement: v.req,
   })))).returning();
 
+  // The surrounding week: 6 days of history and 3 days ahead, so Week view and Reports have something to show.
+  const atDay = (off: number, h: number) => new Date(midnight.getTime() + off * 86_400_000 + h * 3_600_000);
+  for (const off of [-6, -5, -4, -3, -2, -1, 1, 2, 3]) {
+    const day: V[] = [];
+    const cur = new Map(extra.map((p) => [p.name, 7 + Math.floor(rand() * 12) / 2]));
+    for (let round = 0; day.length < 110 && round < 10; round++) for (const p of extra) {
+      if (day.length >= 110) break;
+      const start = cur.get(p.name)!, dur = pick([1, 1.5, 2]);
+      if (start + dur > 19) continue;
+      day.push({ caregiver: p.name, label: pick(patientNames), start, end: start + dur, status: "scheduled", req: p.skills.includes("HHA") && rand() < 0.3 ? "HHA" : null });
+      cur.set(p.name, start + dur + pick([1, 1.5, 2, 2.5]));
+    }
+    if (off > 0) for (const [label, st, en, req] of [["Dorothy Nguyen", 9, 11, "HHA"], ["Harold K.", 14, 16, "Companion"]] as const) {
+      if (rand() < 0.7) day.push({ caregiver: null, label, start: st, end: en, status: "open", req });
+    }
+    await db.insert(s.visits).values(await Promise.all(day.map(async (v) => ({
+      agencyId: A, caregiverId: v.caregiver ? cgId.get(v.caregiver)! : null, patientId: patId.get(v.label) ?? null,
+      label: await enc(v.label), startsAt: atDay(off, v.start), endsAt: atDay(off, v.end), status: v.status, requirement: v.req,
+    }))));
+  }
+
+  // Care plans for about two thirds of patients
+  const GOALS = ["Medication reminders", "Mobility and fall prevention", "Meal preparation", "Personal care and bathing", "Companionship and activity", "Wound care follow-up", "Light housekeeping", "Transportation to appointments"];
+  const PLAN_TITLES = ["Daily living support", "Post-hospital recovery", "Mobility and safety", "Chronic condition care", "Memory care routine"];
+  const reviewIn = (days: number) => new Date(midnight.getTime() + days * 86_400_000).toISOString().slice(0, 10);
+  const planRows = [];
+  for (const [i, name] of patientNames.entries()) {
+    if (i % 3 === 2) continue;
+    const tasks = Array.from(new Set(Array.from({ length: 3 + Math.floor(rand() * 3) }, () => pick(GOALS))));
+    planRows.push({
+      agencyId: A, patientId: patId.get(name)!, title: await enc(pick(PLAN_TITLES)),
+      instructions: await enc("Follow the agreed routine. Report any change in condition to the supervising nurse the same day."),
+      tasks: await enc(JSON.stringify(tasks)),
+      status: (i % 11 === 0 ? "paused" : i % 13 === 0 ? "completed" : "active") as "active" | "paused" | "completed",
+      reviewOn: reviewIn(Math.floor(rand() * 120) - 20), // some already overdue
+    });
+  }
+  await db.insert(s.carePlans).values(planRows);
+
+  // Credentials: each caregiver holds 3 or 4; expiry dates span expired, soon, and comfortably valid
+  const KINDS = ["CPR / First Aid", "TB test", "Background check", "HHA certification", "Driver's licence"];
+  const credRows = [];
+  for (const p of people) for (const kind of KINDS.slice(0, 3 + (rand() < 0.5 ? 1 : 0))) {
+    const roll = rand();
+    const days = roll < 0.06 ? -Math.floor(rand() * 60) - 1 : roll < 0.2 ? Math.floor(rand() * 30) : roll < 0.4 ? 30 + Math.floor(rand() * 60) : 90 + Math.floor(rand() * 600);
+    credRows.push({ agencyId: A, caregiverId: cgId.get(p.name)!, kind, issuedOn: reviewIn(days - 365), expiresOn: reviewIn(days) });
+  }
+  await db.insert(s.credentials).values(credRows);
+
   // Claims: 14 drafts (shown as the sidebar badge) plus history
   const statuses = [...Array(14).fill("draft"), ...Array(20).fill("submitted"), ...Array(40).fill("paid"), ...Array(6).fill("denied")] as const;
   await db.insert(s.claims).values(statuses.map((status, i) => ({
@@ -137,7 +186,7 @@ async function main() {
   console.log(`Seeded ${NAME}: agency ${A}`);
   console.log(`  demo sign-ins (${password}):`);
   for (const u of demo) console.log(`    ${u.role.padEnd(10)} ${u.email}`);
-  console.log(`  ${people.length} caregivers, ${visitRows.length} visits, ${patRows.length} patients, ${statuses.length} claims`);
+  console.log(`  ${people.length} caregivers, ${visitRows.length} visits today (plus a week around it), ${patRows.length} patients, ${planRows.length} care plans, ${credRows.length} credentials, ${statuses.length} claims`);
 }
 
 try { await main(); } finally { await sql.end({ timeout: 2 }); }
