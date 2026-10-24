@@ -17,6 +17,20 @@ Hekara is open source under the [AGPL-3.0](LICENSE) and free to use. This page i
 | **Support plans**                       | Response-time commitments, upgrades, training for your team                                                                                                   |
 | **Commercial licence**                  | Use Hekara without the AGPL's network-source requirement, for example inside a proprietary product                                                            |
 
+## Compliance and risk help (GRC)
+
+I work professionally in **governance, risk and compliance (GRC) and cybersecurity**, so beyond the software I can help your organisation prepare for **HIPAA, SOC 2** and other frameworks such as HITRUST and ISO 27001. Typical work:
+
+- **Gap assessment** against the HIPAA Security Rule or the SOC 2 Trust Services Criteria
+- **Risk assessment** and a maintained risk register
+- **Policies and procedures** your auditor will expect: access control, incident response, vendor management, retention, acceptable use
+- **Control mapping:** tying Hekara's safeguards to the requirements you must meet (a starting point is [docs/HIPAA.md](docs/HIPAA.md)), and configuring Hekara securely for your environment
+- **Evidence collection and audit preparation,** working alongside your independent auditor
+- **Vendor risk** reviews and Business Associate Agreement checklists
+- **Security awareness training** and incident-response exercises for your team
+
+What this is **not**: I am not a law firm or an audit firm. This is advisory help, not legal advice. I cannot issue a SOC 2 report (that is done by an independent CPA firm), HIPAA has no official certificate to issue, and I cannot guarantee the outcome of any audit. Where the next step needs a lawyer or an auditor, I will say so.
+
 ## About certifications
 
 Being **HIPAA compliant**, **SOC 2 attested** or **ISO 27001 certified** is something an _organisation_ achieves, through its own policies, operations and an independent auditor. No software can hold those on its own, and **Hekara does not claim any certification.**
