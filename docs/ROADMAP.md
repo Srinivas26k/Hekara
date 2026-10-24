@@ -50,7 +50,7 @@ Done: Better Auth with roles, invite-only accounts, Argon2id, TOTP and passkey e
 
 ## M6: Billing, compliance, reports (billing started)
 
-Done: Patients, Caregivers and Billing & Claims pages with the claim status workflow, role-based navigation. Remaining: claim creation from completed visits, export formats, credentials tracking, reports and the warehouse.
+Done: every menu page is real. Overview, Visits, Care Plans, AI Copilot, Compliance (credential tracking), Reports with CSV export, Settings, Team & Permissions, Patients, Caregivers and Billing & Claims, with role-based navigation. Remaining: claim creation from completed visits, claim export formats, caregiver-facing mobile views, the de-identified warehouse and scheduled reports.
 
 - Claims workflow and export.
 - Credentials tracking and audit viewer.

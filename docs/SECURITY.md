@@ -99,9 +99,10 @@ The owner maintains the full written plan; this repo supplies the technical leve
 ## 9a. Accounts and roles (as built)
 
 - **Invite-only.** Self-signup is disabled. An admin creates an account and hands the invitee a one-time link (valid 48 hours, single use) to choose a password of 12 or more characters. There is no email service yet, so the link is shown once to the admin.
-- **Roles, deny by default:** `admin` (everything), `scheduler` (schedule, overview, search, patients, caregivers), `caregiver` (own visits only, forced server-side), `billing` (claims only). Every route lists the roles it allows.
+- **Roles, deny by default:** `admin` (everything), `scheduler` (schedule, overview, visits, search, patients, care plans, caregivers, credentials, hours and fill reports), `caregiver` (own visits only, forced server-side), `billing` (claims and claim figures in reports). Every route lists the roles it allows.
 - **Passwords** are Argon2id (19 MiB, 2 passes), parameters stored in the hash, constant-time verify.
 - **Second factor:** TOTP with backup codes; passkeys as an alternative sign-in.
+- **CSV exports** neutralise cells that start like a spreadsheet formula (`=`, `+`, `-`, `@`) and are audited; care plan and credential changes are audited without their contents.
 - **Failure messages are uniform:** wrong password and unknown email return the same response, and unknown emails are counted by the lockout like real ones.
 - **Audit:** sign-in, sign-out, passkey, two-factor, password changes, invites, fills, patient creation and searches (length only) are recorded. Schedule reads are recorded at most once per user and view every 5 minutes. Admins can browse the log and run an integrity check; a daily job verifies every agency's chain.
 

@@ -48,6 +48,8 @@ Multi-tenant by `agencyId`. Sensitive columns are stored as ciphertext envelopes
 
 | Table | Key columns | Encrypted fields |
 |---|---|---|
+| care_plans | id, agencyId, patientId, status, reviewOn | title, instructions, tasks |
+| credentials | id, agencyId, caregiverId, kind, issuedOn, expiresOn | none (kind and dates only; ID numbers are never stored) |
 | agencies | id, name | none |
 | users (Better Auth) | id, email, role, agencyId | name |
 | caregivers | id, agencyId, name, weeklyHours, weeklyLimit, onShift, flagged | name |
@@ -94,6 +96,12 @@ REST over HTTPS, typed through Hono RPC. JSON only. All routes under `/api`, all
 | GET `/api/claims?status&limit&offset` | Claims with visit details, per-status counts and allowed next steps | admin, billing |
 | POST `/api/claims/:id/status` | Move a claim along draft, submitted, paid or denied | admin, billing |
 | `/api/auth/*` | Sign-in, sign-out, passkeys, two-factor, password reset (Better Auth) | public or session, rate limited |
+| GET `/api/dashboard` | Today's visits by status, week chart, attention list, compliance and care plan alerts, admin-only claims snapshot | admin, scheduler |
+| GET `/api/visits?date&status&limit&offset` | One day's visits with caregiver names and status counts | admin, scheduler |
+| GET/POST `/api/care-plans`, GET/PATCH `/api/care-plans/:id` | Encrypted care plans: list, create, read, update | admin, scheduler |
+| GET `/api/compliance`, POST `/api/compliance/credentials`, DELETE `/api/compliance/credentials/:id` | Caregiver credentials with expiry status; add (admin, scheduler), remove (admin) | admin, scheduler |
+| GET `/api/reports?days`, GET `/api/reports/hours.csv?days` | Hours, fill rate, per-day totals, claims by status; CSV export | admin, scheduler (hours, fill), admin, billing (claims) |
+| GET/PUT `/api/settings` | Agency name and the read-only security rules | admin |
 | GET/POST `/api/admin/users` | List users, create an invite | admin |
 | GET `/api/admin/audit`, POST `/api/admin/audit/verify` | Browse the activity log, check chain integrity | admin |
 | POST `/api/admin/export` and `/api/admin/import` | Portable agency export/import | admin |

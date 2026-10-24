@@ -25,7 +25,7 @@ TypeScript everywhere. Hono (API), SolidJS + Vite (UI), Drizzle (data), Valibot 
 
 ## Current status
 
-Working locally on the Node and Postgres adapter: live schedule (day and week), open-shift fill with undo, overtime watch, AI Copilot suggestions, search, add a patient, patient, caregiver and billing pages (claims move through draft, submitted, paid or denied), sign-in with roles, invites, passkeys and authenticator codes, admin activity log. PHI is encrypted per field. The Cloudflare adapter, export/import tooling, visits, care plans, compliance and reports are not built yet; see [docs/ROADMAP.md](docs/ROADMAP.md).
+Working locally on the Node and Postgres adapter: live schedule (day and week), open-shift fill with undo, overtime watch, AI Copilot suggestions, search, add a patient, overview dashboard, visits, care plans, compliance (credential expiry tracking), reports with CSV export, settings, team and permissions, patient, caregiver and billing pages (claims move through draft, submitted, paid or denied), sign-in with roles, invites, passkeys and authenticator codes, admin activity log. PHI is encrypted per field. The Cloudflare adapter, export/import tooling and a phone layout are not built yet; see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quick start
 
