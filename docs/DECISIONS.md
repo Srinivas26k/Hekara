@@ -77,7 +77,7 @@ Format: context, decision, consequences. Add a new record for any change that af
 **Status:** accepted
 **Context:** External fonts and images leak IP addresses and complicate CSP and HIPAA review.
 **Decision:** Self-host Inter, icons and avatars; the CSP allows only same origin.
-**Consequences:** Inter is bundled from the `@fontsource-variable/inter` package and avatars are generated initials, so the browser makes no third-party requests.
+**Consequences:** Inter is bundled from the `@fontsource-variable/inter` package and avatars are initials by default, so the browser makes no third-party requests. Optional demo portraits are downloaded once by `pnpm demo:avatars` and served from the app's own origin; the client only renders paths under `/avatars/`.
 
 ## ADR-012: Portable export format is a first-class feature
 

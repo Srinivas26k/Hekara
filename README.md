@@ -58,7 +58,7 @@ It is built around four ideas:
 | ![Billing and claims](docs/images/billing.png) | ![Compliance](docs/images/compliance.png) |
 | ![Reports](docs/images/reports.png)            | ![Sign in](docs/images/login.png)         |
 
-All screenshots use synthetic demo data.
+All screenshots use synthetic demo data. The profile photos are placeholder portraits from [randomuser.me](https://randomuser.me/photos) (hand-picked from the authorised section of [UI Faces](https://uifaces.co)); they are downloaded locally for demos and are **not** part of this repository. In your own deployment people show as initials until a photo is set.
 </details>
 
 ### Roles
@@ -87,6 +87,7 @@ openssl rand -base64 48          # paste the output as AUTH_SECRET in .env
 docker compose up -d db          # Postgres on port 5442
 pnpm db:migrate
 DEMO_PASSWORD='choose-a-long-password' pnpm db:seed
+pnpm demo:avatars                # optional: placeholder profile photos for the demo people
 
 pnpm build && pnpm start         # http://localhost:3000
 ```
