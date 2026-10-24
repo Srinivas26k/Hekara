@@ -4,7 +4,7 @@ Hekara is free and open source. This page explains how sponsorship money is used
 
 ## Where the money comes from
 
-- **Sponsorship:** voluntary payments from individuals and organisations (see the [sponsor page](https://srinivas26k.github.io/Hekara/)).
+- **Sponsorship:** voluntary payments from individuals and organisations (see the [sponsor page](https://srinivas26k.github.io/Hekara/) or sponsor directly at https://rzp.io/rzp/G5kLjzP).
 - **Paid services:** setup, support and custom work for organisations (see [COMMERCIAL.md](../COMMERCIAL.md)).
 
 The maintainer is an individual in India. Sponsorship is income to the maintainer; it is not held in a separate legal entity or fund, and it is not tax-deductible for sponsors.

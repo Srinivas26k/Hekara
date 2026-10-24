@@ -29,4 +29,4 @@ The AGPL lets anyone use and modify Hekara, but if you run a modified version as
 
 ## Funding the project
 
-Not every need is a contract. You can also **sponsor** a specific feature, **fund an independent security audit**, or **donate** toward maintenance. Write to the address above; funders can be credited in the README and release notes if they wish.
+Not every need is a contract. You can also **sponsor** a specific feature, **fund an independent security audit**, or **donate** toward maintenance. Use the [sponsor link](https://rzp.io/rzp/G5kLjzP) for any amount, or write to the address above for larger or targeted funding. Funders can be credited in the README and release notes if they wish.
