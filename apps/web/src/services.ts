@@ -14,7 +14,7 @@ const DAY = 86_400_000;
 /** Reads are audited once per user and view every 5 minutes, so polling and live refreshes don't flood the log. */
 const READ_AUDIT_WINDOW_MS = 5 * 60_000;
 const lastRead = new Map<string, number>();
-async function auditRead(ctx: Ctx, action: string, entityId: string, entity = "schedule") {
+export async function auditRead(ctx: Ctx, action: string, entityId: string, entity = "schedule") {
   const key = `${ctx.agencyId}|${ctx.userId}|${action}|${entityId}`;
   const t = Date.now();
   if (t - (lastRead.get(key) ?? 0) < READ_AUDIT_WINDOW_MS) return;

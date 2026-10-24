@@ -3,7 +3,8 @@ import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
 import * as v from "valibot";
 import {
-  ApplyInputSchema, AuditQuerySchema, ClaimStatusInputSchema, ClaimsQuerySchema, FillInputSchema, PageQuerySchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
+  ApplyInputSchema, AuditQuerySchema, CarePlanInputSchema, CarePlanPatchSchema, CarePlansQuerySchema, ClaimStatusInputSchema,
+  ClaimsQuerySchema, CredentialInputSchema, FillInputSchema, PageQuerySchema, ReportsQuerySchema, SettingsInputSchema, VisitsQuerySchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
   type AuditDto, type AuditVerifyDto, type MeDto, type Role,
 } from "@hekara/core";
 import type { Ports } from "@hekara/ports";
@@ -11,6 +12,7 @@ import { HttpError } from "./errors";
 import { rateLimit, sameOriginOnly, securityHeaders } from "./security";
 import type { Invites } from "./invites";
 import * as svc from "./services";
+import * as pages from "./services-pages";
 
 export interface Identity {
   agencyId: string; userId: string | null; role: Role; caregiverId: string | null;
@@ -136,6 +138,57 @@ export function createApp(deps: AppDeps): Hono<Env> {
   });
   api.get("/patients/:id", allow(...STAFF), async (c) => c.json(await svc.patientDetail(ctx(c), parse(idParam, c.req.param("id")))));
   api.get("/caregivers", allow(...STAFF), async (c) => c.json(await svc.caregiverCards(ctx(c, atOf(c)))));
+
+  const num = (v?: string) => (v ? Number(v) : undefined);
+
+  api.get("/dashboard", allow(...STAFF), async (c) => {
+    const at = atOf(c);
+    return c.json(await pages.dashboard(ctx(c, at), c.get("identity").role));
+  });
+  api.get("/visits", allow(...STAFF), async (c) => {
+    const q = parse(VisitsQuerySchema, c.req.query());
+    return c.json(await pages.visitsList(ctx(c, q.at), { date: q.date, status: q.status, limit: num(q.limit), offset: num(q.offset) }));
+  });
+
+  api.get("/care-plans", allow(...STAFF), async (c) => {
+    const q = parse(CarePlansQuerySchema, c.req.query());
+    return c.json(await pages.carePlansList(ctx(c), { status: q.status, patientId: q.patientId, limit: num(q.limit), offset: num(q.offset) }));
+  });
+  api.get("/care-plans/:id", allow(...STAFF), async (c) => c.json(await pages.carePlanGet(ctx(c), parse(idParam, c.req.param("id")))));
+  api.post("/care-plans", allow(...STAFF), async (c) => {
+    const input = parse(CarePlanInputSchema, await c.req.json().catch(() => null));
+    return c.json(await pages.carePlanCreate(ctx(c), input), 201);
+  });
+  api.patch("/care-plans/:id", allow(...STAFF), async (c) => {
+    const patch = parse(CarePlanPatchSchema, await c.req.json().catch(() => null));
+    return c.json(await pages.carePlanUpdate(ctx(c), parse(idParam, c.req.param("id")), patch));
+  });
+
+  api.get("/compliance", allow(...STAFF), async (c) => c.json(await pages.compliance(ctx(c))));
+  api.post("/compliance/credentials", allow(...STAFF), async (c) => {
+    const input = parse(CredentialInputSchema, await c.req.json().catch(() => null));
+    return c.json(await pages.credentialAdd(ctx(c), input), 201);
+  });
+  api.delete("/compliance/credentials/:id", allow("admin"), async (c) => {
+    await pages.credentialRemove(ctx(c), parse(idParam, c.req.param("id")));
+    return c.body(null, 204);
+  });
+
+  api.get("/reports", allow("admin", "scheduler", "billing"), async (c) => {
+    const q = parse(ReportsQuerySchema, c.req.query());
+    return c.json(await pages.reports(ctx(c, q.at), c.get("identity").role, Number(q.days ?? 7)));
+  });
+  api.get("/reports/hours.csv", allow(...STAFF), async (c) => {
+    const q = parse(ReportsQuerySchema, c.req.query());
+    const csv = await pages.hoursCsv(ctx(c, q.at), Number(q.days ?? 7));
+    return c.body(csv, 200, { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="caregiver-hours.csv"' });
+  });
+
+  api.get("/settings", allow("admin"), async (c) => c.json(await pages.settingsGet(ctx(c))));
+  api.put("/settings", allow("admin"), async (c) => {
+    const input = parse(SettingsInputSchema, await c.req.json().catch(() => null));
+    return c.json(await pages.settingsSet(ctx(c), input.agencyName));
+  });
 
   const BILLING: Role[] = ["admin", "billing"];
   api.get("/claims", allow(...BILLING), async (c) => {
