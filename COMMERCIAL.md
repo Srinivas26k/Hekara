@@ -19,7 +19,7 @@ Hekara is open source under the [AGPL-3.0](LICENSE) and free to use. This page i
 
 ## Compliance and risk help (GRC)
 
-I work professionally in **governance, risk and compliance (GRC) and cybersecurity**, so beyond the software I can help your organisation prepare for **HIPAA, SOC 2** and other frameworks such as HITRUST and ISO 27001. Typical work:
+I am the CTO and a co-founder of [CyberArc MSP](https://cyberarcmsp.com), a cybersecurity, cloud and compliance firm, and I co-founded [CarcGRC](https://carcgrc.com), an AI-native governance, risk and compliance platform. I work in **governance, risk and compliance (GRC) and cybersecurity** every day, so beyond the software I can help your organisation prepare for **HIPAA, SOC 2** and other frameworks such as HITRUST and ISO 27001. I hold no personal certifications; what I bring is hands-on experience building and running security and compliance programmes. Typical work:
 
 - **Gap assessment** against the HIPAA Security Rule or the SOC 2 Trust Services Criteria
 - **Risk assessment** and a maintained risk register
@@ -28,6 +28,8 @@ I work professionally in **governance, risk and compliance (GRC) and cybersecuri
 - **Evidence collection and audit preparation,** working alongside your independent auditor
 - **Vendor risk** reviews and Business Associate Agreement checklists
 - **Security awareness training** and incident-response exercises for your team
+
+Hekara is my own open-source project. CyberArc MSP, CarcGRC and my other ventures are separate businesses with their own services and terms.
 
 What this is **not**: I am not a law firm or an audit firm. This is advisory help, not legal advice. I cannot issue a SOC 2 report (that is done by an independent CPA firm), HIPAA has no official certificate to issue, and I cannot guarantee the outcome of any audit. Where the next step needs a lawyer or an auditor, I will say so.
 
