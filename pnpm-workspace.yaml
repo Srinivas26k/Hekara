@@ -2,7 +2,9 @@ packages:
   - apps/*
   - packages/*
 
-# Only esbuild runs an install script (it verifies its platform binary); everything else stays blocked.
+# Install scripts are blocked unless listed here.
 allowBuilds:
-  "@carbon/icons": set this to true or false
+  # esbuild verifies its platform binary on install.
   esbuild: true
+  # IBM's icon package runs a telemetry script on install. We only need the icon data, so it stays blocked.
+  "@carbon/icons": false
