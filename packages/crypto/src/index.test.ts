@@ -35,7 +35,8 @@ describe("field encryption", () => {
     await expect(c.decrypt("a", "garbage")).rejects.toBeInstanceOf(CryptoError);
   });
   it("still reads old keys after rotation", async () => {
-    const k1 = generateMasterKey(), k2 = generateMasterKey();
+    const k1 = generateMasterKey(),
+      k2 = generateMasterKey();
     const old = createCrypto(masterKeyProvider({ k1 }, "k1"));
     const env = await old.encrypt("a", "legacy");
     const rotated = createCrypto(masterKeyProvider({ k1, k2 }, "k2"));

@@ -3,7 +3,15 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
-  argon2idHasher, createPgAudit, createPgRealtime, createPgRepository, envSecrets, fsBlob, intervalScheduler, memoryQueue, systemClock,
+  argon2idHasher,
+  createPgAudit,
+  createPgRealtime,
+  createPgRepository,
+  envSecrets,
+  fsBlob,
+  intervalScheduler,
+  memoryQueue,
+  systemClock,
 } from "@hekara/adapters-node";
 import { createCrypto, generateMasterKey, masterKeyProvider } from "@hekara/crypto";
 import * as s from "@hekara/db/schema";
@@ -21,30 +29,54 @@ const db = drizzle(sql, { schema: s });
 const hasher = argon2idHasher({ memory: 1024, passes: 1 }); // small parameters keep tests fast
 const crypto = createCrypto(masterKeyProvider({ t: generateMasterKey() }, "t"));
 const ports: Ports = {
-  clock: systemClock, secrets: envSecrets, crypto, repo: createPgRepository(db, crypto), audit: createPgAudit(db, crypto),
-  realtime: createPgRealtime(sql), queue: memoryQueue(), blob: fsBlob("./.data/test-blobs"), scheduler: intervalScheduler(),
+  clock: systemClock,
+  secrets: envSecrets,
+  crypto,
+  repo: createPgRepository(db, crypto),
+  audit: createPgAudit(db, crypto),
+  realtime: createPgRealtime(sql),
+  queue: memoryQueue(),
+  blob: fsBlob("./.data/test-blobs"),
+  scheduler: intervalScheduler(),
 };
 const { auth, links } = createAuth({ db, hasher, audit: ports.audit, appUrl: APP, secret: "x".repeat(40) });
 const app = createApp({
-  ports, identify: identifyFromSession(auth), authHandler: withClientIp(auth),
-  userNames: async (agencyId, ids) => new Map((await db.select({ id: s.user.id, name: s.user.name }).from(s.user).where(eq(s.user.agencyId, agencyId))).filter((u) => ids.includes(u.id)).map((u) => [u.id, u.name])),
-  invites: createInvites({ auth, links, db, appUrl: APP }), clientKey: (c) => c.req.header("x-forwarded-for") ?? "test", allowedOrigin: APP, allowTimeTravel: true,
+  ports,
+  identify: identifyFromSession(auth),
+  authHandler: withClientIp(auth),
+  userNames: async (agencyId, ids) =>
+    new Map(
+      (await db.select({ id: s.user.id, name: s.user.name }).from(s.user).where(eq(s.user.agencyId, agencyId)))
+        .filter((u) => ids.includes(u.id))
+        .map((u) => [u.id, u.name]),
+    ),
+  invites: createInvites({ auth, links, db, appUrl: APP }),
+  clientKey: (c) => c.req.header("x-forwarded-for") ?? "test",
+  allowedOrigin: APP,
+  allowTimeTravel: true,
 });
 
-let A = "", B = "";
+let A = "",
+  B = "";
 const users: Record<string, { id: string; email: string }> = {};
 let ipSeq = 0;
 const nextIp = () => `10.0.${Math.floor(++ipSeq / 250)}.${ipSeq % 250}`;
-const midnight = new Date(); midnight.setHours(0, 0, 0, 0);
+const midnight = new Date();
+midnight.setHours(0, 0, 0, 0);
 const at = (h: number) => new Date(midnight.getTime() + h * 3_600_000);
 
 const post = (path: string, body: unknown, headers: Record<string, string> = {}, origin: string | null = APP) =>
   app.request(path, {
-    method: "POST", body: JSON.stringify(body),
+    method: "POST",
+    body: JSON.stringify(body),
     headers: { "content-type": "application/json", "x-forwarded-for": nextIp(), ...(origin ? { origin } : {}), ...headers },
   });
 const cookieOf = (r: Response) =>
-  r.headers.getSetCookie().map((c) => c.split(";")[0]).filter((c) => c && !c.endsWith("=")).join("; ");
+  r.headers
+    .getSetCookie()
+    .map((c) => c.split(";")[0])
+    .filter((c) => c && !c.endsWith("="))
+    .join("; ");
 const signIn = (email: string, password = PASSWORD, ip = nextIp()) =>
   post("/api/auth/sign-in/email", { email, password }, { "x-forwarded-for": ip });
 async function login(email: string): Promise<string> {
@@ -55,33 +87,64 @@ async function login(email: string): Promise<string> {
 const get = (path: string, cookie?: string) => app.request(path, { headers: cookie ? { cookie } : {} });
 const call = (method: "GET" | "POST", path: string, cookie: string, body?: unknown) =>
   app.request(path, {
-    method, body: body === undefined ? undefined : JSON.stringify(body),
+    method,
+    body: body === undefined ? undefined : JSON.stringify(body),
     headers: { cookie, origin: APP, "content-type": "application/json" },
   });
 
-async function mkUser(name: string, role: "admin" | "scheduler" | "caregiver" | "billing", agencyId = A, caregiverId: string | null = null) {
+async function mkUser(
+  name: string,
+  role: "admin" | "scheduler" | "caregiver" | "billing",
+  agencyId = A,
+  caregiverId: string | null = null,
+) {
   const id = crypto_id();
   const email = `${name}-${id.slice(0, 8)}@example.test`;
   await db.insert(s.user).values({ id, name, email, emailVerified: true, role, agencyId, caregiverId });
-  await db.insert(s.account).values({ id: crypto_id(), accountId: id, providerId: "credential", userId: id, password: await hasher.hash(PASSWORD) });
+  await db
+    .insert(s.account)
+    .values({ id: crypto_id(), accountId: id, providerId: "credential", userId: id, password: await hasher.hash(PASSWORD) });
   users[name] = { id, email };
   return email;
 }
 const crypto_id = () => globalThis.crypto.randomUUID();
 
-let cg1 = "", cg2 = "";
+let cg1 = "",
+  cg2 = "";
 beforeAll(async () => {
-  [A, B] = await Promise.all([0, 1].map(async () => (await db.insert(s.agencies).values({ name: "Auth Test Agency" }).returning())[0]!.id)) as [string, string];
-  const mk = async (name: string, i: number) => (await db.insert(s.caregivers).values({
-    agencyId: A, name: await crypto.encrypt(A, name), skills: ["HHA"], createdAt: new Date(Date.now() + i),
-  }).returning())[0]!.id;
-  cg1 = await mk("Maria Lopez", 0); cg2 = await mk("James Carter", 1);
-  const visit = async (cg: string, label: string, h: number) => db.insert(s.visits).values({
-    agencyId: A, caregiverId: cg, label: await crypto.encrypt(A, label), startsAt: at(h), endsAt: at(h + 1), status: "scheduled",
-  });
-  await visit(cg1, "Dorothy Nguyen", 9); await visit(cg2, "Helen Park", 10);
-  await mkUser("admin", "admin"); await mkUser("scheduler", "scheduler"); await mkUser("billing", "billing");
-  await mkUser("caregiver", "caregiver", A, cg1); await mkUser("floater", "caregiver", A, null);
+  [A, B] = (await Promise.all(
+    [0, 1].map(async () => (await db.insert(s.agencies).values({ name: "Auth Test Agency" }).returning())[0]!.id),
+  )) as [string, string];
+  const mk = async (name: string, i: number) =>
+    (
+      await db
+        .insert(s.caregivers)
+        .values({
+          agencyId: A,
+          name: await crypto.encrypt(A, name),
+          skills: ["HHA"],
+          createdAt: new Date(Date.now() + i),
+        })
+        .returning()
+    )[0]!.id;
+  cg1 = await mk("Maria Lopez", 0);
+  cg2 = await mk("James Carter", 1);
+  const visit = async (cg: string, label: string, h: number) =>
+    db.insert(s.visits).values({
+      agencyId: A,
+      caregiverId: cg,
+      label: await crypto.encrypt(A, label),
+      startsAt: at(h),
+      endsAt: at(h + 1),
+      status: "scheduled",
+    });
+  await visit(cg1, "Dorothy Nguyen", 9);
+  await visit(cg2, "Helen Park", 10);
+  await mkUser("admin", "admin");
+  await mkUser("scheduler", "scheduler");
+  await mkUser("billing", "billing");
+  await mkUser("caregiver", "caregiver", A, cg1);
+  await mkUser("floater", "caregiver", A, null);
   await mkUser("outsider", "admin", B);
 });
 
@@ -110,7 +173,7 @@ describe("sign-in", () => {
     expect(raw).toMatch(/SameSite=Strict/i);
     expect(raw).not.toMatch(/Secure/i); // http in tests; Secure is on whenever APP_URL is https
     expect(raw).toMatch(/Max-Age=1800/i); // 30 minute idle window
-    const me = await (await get("/api/me", cookieOf(r))).json() as any;
+    const me = (await (await get("/api/me", cookieOf(r))).json()) as any;
     expect(me).toMatchObject({ role: "admin", agencyId: A, twoFactorEnabled: false });
     expect(me.id).toBe(users.admin!.id);
   });
@@ -120,7 +183,7 @@ describe("sign-in", () => {
     const unknown = await signIn("nobody@example.test", "not-the-password-123");
     expect(wrong.status).toBe(401);
     expect(unknown.status).toBe(401);
-    const [a, b] = [await wrong.json() as any, await unknown.json() as any];
+    const [a, b] = [(await wrong.json()) as any, (await unknown.json()) as any];
     expect(a.message).toBe(b.message);
     expect(a.code).toBe(b.code);
   });
@@ -135,12 +198,16 @@ describe("sign-in", () => {
 
   it("rate limits each address separately and ignores a spoofed client-address header", async () => {
     const who = await mkUser("spoofy", "scheduler"); // own account, so the account lockout used elsewhere isn't affected
-    const busy = "198.51.100.5", other = "198.51.100.6";
+    const busy = "198.51.100.5",
+      other = "198.51.100.6";
     for (let i = 0; i < 5; i++) await signIn(who, "wrong-password-12345", busy);
     expect((await signIn(who, "wrong-password-12345", busy)).status).toBe(429);
     expect((await signIn(who, PASSWORD, other)).status).toBe(200); // a different address is not affected
-    const spoofed = await post("/api/auth/sign-in/email", { email: who, password: PASSWORD },
-      { "x-forwarded-for": busy, "x-hekara-client-ip": "203.0.113.200" }); // trying to pose as someone else
+    const spoofed = await post(
+      "/api/auth/sign-in/email",
+      { email: who, password: PASSWORD },
+      { "x-forwarded-for": busy, "x-hekara-client-ip": "203.0.113.200" },
+    ); // trying to pose as someone else
     expect(spoofed.status).toBe(429);
   });
 
@@ -155,7 +222,10 @@ describe("sign-in", () => {
   });
 
   it("blocks cross-origin sign-in and self-signup", async () => {
-    expect((await post("/api/auth/sign-in/email", { email: users.admin!.email, password: PASSWORD }, {}, "https://evil.example")).status).toBe(403);
+    expect(
+      (await post("/api/auth/sign-in/email", { email: users.admin!.email, password: PASSWORD }, {}, "https://evil.example"))
+        .status,
+    ).toBe(403);
     expect((await post("/api/auth/sign-in/email", { email: users.admin!.email, password: PASSWORD }, {}, null)).status).toBe(403);
     const signup = await post("/api/auth/sign-up/email", { email: "new@example.test", password: PASSWORD, name: "New" });
     expect(signup.status).toBeGreaterThanOrEqual(400);
@@ -172,7 +242,10 @@ describe("sign-in", () => {
   it("expires sessions after 12 hours even when they stay active", async () => {
     const cookie = await login(users.billing!.email);
     expect((await get("/api/me", cookie)).status).toBe(200);
-    await db.update(s.session).set({ createdAt: new Date(Date.now() - 13 * 3_600_000) }).where(eq(s.session.userId, users.billing!.id));
+    await db
+      .update(s.session)
+      .set({ createdAt: new Date(Date.now() - 13 * 3_600_000) })
+      .where(eq(s.session.userId, users.billing!.id));
     const r = await get("/api/me", cookie);
     expect(r.status).toBe(401);
     expect(((await r.json()) as any).error.code).toBe("session_expired");
@@ -189,8 +262,15 @@ describe("roles", () => {
 
   it("denies billing staff the scheduling tools", async () => {
     const cookie = await login(users.billing!.email);
-    for (const [m, p] of [["GET", "/api/overview"], ["GET", "/api/schedule"], ["GET", "/api/search?q=ab"], ["POST", "/api/optimize"],
-      ["POST", "/api/suggestions/apply"], ["POST", "/api/patients"], ["GET", "/api/admin/users"]] as const) {
+    for (const [m, p] of [
+      ["GET", "/api/overview"],
+      ["GET", "/api/schedule"],
+      ["GET", "/api/search?q=ab"],
+      ["POST", "/api/optimize"],
+      ["POST", "/api/suggestions/apply"],
+      ["POST", "/api/patients"],
+      ["GET", "/api/admin/users"],
+    ] as const) {
       const r = await call(m, p, cookie, m === "POST" ? { name: "x" } : undefined);
       expect([p, r.status]).toEqual([p, 403]);
     }
@@ -199,7 +279,7 @@ describe("roles", () => {
 
   it("shows caregivers only their own visits and blocks everything else", async () => {
     const cookie = await login(users.caregiver!.email);
-    const d = await (await get(`/api/schedule?at=10:00&caregiver=${cg2}`, cookie)).json() as any; // trying to look at someone else
+    const d = (await (await get(`/api/schedule?at=10:00&caregiver=${cg2}`, cookie)).json()) as any; // trying to look at someone else
     expect(d.rows.map((r: any) => r.name)).toEqual(["Maria Lopez"]);
     expect(d.rows[0].visits.map((v: any) => v.label)).toEqual(["Dorothy Nguyen"]);
     expect(d.open).toEqual([]);
@@ -215,9 +295,9 @@ describe("roles", () => {
 
   it("keeps agencies apart even for admins", async () => {
     const cookie = await login(users.outsider!.email);
-    const d = await (await get("/api/schedule?at=10:00", cookie)).json() as any;
+    const d = (await (await get("/api/schedule?at=10:00", cookie)).json()) as any;
     expect(d.rows).toEqual([]);
-    const listed = await (await get("/api/admin/users", cookie)).json() as { id: string }[];
+    const listed = (await (await get("/api/admin/users", cookie)).json()) as { id: string }[];
     expect(listed.map((u) => u.id)).toEqual([users.outsider!.id]);
   });
 });
@@ -225,7 +305,9 @@ describe("roles", () => {
 describe("invites", () => {
   it("is admin only", async () => {
     const cookie = await login(users.scheduler!.email);
-    expect((await call("POST", "/api/admin/users", cookie, { email: "x@example.test", name: "X", role: "scheduler" })).status).toBe(403);
+    expect(
+      (await call("POST", "/api/admin/users", cookie, { email: "x@example.test", name: "X", role: "scheduler" })).status,
+    ).toBe(403);
   });
 
   it("creates an account, hands over a one-time link, and the invitee sets a password", async () => {
@@ -233,18 +315,20 @@ describe("invites", () => {
     const email = `invitee-${crypto_id().slice(0, 6)}@example.test`;
     const r = await call("POST", "/api/admin/users", admin, { email, name: "Ivy Invitee", role: "scheduler" });
     expect(r.status).toBe(201);
-    const { link } = await r.json() as { link: string };
+    const { link } = (await r.json()) as { link: string };
     expect(link.startsWith(`${APP}/?invite=`)).toBe(true);
     const token = decodeURIComponent(new URL(link).searchParams.get("invite")!);
 
     expect((await signIn(email, "anything-goes-here-12")).status).toBe(401); // no password yet
     expect((await post("/api/auth/reset-password", { newPassword: "short", token })).status).toBe(400);
     expect((await post("/api/auth/reset-password", { newPassword: "ivys-new-password-42", token })).status).toBe(200);
-    expect((await post("/api/auth/reset-password", { newPassword: "reuse-the-link-12345", token })).status).toBeGreaterThanOrEqual(400); // single use
+    expect(
+      (await post("/api/auth/reset-password", { newPassword: "reuse-the-link-12345", token })).status,
+    ).toBeGreaterThanOrEqual(400); // single use
 
     const ok = await signIn(email, "ivys-new-password-42");
     expect(ok.status).toBe(200);
-    const me = await (await get("/api/me", cookieOf(ok))).json() as any;
+    const me = (await (await get("/api/me", cookieOf(ok))).json()) as any;
     expect(me).toMatchObject({ role: "scheduler", agencyId: A, name: "Ivy Invitee" });
     const row = (await db.select().from(s.account).where(eq(s.account.userId, me.id)))[0]!;
     expect(row.password).toMatch(/^argon2id\$/);
@@ -252,12 +336,34 @@ describe("invites", () => {
 
   it("rejects duplicates, bad input and caregivers from another agency", async () => {
     const admin = await login(users.admin!.email);
-    expect((await call("POST", "/api/admin/users", admin, { email: users.scheduler!.email, name: "Dup", role: "scheduler" })).status).toBe(409);
-    expect((await call("POST", "/api/admin/users", admin, { email: "not-an-email", name: "X", role: "scheduler" })).status).toBe(400);
-    expect((await call("POST", "/api/admin/users", admin, { email: "x1@example.test", name: "X", role: "root" })).status).toBe(400);
-    expect((await call("POST", "/api/admin/users", admin, { email: "x2@example.test", name: "X", role: "caregiver" })).status).toBe(400);
-    const foreign = (await db.insert(s.caregivers).values({ agencyId: B, name: await crypto.encrypt(B, "Other") }).returning())[0]!.id;
-    expect((await call("POST", "/api/admin/users", admin, { email: "x3@example.test", name: "X", role: "caregiver", caregiverId: foreign })).status).toBe(400);
+    expect(
+      (await call("POST", "/api/admin/users", admin, { email: users.scheduler!.email, name: "Dup", role: "scheduler" })).status,
+    ).toBe(409);
+    expect((await call("POST", "/api/admin/users", admin, { email: "not-an-email", name: "X", role: "scheduler" })).status).toBe(
+      400,
+    );
+    expect((await call("POST", "/api/admin/users", admin, { email: "x1@example.test", name: "X", role: "root" })).status).toBe(
+      400,
+    );
+    expect(
+      (await call("POST", "/api/admin/users", admin, { email: "x2@example.test", name: "X", role: "caregiver" })).status,
+    ).toBe(400);
+    const foreign = (
+      await db
+        .insert(s.caregivers)
+        .values({ agencyId: B, name: await crypto.encrypt(B, "Other") })
+        .returning()
+    )[0]!.id;
+    expect(
+      (
+        await call("POST", "/api/admin/users", admin, {
+          email: "x3@example.test",
+          name: "X",
+          role: "caregiver",
+          caregiverId: foreign,
+        })
+      ).status,
+    ).toBe(400);
   });
 });
 
@@ -270,18 +376,22 @@ describe("audit viewer", () => {
 
   it("lists this agency's entries newest first with user names, and pages backwards", async () => {
     const cookie = await login(users.admin!.email);
-    const page1 = await (await get("/api/admin/audit?limit=3", cookie)).json() as { seq: number; userName: string | null; action: string }[];
+    const page1 = (await (await get("/api/admin/audit?limit=3", cookie)).json()) as {
+      seq: number;
+      userName: string | null;
+      action: string;
+    }[];
     expect(page1).toHaveLength(3);
     expect(page1[0]!.seq).toBeGreaterThan(page1[1]!.seq);
     expect(page1.some((e) => e.userName === "admin")).toBe(true);
-    const page2 = await (await get(`/api/admin/audit?limit=3&before=${page1[2]!.seq}`, cookie)).json() as { seq: number }[];
+    const page2 = (await (await get(`/api/admin/audit?limit=3&before=${page1[2]!.seq}`, cookie)).json()) as { seq: number }[];
     expect(page2.every((e) => e.seq < page1[2]!.seq)).toBe(true);
     expect((await get("/api/admin/audit?limit=abc", cookie)).status).toBe(400);
   });
 
   it("never shows another agency's log", async () => {
     const cookie = await login(users.outsider!.email);
-    const rows = await (await get("/api/admin/audit?limit=100", cookie)).json() as { userId: string | null; action: string }[];
+    const rows = (await (await get("/api/admin/audit?limit=100", cookie)).json()) as { userId: string | null; action: string }[];
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.every((e) => e.userId === users.outsider!.id)).toBe(true); // only their own agency's entries
     expect(rows.some((e) => e.action === "user.invite")).toBe(false);
@@ -289,11 +399,14 @@ describe("audit viewer", () => {
 
   it("verifies the chain and reports tampering", async () => {
     const cookie = await login(users.admin!.email);
-    const ok = await (await call("POST", "/api/admin/audit/verify", cookie)).json() as { ok: boolean; brokenAt: number | null };
+    const ok = (await (await call("POST", "/api/admin/audit/verify", cookie)).json()) as { ok: boolean; brokenAt: number | null };
     expect(ok).toMatchObject({ ok: true, brokenAt: null });
-    const [row] = await db.select().from(s.auditLog).where(and(eq(s.auditLog.agencyId, A), eq(s.auditLog.seq, 1)));
+    const [row] = await db
+      .select()
+      .from(s.auditLog)
+      .where(and(eq(s.auditLog.agencyId, A), eq(s.auditLog.seq, 1)));
     await db.update(s.auditLog).set({ action: "tampered" }).where(eq(s.auditLog.id, row!.id));
-    const bad = await (await call("POST", "/api/admin/audit/verify", cookie)).json() as { ok: boolean; brokenAt: number };
+    const bad = (await (await call("POST", "/api/admin/audit/verify", cookie)).json()) as { ok: boolean; brokenAt: number };
     expect(bad).toMatchObject({ ok: false, brokenAt: 0 });
     await db.update(s.auditLog).set({ action: row!.action }).where(eq(s.auditLog.id, row!.id)); // restore
   });
@@ -306,6 +419,12 @@ describe("audit", () => {
     expect(rows.some((x) => x.action === "user.invite")).toBe(true);
     expect(rows.some((x) => x.action === "auth.logout")).toBe(true);
     expect(await ports.audit.verify(A)).toBeNull();
-    expect(await db.select().from(s.auditLog).where(and(eq(s.auditLog.agencyId, A), eq(s.auditLog.action, "auth.login"))).then((r) => r.every((x) => x.userId))).toBe(true);
+    expect(
+      await db
+        .select()
+        .from(s.auditLog)
+        .where(and(eq(s.auditLog.agencyId, A), eq(s.auditLog.action, "auth.login")))
+        .then((r) => r.every((x) => x.userId)),
+    ).toBe(true);
   });
 });

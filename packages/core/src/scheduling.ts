@@ -24,10 +24,16 @@ export function rankCandidates(visit: Visit, caregivers: readonly Caregiver[], a
     });
 }
 
-export const bestCandidate = (visit: Visit, caregivers: readonly Caregiver[], assigned: readonly Visit[]): Caregiver | undefined =>
-  rankCandidates(visit, caregivers, assigned)[0];
+export const bestCandidate = (
+  visit: Visit,
+  caregivers: readonly Caregiver[],
+  assigned: readonly Visit[],
+): Caregiver | undefined => rankCandidates(visit, caregivers, assigned)[0];
 
-export interface OvertimeEntry { caregiver: Caregiver; ratio: number }
+export interface OvertimeEntry {
+  caregiver: Caregiver;
+  ratio: number;
+}
 
 /** Caregivers at or above the watch ratio, most loaded first. */
 export function overtimeWatch(caregivers: readonly Caregiver[], ratio = OVERTIME_WATCH_RATIO): OvertimeEntry[] {
@@ -59,7 +65,8 @@ export function buildSuggestions(caregivers: readonly Caregiver[], remaining: re
     const pick = bestCandidate(open, view(), working);
     if (!pick) continue;
     out.push({ kind: "fill", visitId: open.id, caregiverId: pick.id, hoursSaved: 0 });
-    open.caregiverId = pick.id; taken.add(open.id);
+    open.caregiverId = pick.id;
+    taken.add(open.id);
     hoursAdded.set(pick.id, (hoursAdded.get(pick.id) ?? 0) + visitHours(open));
   }
 
@@ -71,11 +78,16 @@ export function buildSuggestions(caregivers: readonly Caregiver[], remaining: re
       .sort((a, b) => visitHours(b) - visitHours(a));
     for (const v of movable) {
       if (over <= 0) break;
-      const pick = bestCandidate(v, view().filter((x) => x.id !== c.id), working);
+      const pick = bestCandidate(
+        v,
+        view().filter((x) => x.id !== c.id),
+        working,
+      );
       if (!pick) continue;
       const saved = Math.min(over, visitHours(v));
       out.push({ kind: "move", visitId: v.id, fromCaregiverId: c.id, caregiverId: pick.id, hoursSaved: saved });
-      byId.get(v.id)!.caregiverId = pick.id; taken.add(v.id);
+      byId.get(v.id)!.caregiverId = pick.id;
+      taken.add(v.id);
       hoursAdded.set(pick.id, (hoursAdded.get(pick.id) ?? 0) + visitHours(v));
       over -= saved;
     }

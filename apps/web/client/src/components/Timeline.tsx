@@ -47,8 +47,13 @@ export function Timeline() {
       <Show when={store.day()}>
         {(d) => (
           <>
-            <div class="row-label open-label"><span class="hatch" />Open shifts</div>
-            <div class="track"><For each={d().open}>{(v) => <Shift v={v} top={55} open />}</For></div>
+            <div class="row-label open-label">
+              <span class="hatch" />
+              Open shifts
+            </div>
+            <div class="track">
+              <For each={d().open}>{(v) => <Shift v={v} top={55} open />}</For>
+            </div>
 
             <div class="rows">
               <div class="rows-inner" style={{ height: `${d().rows.length * ROW_H}px` }}>
@@ -58,9 +63,13 @@ export function Timeline() {
                       <div class="row-label" style={{ top: `${i() * ROW_H}px` }}>
                         <Avatar name={r.name} />
                         {r.name}
-                        <Show when={r.flagged}><span class="warn" title="Needs attention" /></Show>
+                        <Show when={r.flagged}>
+                          <span class="warn" title="Needs attention" />
+                        </Show>
                       </div>
-                      <div class="row-track"><For each={r.visits}>{(v) => <Shift v={v} top={i() * ROW_H} />}</For></div>
+                      <div class="row-track">
+                        <For each={r.visits}>{(v) => <Shift v={v} top={i() * ROW_H} />}</For>
+                      </div>
                     </>
                   )}
                 </For>
@@ -73,7 +82,9 @@ export function Timeline() {
       <Show when={showNow()}>
         <div class="track now">
           <div class="now-line" style={{ left: `${pct(nowHour())}%` }} />
-          <div class="now-pill" style={{ left: `${pct(nowHour())}%` }}>{fmtClock(store.now())}</div>
+          <div class="now-pill" style={{ left: `${pct(nowHour())}%` }}>
+            {fmtClock(store.now())}
+          </div>
         </div>
       </Show>
     </div>

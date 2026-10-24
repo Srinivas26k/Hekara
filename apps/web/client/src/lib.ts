@@ -1,6 +1,6 @@
-export const START = 7;          // timeline starts at 7 AM
-export const END = 19;           // and ends at 7 PM
-export const ROW_H = 49;         // design px per caregiver row
+export const START = 7; // timeline starts at 7 AM
+export const END = 19; // and ends at 7 PM
+export const ROW_H = 49; // design px per caregiver row
 const SPAN = END - START;
 
 /** Horizontal position of an hour as a percentage of the track, so the timeline stretches to any width. */
@@ -24,13 +24,15 @@ const t = (h: number) => {
 
 /** "4 to 6 PM" when both share a meridiem, else "11 AM to 1 PM". */
 export function fmtRange(startIso: string, endIso: string): string {
-  const a = hourOf(startIso), b = hourOf(endIso);
+  const a = hourOf(startIso),
+    b = hourOf(endIso);
   return meridiem(a) === meridiem(b) ? `${t(a)} to ${t(b)} ${meridiem(b)}` : `${t(a)} ${meridiem(a)} to ${t(b)} ${meridiem(b)}`;
 }
 
 /** Placement of a visit in percent of the track, clipped to the visible window; null when entirely outside it. */
 export function place(startIso: string, endIso: string): { left: number; width: number } | null {
-  const a = Math.max(hourOf(startIso), START), b = Math.min(hourOf(endIso) || 24, END);
+  const a = Math.max(hourOf(startIso), START),
+    b = Math.min(hourOf(endIso) || 24, END);
   if (b <= a) return null;
   return { left: pct(a), width: pct(b) - pct(a) };
 }
@@ -49,7 +51,12 @@ export function kindOf(status: string, startIso: string, endIso: string, now: Da
 }
 
 export const initials = (name: string): string =>
-  name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join("");
 
 /** Deterministic soft color per name, for initials avatars (no external images, no PHI sent anywhere). */
 export function avatarColors(name: string): { bg: string; fg: string } {

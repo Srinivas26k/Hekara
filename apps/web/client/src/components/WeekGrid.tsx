@@ -23,7 +23,9 @@ export function WeekGrid() {
               <span />
               <For each={w().days}>
                 {(d) => (
-                  <span classList={{ today: d === todayYmd() }}>{dayName(d).wd} <b>{dayName(d).n}</b></span>
+                  <span classList={{ today: d === todayYmd() }}>
+                    {dayName(d).wd} <b>{dayName(d).n}</b>
+                  </span>
                 )}
               </For>
             </div>
@@ -34,7 +36,9 @@ export function WeekGrid() {
                     <div class="row-label static">
                       <Avatar name={r.name} />
                       <span>{r.name}</span>
-                      <small classList={{ hot: r.weeklyHours / r.weeklyLimit >= 0.9 }}>{round1(r.weeklyHours)}/{r.weeklyLimit} h</small>
+                      <small classList={{ hot: r.weeklyHours / r.weeklyLimit >= 0.9 }}>
+                        {round1(r.weeklyHours)}/{r.weeklyLimit} h
+                      </small>
                     </div>
                     <For each={r.days}>
                       {(c) => (

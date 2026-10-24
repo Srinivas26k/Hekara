@@ -2,7 +2,16 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createPgAudit, createPgRealtime, createPgRepository, fsBlob, intervalScheduler, memoryQueue, envSecrets, systemClock } from "@hekara/adapters-node";
+import {
+  createPgAudit,
+  createPgRealtime,
+  createPgRepository,
+  fsBlob,
+  intervalScheduler,
+  memoryQueue,
+  envSecrets,
+  systemClock,
+} from "@hekara/adapters-node";
 import { createCrypto, generateMasterKey, masterKeyProvider } from "@hekara/crypto";
 import * as s from "@hekara/db/schema";
 import type { Ports } from "@hekara/ports";
@@ -15,27 +24,49 @@ const sql = postgres(url, { max: 5 });
 const db = drizzle(sql, { schema: s });
 const crypto = createCrypto(masterKeyProvider({ t: generateMasterKey() }, "t"));
 const ports: Ports = {
-  clock: systemClock, secrets: envSecrets, crypto, repo: createPgRepository(db, crypto), audit: createPgAudit(db, crypto),
-  realtime: createPgRealtime(sql), queue: memoryQueue(), blob: fsBlob("./.data/test-blobs"), scheduler: intervalScheduler(),
+  clock: systemClock,
+  secrets: envSecrets,
+  crypto,
+  repo: createPgRepository(db, crypto),
+  audit: createPgAudit(db, crypto),
+  realtime: createPgRealtime(sql),
+  queue: memoryQueue(),
+  blob: fsBlob("./.data/test-blobs"),
+  scheduler: intervalScheduler(),
 };
 
-const midnight = new Date(); midnight.setHours(0, 0, 0, 0);
+const midnight = new Date();
+midnight.setHours(0, 0, 0, 0);
 const at = (h: number) => new Date(midnight.getTime() + h * 3_600_000);
 
-let A = "", B = "";
+let A = "",
+  B = "";
 let me = "";
 const ids: Record<string, string> = {};
-const who = (agencyId: string, role: Identity["role"] = "admin", caregiverId: string | null = null): Identity =>
-  ({ agencyId, userId: "tester", role, caregiverId, name: "Tester", email: "t@example.test", twoFactorEnabled: false });
-const appFor = (agency: () => string) => createApp({
-  ports, identify: async () => who(agency()), clientKey: () => "test",
-  allowedOrigin: ORIGIN, allowTimeTravel: true,
+const who = (agencyId: string, role: Identity["role"] = "admin", caregiverId: string | null = null): Identity => ({
+  agencyId,
+  userId: "tester",
+  role,
+  caregiverId,
+  name: "Tester",
+  email: "t@example.test",
+  twoFactorEnabled: false,
 });
+const appFor = (agency: () => string) =>
+  createApp({
+    ports,
+    identify: async () => who(agency()),
+    clientKey: () => "test",
+    allowedOrigin: ORIGIN,
+    allowTimeTravel: true,
+  });
 const app = appFor(() => me);
 
 const post = (path: string, body?: unknown, origin: string | null = ORIGIN) =>
-  app.request(`/api${path}${path.includes("?") ? "&" : "?"}at=10:00`, { // pinned clock keeps the suggestions deterministic
-    method: "POST", body: body === undefined ? undefined : JSON.stringify(body),
+  app.request(`/api${path}${path.includes("?") ? "&" : "?"}at=10:00`, {
+    // pinned clock keeps the suggestions deterministic
+    method: "POST",
+    body: body === undefined ? undefined : JSON.stringify(body),
     headers: { "content-type": "application/json", ...(origin ? { origin } : {}) },
   });
 const get = (path: string) => app.request(`/api${path}`);
@@ -45,21 +76,47 @@ async function mkAgency(name: string) {
   return a!.id;
 }
 async function mkCaregiver(agency: string, name: string, hours: number, skills = ["HHA", "Companion"], i = 0) {
-  const [r] = await db.insert(s.caregivers).values({
-    agencyId: agency, name: await crypto.encrypt(agency, name), weeklyHours: hours, weeklyLimit: 40, skills,
-    createdAt: new Date(Date.now() + i),
-  }).returning();
+  const [r] = await db
+    .insert(s.caregivers)
+    .values({
+      agencyId: agency,
+      name: await crypto.encrypt(agency, name),
+      weeklyHours: hours,
+      weeklyLimit: 40,
+      skills,
+      createdAt: new Date(Date.now() + i),
+    })
+    .returning();
   return r!.id;
 }
-async function mkVisit(agency: string, label: string, start: number, end: number, caregiverId: string | null, status: "scheduled" | "open" | "attention" = "scheduled", requirement: string | null = null) {
-  const [r] = await db.insert(s.visits).values({
-    agencyId: agency, caregiverId, label: await crypto.encrypt(agency, label), startsAt: at(start), endsAt: at(end), status, requirement,
-  }).returning();
+async function mkVisit(
+  agency: string,
+  label: string,
+  start: number,
+  end: number,
+  caregiverId: string | null,
+  status: "scheduled" | "open" | "attention" = "scheduled",
+  requirement: string | null = null,
+) {
+  const [r] = await db
+    .insert(s.visits)
+    .values({
+      agencyId: agency,
+      caregiverId,
+      label: await crypto.encrypt(agency, label),
+      startsAt: at(start),
+      endsAt: at(end),
+      status,
+      requirement,
+    })
+    .returning();
   return r!.id;
 }
 
 beforeAll(async () => {
-  A = await mkAgency("App Test Agency"); B = await mkAgency("App Test Agency"); me = A;
+  A = await mkAgency("App Test Agency");
+  B = await mkAgency("App Test Agency");
+  me = A;
   ids.rosa = await mkCaregiver(A, "Rosa Delgado", 38, ["HHA", "Companion"], 0);
   ids.aisha = await mkCaregiver(A, "Aisha Bello", 10, ["HHA", "Companion"], 1);
   ids.tanya = await mkCaregiver(A, "Tanya Brooks", 16, ["Companion"], 2);
@@ -67,8 +124,13 @@ beforeAll(async () => {
   ids.irene = await mkVisit(A, "Irene Foster", 13, 15, ids.tanya!, "attention");
   ids.george = await mkVisit(A, "George Whitaker", 16, 18, null, "open", "HHA");
   ids.nancy = await mkVisit(A, "Nancy Flores", 18, 19, null, "open", "Companion");
-  await db.insert(s.patients).values({ agencyId: A, name: await crypto.encrypt(A, "Old Patient"), createdAt: new Date(Date.now() - 30 * 86_400_000) });
-  await db.insert(s.claims).values([{ agencyId: A, amountCents: 100, status: "draft" }, { agencyId: A, amountCents: 100, status: "paid" }]);
+  await db
+    .insert(s.patients)
+    .values({ agencyId: A, name: await crypto.encrypt(A, "Old Patient"), createdAt: new Date(Date.now() - 30 * 86_400_000) });
+  await db.insert(s.claims).values([
+    { agencyId: A, amountCents: 100, status: "draft" },
+    { agencyId: A, amountCents: 100, status: "paid" },
+  ]);
 });
 
 afterAll(async () => {
@@ -105,14 +167,15 @@ describe("security", () => {
   });
   it("ignores time travel when disabled", async () => {
     const strict = createApp({ ports, identify: async () => who(A), clientKey: () => "t", allowedOrigin: ORIGIN });
-    const body = await (await strict.request("/api/overview?at=10:00")).json() as { now: string };
+    const body = (await (await strict.request("/api/overview?at=10:00")).json()) as { now: string };
     expect(Math.abs(new Date(body.now).getTime() - Date.now())).toBeLessThan(5000);
   });
 });
 
 describe("audit noise", () => {
   it("records repeated schedule reads once, not on every refresh", async () => {
-    const count = async () => (await db.select().from(s.auditLog).where(eq(s.auditLog.agencyId, A))).filter((r) => r.action === "schedule.read").length;
+    const count = async () =>
+      (await db.select().from(s.auditLog).where(eq(s.auditLog.agencyId, A))).filter((r) => r.action === "schedule.read").length;
     const before = await count();
     for (let i = 0; i < 4; i++) await get("/schedule?date=2031-01-15");
     expect(await count()).toBe(before + 1);
@@ -123,7 +186,7 @@ describe("audit noise", () => {
 
 describe("overview", () => {
   it("computes badges, open shifts, overtime and live on-shift from the data", async () => {
-    const o = await (await get("/overview?at=12:00")).json() as any;
+    const o = (await (await get("/overview?at=12:00")).json()) as any;
     expect(o.visitCount).toBe(4);
     expect(o.badges).toEqual({ patients: 0, schedule: 3, claims: 1 });
     expect(o.openShifts.map((x: any) => x.label)).toEqual(["George Whitaker", "Nancy Flores"]);
@@ -132,7 +195,7 @@ describe("overview", () => {
     expect(o.onShift.total).toBe(3);
   });
   it("suggests filling George with the least-loaded eligible caregiver", async () => {
-    const o = await (await get("/overview?at=10:00")).json() as any;
+    const o = (await (await get("/overview?at=10:00")).json()) as any;
     const fill = o.suggestions.items.find((x: any) => x.label === "George Whitaker");
     expect(fill).toMatchObject({ kind: "fill", caregiverName: "Aisha Bello" });
     expect(o.suggestions.items.some((x: any) => x.kind === "move" && x.fromCaregiverName === "Rosa Delgado")).toBe(true);
@@ -141,18 +204,18 @@ describe("overview", () => {
 
 describe("schedule", () => {
   it("derives statuses from the clock", async () => {
-    const d = await (await get("/schedule?at=12:00")).json() as any;
+    const d = (await (await get("/schedule?at=12:00")).json()) as any;
     const rosa = d.rows.find((r: any) => r.name === "Rosa Delgado");
     expect(rosa.visits[0].status).toBe("in_progress");
-    const early = await (await get("/schedule?at=09:00")).json() as any;
+    const early = (await (await get("/schedule?at=09:00")).json()) as any;
     expect(early.rows.find((r: any) => r.name === "Rosa Delgado").visits[0].status).toBe("scheduled");
-    const late = await (await get("/schedule?at=15:30")).json() as any;
+    const late = (await (await get("/schedule?at=15:30")).json()) as any;
     expect(late.rows.find((r: any) => r.name === "Rosa Delgado").visits[0].status).toBe("done");
     expect(d.rows.find((r: any) => r.name === "Tanya Brooks").visits[0].status).toBe("attention");
     expect(d.open.length).toBe(2);
   });
   it("returns a week view with per-day hours", async () => {
-    const w = await (await get("/schedule?view=week")).json() as any;
+    const w = (await (await get("/schedule?view=week")).json()) as any;
     expect(w.days).toHaveLength(7);
     const rosa = w.rows.find((r: any) => r.name === "Rosa Delgado");
     expect(rosa.days.reduce((n: number, d: any) => n + d.hours, 0)).toBe(3);
@@ -164,11 +227,13 @@ describe("agency isolation", () => {
     me = B;
     try {
       expect((await post(`/visits/${ids.george}/fill`, {})).status).toBe(404);
-      const d = await (await get("/schedule")).json() as any;
+      const d = (await (await get("/schedule")).json()) as any;
       expect(d.rows).toEqual([]);
       expect((await get("/search?q=Rosa")).status).toBe(200);
       expect(await (await get("/search?q=Rosa")).json()).toEqual([]);
-    } finally { me = A; }
+    } finally {
+      me = A;
+    }
   });
 });
 
@@ -180,7 +245,7 @@ describe("fill and suggestions", () => {
   it("fills the open shift with the best caregiver, then refuses a second fill", async () => {
     const r = await post(`/visits/${ids.george}/fill`, {});
     expect(r.status).toBe(200);
-    const body = await r.json() as any;
+    const body = (await r.json()) as any;
     expect(body.caregiver.name).toBe("Aisha Bello");
     expect(body.visit.status).not.toBe("open");
     expect((await post(`/visits/${ids.george}/fill`, {})).status).toBe(409);
@@ -201,11 +266,11 @@ describe("patients, search and audit", () => {
   it("creates an encrypted patient that search can find", async () => {
     const r = await post("/patients", { name: "Zelda Quimby", notes: "allergic to latex" });
     expect(r.status).toBe(201);
-    const { id } = await r.json() as any;
+    const { id } = (await r.json()) as any;
     const [row] = await db.select().from(s.patients).where(eq(s.patients.id, id));
     expect(row!.name).toMatch(/^v1\./);
     expect(row!.notes).toMatch(/^v1\./);
-    const hits = await (await get("/search?q=quimby")).json() as any[];
+    const hits = (await (await get("/search?q=quimby")).json()) as any[];
     expect(hits.map((h) => h.title)).toEqual(["Zelda Quimby"]);
   });
   it("keeps the audit chain intact and never stores plaintext meta", async () => {

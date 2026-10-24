@@ -21,9 +21,21 @@ export function fsBlob(root: string): Blob {
     return p;
   };
   return {
-    async put(key, data) { const p = path(key); await mkdir(dirname(p), { recursive: true }); await writeFile(p, data); },
-    async get(key) { try { return new Uint8Array(await readFile(path(key))); } catch { return null; } },
-    async delete(key) { await rm(path(key), { force: true }); },
+    async put(key, data) {
+      const p = path(key);
+      await mkdir(dirname(p), { recursive: true });
+      await writeFile(p, data);
+    },
+    async get(key) {
+      try {
+        return new Uint8Array(await readFile(path(key)));
+      } catch {
+        return null;
+      }
+    },
+    async delete(key) {
+      await rm(path(key), { force: true });
+    },
   };
 }
 
@@ -31,8 +43,14 @@ export function fsBlob(root: string): Blob {
 export function memoryQueue(): Queue & { drain(topic: string): unknown[] } {
   const topics = new Map<string, unknown[]>();
   return {
-    async send(topic, message) { (topics.get(topic) ?? topics.set(topic, []).get(topic)!).push(message); },
-    drain(topic) { const m = topics.get(topic) ?? []; topics.set(topic, []); return m; },
+    async send(topic, message) {
+      (topics.get(topic) ?? topics.set(topic, []).get(topic)!).push(message);
+    },
+    drain(topic) {
+      const m = topics.get(topic) ?? [];
+      topics.set(topic, []);
+      return m;
+    },
   };
 }
 
@@ -45,10 +63,15 @@ export function intervalScheduler(): Scheduler & { stop(): void } {
       const s = /^@every (\d+)s$/.exec(cron);
       const ms = m ? Number(m[1]) * 60_000 : s ? Number(s[1]) * 1000 : null;
       if (!ms) throw new Error(`Unsupported schedule for ${name}: ${cron}`);
-      const t = setInterval(() => void job().catch((e) => console.error(`job ${name} failed`, e instanceof Error ? e.message : e)), ms);
+      const t = setInterval(
+        () => void job().catch((e) => console.error(`job ${name} failed`, e instanceof Error ? e.message : e)),
+        ms,
+      );
       t.unref();
       timers.push(t);
     },
-    stop() { timers.forEach(clearInterval); },
+    stop() {
+      timers.forEach(clearInterval);
+    },
   };
 }

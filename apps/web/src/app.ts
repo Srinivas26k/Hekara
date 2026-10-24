@@ -3,9 +3,27 @@ import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
 import * as v from "valibot";
 import {
-  ApplyInputSchema, AuditQuerySchema, CarePlanInputSchema, CarePlanPatchSchema, CarePlansQuerySchema, ClaimStatusInputSchema,
-  ClaimsQuerySchema, CredentialInputSchema, FillInputSchema, PageQuerySchema, ReportsQuerySchema, SettingsInputSchema, VisitsQuerySchema, InviteInputSchema, PatientInputSchema, ScheduleQuerySchema, SearchQuerySchema,
-  type AuditDto, type AuditVerifyDto, type MeDto, type Role,
+  ApplyInputSchema,
+  AuditQuerySchema,
+  CarePlanInputSchema,
+  CarePlanPatchSchema,
+  CarePlansQuerySchema,
+  ClaimStatusInputSchema,
+  ClaimsQuerySchema,
+  CredentialInputSchema,
+  FillInputSchema,
+  PageQuerySchema,
+  ReportsQuerySchema,
+  SettingsInputSchema,
+  VisitsQuerySchema,
+  InviteInputSchema,
+  PatientInputSchema,
+  ScheduleQuerySchema,
+  SearchQuerySchema,
+  type AuditDto,
+  type AuditVerifyDto,
+  type MeDto,
+  type Role,
 } from "@hekara/core";
 import type { Ports } from "@hekara/ports";
 import { HttpError } from "./errors";
@@ -15,8 +33,13 @@ import * as svc from "./services";
 import * as pages from "./services-pages";
 
 export interface Identity {
-  agencyId: string; userId: string | null; role: Role; caregiverId: string | null;
-  name: string; email: string; twoFactorEnabled: boolean;
+  agencyId: string;
+  userId: string | null;
+  role: Role;
+  caregiverId: string | null;
+  name: string;
+  email: string;
+  twoFactorEnabled: boolean;
 }
 
 export interface AppDeps {
@@ -61,17 +84,33 @@ export function createApp(deps: AppDeps): Hono<Env> {
   }
 
   const api = new Hono<Env>();
-  api.use("*", bodyLimit({ maxSize: 16 * 1024, onError: () => { throw new HttpError(400, "too_large", "Request too large"); } }));
+  api.use(
+    "*",
+    bodyLimit({
+      maxSize: 16 * 1024,
+      onError: () => {
+        throw new HttpError(400, "too_large", "Request too large");
+      },
+    }),
+  );
   api.use("*", sameOriginOnly(deps.allowedOrigin));
   api.use("*", rateLimit({ limit: 300, windowMs: 60_000, key: (c) => deps.clientKey(c as Context) }));
-  api.use("*", async (c, next) => { c.set("identity", await deps.identify(c)); await next(); });
-  api.use("*", async (c, next) => { c.header("Cache-Control", "no-store"); await next(); });
+  api.use("*", async (c, next) => {
+    c.set("identity", await deps.identify(c));
+    await next();
+  });
+  api.use("*", async (c, next) => {
+    c.header("Cache-Control", "no-store");
+    await next();
+  });
 
   /** Deny by default: the caller's role must be listed. */
-  const allow = (...roles: Role[]): MiddlewareHandler<Env> => async (c, next) => {
-    if (!roles.includes(c.get("identity").role)) throw new HttpError(403, "forbidden", "Forbidden");
-    await next();
-  };
+  const allow =
+    (...roles: Role[]): MiddlewareHandler<Env> =>
+    async (c, next) => {
+      if (!roles.includes(c.get("identity").role)) throw new HttpError(403, "forbidden", "Forbidden");
+      await next();
+    };
   const STAFF: Role[] = ["admin", "scheduler"];
 
   const ctx = (c: Context<Env>, at?: string): svc.Ctx => {
@@ -79,7 +118,8 @@ export function createApp(deps: AppDeps): Hono<Env> {
     let now = ports.clock.now();
     if (at && deps.allowTimeTravel) {
       const [h, m] = at.split(":").map(Number) as [number, number];
-      now = new Date(now); now.setHours(h, m, 0, 0);
+      now = new Date(now);
+      now.setHours(h, m, 0, 0);
     }
     return { ports, agencyId: id.agencyId, userId: id.userId, now };
   };
@@ -88,8 +128,13 @@ export function createApp(deps: AppDeps): Hono<Env> {
     const i = c.get("identity");
     const agency = await ports.repo.agency(i.agencyId);
     const me: MeDto = {
-      id: i.userId ?? "", name: i.name, email: i.email, role: i.role, twoFactorEnabled: i.twoFactorEnabled,
-      agencyId: i.agencyId, agencyName: agency?.name ?? "",
+      id: i.userId ?? "",
+      name: i.name,
+      email: i.email,
+      role: i.role,
+      twoFactorEnabled: i.twoFactorEnabled,
+      agencyId: i.agencyId,
+      agencyName: agency?.name ?? "",
     };
     return c.json(me);
   });
@@ -118,7 +163,9 @@ export function createApp(deps: AppDeps): Hono<Env> {
     const body = parse(FillInputSchema, await c.req.json().catch(() => ({})));
     return c.json(await svc.fillVisit(ctx(c, atOf(c)), id, body.caregiverId));
   });
-  api.post("/visits/:id/unfill", allow(...STAFF), async (c) => c.json(await svc.unfillVisit(ctx(c, atOf(c)), parse(idParam, c.req.param("id")))));
+  api.post("/visits/:id/unfill", allow(...STAFF), async (c) =>
+    c.json(await svc.unfillVisit(ctx(c, atOf(c)), parse(idParam, c.req.param("id")))),
+  );
 
   api.post("/optimize", allow(...STAFF), async (c) => c.json(await svc.optimize(ctx(c, atOf(c)))));
   api.post("/suggestions/apply", allow(...STAFF), async (c) => {
@@ -136,7 +183,9 @@ export function createApp(deps: AppDeps): Hono<Env> {
     const q = parse(PageQuerySchema, c.req.query());
     return c.json(await svc.patientsPage(ctx(c), q.limit ? Number(q.limit) : undefined, q.offset ? Number(q.offset) : undefined));
   });
-  api.get("/patients/:id", allow(...STAFF), async (c) => c.json(await svc.patientDetail(ctx(c), parse(idParam, c.req.param("id")))));
+  api.get("/patients/:id", allow(...STAFF), async (c) =>
+    c.json(await svc.patientDetail(ctx(c), parse(idParam, c.req.param("id")))),
+  );
   api.get("/caregivers", allow(...STAFF), async (c) => c.json(await svc.caregiverCards(ctx(c, atOf(c)))));
 
   const num = (v?: string) => (v ? Number(v) : undefined);
@@ -147,14 +196,20 @@ export function createApp(deps: AppDeps): Hono<Env> {
   });
   api.get("/visits", allow(...STAFF), async (c) => {
     const q = parse(VisitsQuerySchema, c.req.query());
-    return c.json(await pages.visitsList(ctx(c, q.at), { date: q.date, status: q.status, limit: num(q.limit), offset: num(q.offset) }));
+    return c.json(
+      await pages.visitsList(ctx(c, q.at), { date: q.date, status: q.status, limit: num(q.limit), offset: num(q.offset) }),
+    );
   });
 
   api.get("/care-plans", allow(...STAFF), async (c) => {
     const q = parse(CarePlansQuerySchema, c.req.query());
-    return c.json(await pages.carePlansList(ctx(c), { status: q.status, patientId: q.patientId, limit: num(q.limit), offset: num(q.offset) }));
+    return c.json(
+      await pages.carePlansList(ctx(c), { status: q.status, patientId: q.patientId, limit: num(q.limit), offset: num(q.offset) }),
+    );
   });
-  api.get("/care-plans/:id", allow(...STAFF), async (c) => c.json(await pages.carePlanGet(ctx(c), parse(idParam, c.req.param("id")))));
+  api.get("/care-plans/:id", allow(...STAFF), async (c) =>
+    c.json(await pages.carePlanGet(ctx(c), parse(idParam, c.req.param("id")))),
+  );
   api.post("/care-plans", allow(...STAFF), async (c) => {
     const input = parse(CarePlanInputSchema, await c.req.json().catch(() => null));
     return c.json(await pages.carePlanCreate(ctx(c), input), 201);
@@ -181,7 +236,10 @@ export function createApp(deps: AppDeps): Hono<Env> {
   api.get("/reports/hours.csv", allow(...STAFF), async (c) => {
     const q = parse(ReportsQuerySchema, c.req.query());
     const csv = await pages.hoursCsv(ctx(c, q.at), Number(q.days ?? 7));
-    return c.body(csv, 200, { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="caregiver-hours.csv"' });
+    return c.body(csv, 200, {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="caregiver-hours.csv"',
+    });
   });
 
   api.get("/settings", allow("admin"), async (c) => c.json(await pages.settingsGet(ctx(c))));
@@ -193,7 +251,13 @@ export function createApp(deps: AppDeps): Hono<Env> {
   const BILLING: Role[] = ["admin", "billing"];
   api.get("/claims", allow(...BILLING), async (c) => {
     const q = parse(ClaimsQuerySchema, c.req.query());
-    return c.json(await svc.claimsList(ctx(c), { status: q.status, limit: q.limit ? Number(q.limit) : undefined, offset: q.offset ? Number(q.offset) : undefined }));
+    return c.json(
+      await svc.claimsList(ctx(c), {
+        status: q.status,
+        limit: q.limit ? Number(q.limit) : undefined,
+        offset: q.offset ? Number(q.offset) : undefined,
+      }),
+    );
   });
   api.post("/claims/:id/status", allow(...BILLING), async (c) => {
     const body = parse(ClaimStatusInputSchema, await c.req.json().catch(() => null));
@@ -212,25 +276,48 @@ export function createApp(deps: AppDeps): Hono<Env> {
       throw new HttpError(400, "invalid_request", "Invalid request");
     }
     const r = await deps.invites.invite(me.agencyId, input);
-    await ports.audit.append({ agencyId: me.agencyId, userId: me.userId, action: "user.invite", entity: "user", entityId: r.userId, meta: { role: input.role } });
+    await ports.audit.append({
+      agencyId: me.agencyId,
+      userId: me.userId,
+      action: "user.invite",
+      entity: "user",
+      entityId: r.userId,
+      meta: { role: input.role },
+    });
     return c.json(r, 201);
   });
 
   api.get("/admin/audit", allow("admin"), async (c) => {
     const q = parse(AuditQuerySchema, c.req.query());
     const me = c.get("identity");
-    const rows = await ports.audit.list(me.agencyId, { limit: Number(q.limit ?? 50), beforeSeq: q.before ? Number(q.before) : undefined });
-    const names = deps.userNames ? await deps.userNames(me.agencyId, [...new Set(rows.flatMap((r) => (r.userId ? [r.userId] : [])))]) : new Map<string, string>();
+    const rows = await ports.audit.list(me.agencyId, {
+      limit: Number(q.limit ?? 50),
+      beforeSeq: q.before ? Number(q.before) : undefined,
+    });
+    const names = deps.userNames
+      ? await deps.userNames(me.agencyId, [...new Set(rows.flatMap((r) => (r.userId ? [r.userId] : [])))])
+      : new Map<string, string>();
     const out: AuditDto[] = rows.map((r) => ({
-      seq: r.seq, at: r.at.toISOString(), userId: r.userId, userName: r.userId ? names.get(r.userId) ?? null : null,
-      action: r.action, entity: r.entity, entityId: r.entityId,
+      seq: r.seq,
+      at: r.at.toISOString(),
+      userId: r.userId,
+      userName: r.userId ? (names.get(r.userId) ?? null) : null,
+      action: r.action,
+      entity: r.entity,
+      entityId: r.entityId,
     }));
     return c.json(out);
   });
   api.post("/admin/audit/verify", allow("admin"), async (c) => {
     const me = c.get("identity");
     const brokenAt = await ports.audit.verify(me.agencyId);
-    await ports.audit.append({ agencyId: me.agencyId, userId: me.userId, action: "audit.verify", entity: "audit", meta: { ok: brokenAt === null } });
+    await ports.audit.append({
+      agencyId: me.agencyId,
+      userId: me.userId,
+      action: "audit.verify",
+      entity: "audit",
+      meta: { ok: brokenAt === null },
+    });
     const out: AuditVerifyDto = { ok: brokenAt === null, brokenAt, checkedAt: new Date().toISOString() };
     return c.json(out);
   });

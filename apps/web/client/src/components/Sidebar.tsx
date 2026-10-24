@@ -9,7 +9,8 @@ function Section(props: { title: string; children: JSX.Element }) {
   return (
     <>
       <button class="section-head" classList={{ collapsed: !open() }} aria-expanded={open()} onClick={() => setOpen(!open())}>
-        <span>{props.title}</span><Icon.chevUp />
+        <span>{props.title}</span>
+        <Icon.chevUp />
       </button>
       <Show when={open()}>{props.children}</Show>
     </>
@@ -23,11 +24,16 @@ function Item(p: { icon: () => JSX.Element; label: string; route?: Route; badge?
   return (
     <Show when={visible()}>
       <button
-        class="nav-item" classList={{ active: active() }} aria-current={active() ? "page" : undefined}
+        class="nav-item"
+        classList={{ active: active() }}
+        aria-current={active() ? "page" : undefined}
         onClick={() => (p.route ? router.go(p.route) : store.toast(`${p.label} is not available yet`))}
       >
-        {p.icon()}{p.label}
-        <Show when={(p.badge ?? 0) > 0}><b class="badge">{p.badge}</b></Show>
+        {p.icon()}
+        {p.label}
+        <Show when={(p.badge ?? 0) > 0}>
+          <b class="badge">{p.badge}</b>
+        </Show>
       </button>
     </Show>
   );
@@ -39,7 +45,11 @@ export function Sidebar(props: { onAddPatient: () => void }) {
   return (
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#ffe23d" stroke-width="4.2" stroke-linecap="round" /></svg></span>
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="#ffe23d" stroke-width="4.2" stroke-linecap="round" />
+          </svg>
+        </span>
         <span class="brand-name">Hekara</span>
       </div>
 
@@ -71,10 +81,17 @@ export function Sidebar(props: { onAddPatient: () => void }) {
         <Show when={store.isStaff()}>
           <Section title="ON SHIFT NOW">
             <div class="onshift">
-              <div class="onshift-row"><span>Caregivers</span><span class="chip">{o()?.onShift.count ?? 0} of {o()?.onShift.total ?? 0}</span></div>
+              <div class="onshift-row">
+                <span>Caregivers</span>
+                <span class="chip">
+                  {o()?.onShift.count ?? 0} of {o()?.onShift.total ?? 0}
+                </span>
+              </div>
               <div class="stack">
                 <For each={o()?.onShift.avatars ?? []}>{(p) => <Avatar name={p.name} />}</For>
-                <Show when={(o()?.onShift.count ?? 0) > 4}><span class="more">+{(o()?.onShift.count ?? 0) - 4}</span></Show>
+                <Show when={(o()?.onShift.count ?? 0) > 4}>
+                  <span class="more">+{(o()?.onShift.count ?? 0) - 4}</span>
+                </Show>
               </div>
             </div>
           </Section>
@@ -88,9 +105,16 @@ export function Sidebar(props: { onAddPatient: () => void }) {
 
       <Show when={store.isStaff()}>
         <div class="add-patient">
-          <button class="add-btn" aria-label="Add a patient" onClick={props.onAddPatient}><Icon.plus /></button>
+          <button class="add-btn" aria-label="Add a patient" onClick={props.onAddPatient}>
+            <Icon.plus />
+          </button>
           <div class="add-title">Add a patient</div>
-          <div class="add-sub">Or <button class="link" onClick={() => store.toast("Referral import is not available yet")}>import a referral</button></div>
+          <div class="add-sub">
+            Or{" "}
+            <button class="link" onClick={() => store.toast("Referral import is not available yet")}>
+              import a referral
+            </button>
+          </div>
         </div>
       </Show>
     </aside>

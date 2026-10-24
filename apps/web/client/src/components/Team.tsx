@@ -11,22 +11,54 @@ const MATRIX: { what: string; admin: boolean; scheduler: boolean; caregiver: boo
   { what: "Delete credentials", admin: true, scheduler: false, caregiver: false, billing: false },
   { what: "Invite people, view the activity log, settings", admin: true, scheduler: false, caregiver: false, billing: false },
 ];
-const Mark = (p: { on: boolean }) => <td class="mark" aria-label={p.on ? "Allowed" : "Not allowed"}>{p.on ? "✓" : "–"}</td>;
+const Mark = (p: { on: boolean }) => (
+  <td class="mark" aria-label={p.on ? "Allowed" : "Not allowed"}>
+    {p.on ? "✓" : "–"}
+  </td>
+);
 
 export function TeamPage() {
   return (
     <section class="card page">
-      <header class="page-head"><span class="sched-icon"><Icon.user /></span><h1>Team &amp; Permissions</h1><span class="sched-sub">Who can do what</span></header>
+      <header class="page-head">
+        <span class="sched-icon">
+          <Icon.user />
+        </span>
+        <h1>Team &amp; Permissions</h1>
+        <span class="sched-sub">Who can do what</span>
+      </header>
       <div class="settings">
-        <div class="panel-card"><Team /></div>
+        <div class="panel-card">
+          <Team />
+        </div>
         <div class="panel-card">
           <h3>What each role can do</h3>
           <table class="matrix">
-            <thead><tr><th /><th>Admin</th><th>Scheduler</th><th>Caregiver</th><th>Billing</th></tr></thead>
-            <tbody>{MATRIX.map((m) => <tr><td>{m.what}</td><Mark on={m.admin} /><Mark on={m.scheduler} /><Mark on={m.caregiver} /><Mark on={m.billing} /></tr>)}</tbody>
+            <thead>
+              <tr>
+                <th />
+                <th>Admin</th>
+                <th>Scheduler</th>
+                <th>Caregiver</th>
+                <th>Billing</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MATRIX.map((m) => (
+                <tr>
+                  <td>{m.what}</td>
+                  <Mark on={m.admin} />
+                  <Mark on={m.scheduler} />
+                  <Mark on={m.caregiver} />
+                  <Mark on={m.billing} />
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
-        <div class="panel-card"><ActivityLog /></div>
+        <div class="panel-card">
+          <ActivityLog />
+        </div>
       </div>
     </section>
   );

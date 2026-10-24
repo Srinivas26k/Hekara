@@ -46,7 +46,10 @@ describe("status kinds", () => {
 
 describe("copy and avatars", () => {
   it("writes the Copilot card like the design", () => {
-    expect(copilotCopy(2, 1.5, 1)).toEqual({ title: "2 suggestions ready", body: "Save 1.5 overtime hours and fill 1 open shift." });
+    expect(copilotCopy(2, 1.5, 1)).toEqual({
+      title: "2 suggestions ready",
+      body: "Save 1.5 overtime hours and fill 1 open shift.",
+    });
     expect(copilotCopy(1, 0, 1)).toEqual({ title: "1 suggestion ready", body: "Fill 1 open shift." });
     expect(copilotCopy(0, 0, 0).title).toBe("All caught up");
   });

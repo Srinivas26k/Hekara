@@ -9,7 +9,15 @@ import { Hono } from "hono";
 import { createCrypto } from "@hekara/crypto";
 import * as schema from "@hekara/db/schema";
 import {
-  createPgAudit, createPgRealtime, createPgRepository, fsBlob, intervalScheduler, memoryQueue, envSecrets, systemClock, argon2idHasher,
+  createPgAudit,
+  createPgRealtime,
+  createPgRepository,
+  fsBlob,
+  intervalScheduler,
+  memoryQueue,
+  envSecrets,
+  systemClock,
+  argon2idHasher,
 } from "@hekara/adapters-node";
 import type { Ports } from "@hekara/ports";
 import { createApp } from "../app";
@@ -25,14 +33,22 @@ const sql = postgres(cfg.databaseUrl, { max: 5, idle_timeout: 20 });
 const db = drizzle(sql, { schema });
 const crypto = createCrypto(cfg.keys);
 const ports: Ports = {
-  clock: systemClock, secrets: envSecrets, crypto,
-  repo: createPgRepository(db, crypto), audit: createPgAudit(db, crypto), realtime: createPgRealtime(sql),
-  queue: memoryQueue(), blob: fsBlob(process.env.BLOB_DIR ?? "./.data/blobs"), scheduler: intervalScheduler(),
+  clock: systemClock,
+  secrets: envSecrets,
+  crypto,
+  repo: createPgRepository(db, crypto),
+  audit: createPgAudit(db, crypto),
+  realtime: createPgRealtime(sql),
+  queue: memoryQueue(),
+  blob: fsBlob(process.env.BLOB_DIR ?? "./.data/blobs"),
+  scheduler: intervalScheduler(),
 };
 
 const userNames = async (agencyId: string, ids: string[]) => {
   if (ids.length === 0) return new Map<string, string>();
-  const rows = await db.select({ id: schema.user.id, name: schema.user.name }).from(schema.user)
+  const rows = await db
+    .select({ id: schema.user.id, name: schema.user.name })
+    .from(schema.user)
     .where(and(eq(schema.user.agencyId, agencyId), inArray(schema.user.id, ids)));
   return new Map(rows.map((r) => [r.id, r.name]));
 };
@@ -45,7 +61,13 @@ ports.scheduler.every("audit-verify", "@every 86400s", async () => {
   }
 });
 
-const { auth, links } = createAuth({ db, hasher: argon2idHasher(), audit: ports.audit, appUrl: cfg.appUrl, secret: cfg.authSecret });
+const { auth, links } = createAuth({
+  db,
+  hasher: argon2idHasher(),
+  audit: ports.audit,
+  appUrl: cfg.appUrl,
+  secret: cfg.authSecret,
+});
 const api = createApp({
   ports,
   identify: identifyFromSession(auth),
@@ -69,8 +91,12 @@ root.route("/", api);
 const publicDir = fileURLToPath(new URL("../../public", import.meta.url));
 root.use("/*", serveStatic({ root: publicDir, rewriteRequestPath: (p) => p }));
 
-serve({ fetch: root.fetch, port: cfg.port, hostname: "127.0.0.1" }, (i) => console.log(`Hekara listening on http://127.0.0.1:${i.port}`));
+serve({ fetch: root.fetch, port: cfg.port, hostname: "127.0.0.1" }, (i) =>
+  console.log(`Hekara listening on http://127.0.0.1:${i.port}`),
+);
 
 for (const sig of ["SIGINT", "SIGTERM"] as const) {
-  process.on(sig, () => { void sql.end({ timeout: 2 }).finally(() => process.exit(0)); });
+  process.on(sig, () => {
+    void sql.end({ timeout: 2 }).finally(() => process.exit(0));
+  });
 }

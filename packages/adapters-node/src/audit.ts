@@ -8,8 +8,14 @@ import type { Audit, AuditEntry, Crypto } from "@hekara/ports";
 type Db = PostgresJsDatabase<typeof Schema>;
 
 interface Hashable {
-  seq: number; agencyId: string; userId: string | null; action: string; entity: string;
-  entityId: string | null; meta: string | null; createdAt: string;
+  seq: number;
+  agencyId: string;
+  userId: string | null;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  meta: string | null;
+  createdAt: string;
 }
 export const entryHash = (prevHash: string, e: Hashable): string =>
   createHash("sha256")
@@ -23,39 +29,77 @@ export function createPgAudit(db: Db, crypto: Crypto): Audit {
       const meta = entry.meta ? await crypto.encrypt(entry.agencyId, JSON.stringify(entry.meta)) : null;
       await db.transaction(async (tx) => {
         await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${"audit:" + entry.agencyId}))`);
-        const [last] = await tx.select({ seq: auditLog.seq, hash: auditLog.hash }).from(auditLog)
-          .where(eq(auditLog.agencyId, entry.agencyId)).orderBy(desc(auditLog.seq)).limit(1);
+        const [last] = await tx
+          .select({ seq: auditLog.seq, hash: auditLog.hash })
+          .from(auditLog)
+          .where(eq(auditLog.agencyId, entry.agencyId))
+          .orderBy(desc(auditLog.seq))
+          .limit(1);
         const seq = (last?.seq ?? 0) + 1;
         const prevHash = last?.hash ?? "";
         const createdAt = new Date();
         const hash = entryHash(prevHash, {
-          seq, agencyId: entry.agencyId, userId: entry.userId, action: entry.action, entity: entry.entity,
-          entityId: entry.entityId ?? null, meta, createdAt: createdAt.toISOString(),
+          seq,
+          agencyId: entry.agencyId,
+          userId: entry.userId,
+          action: entry.action,
+          entity: entry.entity,
+          entityId: entry.entityId ?? null,
+          meta,
+          createdAt: createdAt.toISOString(),
         });
         await tx.insert(auditLog).values({
-          agencyId: entry.agencyId, userId: entry.userId, action: entry.action, entity: entry.entity,
-          entityId: entry.entityId ?? null, meta, seq, prevHash, hash, createdAt,
+          agencyId: entry.agencyId,
+          userId: entry.userId,
+          action: entry.action,
+          entity: entry.entity,
+          entityId: entry.entityId ?? null,
+          meta,
+          seq,
+          prevHash,
+          hash,
+          createdAt,
         });
       });
     },
 
     async list(agencyId, { limit, beforeSeq }) {
-      const rows = await db.select().from(auditLog)
+      const rows = await db
+        .select()
+        .from(auditLog)
         .where(and(eq(auditLog.agencyId, agencyId), beforeSeq ? lt(auditLog.seq, beforeSeq) : undefined))
-        .orderBy(desc(auditLog.seq)).limit(Math.min(Math.max(limit, 1), 200));
-      return Promise.all(rows.map(async (r) => ({
-        seq: r.seq, at: r.createdAt, userId: r.userId, action: r.action, entity: r.entity, entityId: r.entityId,
-        meta: r.meta ? (JSON.parse(await crypto.decrypt(agencyId, r.meta)) as Record<string, unknown>) : null,
-      })));
+        .orderBy(desc(auditLog.seq))
+        .limit(Math.min(Math.max(limit, 1), 200));
+      return Promise.all(
+        rows.map(async (r) => ({
+          seq: r.seq,
+          at: r.createdAt,
+          userId: r.userId,
+          action: r.action,
+          entity: r.entity,
+          entityId: r.entityId,
+          meta: r.meta ? (JSON.parse(await crypto.decrypt(agencyId, r.meta)) as Record<string, unknown>) : null,
+        })),
+      );
     },
 
     async verify(agencyId) {
-      const rows = await db.select().from(auditLog).where(and(eq(auditLog.agencyId, agencyId))).orderBy(asc(auditLog.seq));
+      const rows = await db
+        .select()
+        .from(auditLog)
+        .where(and(eq(auditLog.agencyId, agencyId)))
+        .orderBy(asc(auditLog.seq));
       let prev = "";
       for (const [i, r] of rows.entries()) {
         const expected = entryHash(prev, {
-          seq: r.seq, agencyId, userId: r.userId, action: r.action, entity: r.entity,
-          entityId: r.entityId, meta: r.meta, createdAt: r.createdAt.toISOString(),
+          seq: r.seq,
+          agencyId,
+          userId: r.userId,
+          action: r.action,
+          entity: r.entity,
+          entityId: r.entityId,
+          meta: r.meta,
+          createdAt: r.createdAt.toISOString(),
         });
         if (r.seq !== i + 1 || r.prevHash !== prev || r.hash !== expected) return i;
         prev = r.hash;

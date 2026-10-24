@@ -2,9 +2,13 @@ import type { Caregiver, CarePlanStatus, ClaimStatus, Id, StoredStatus, Visit } 
 
 /** Ports: the only surface the app may use to reach a platform. No platform types in signatures. */
 
-export interface Clock { now(): Date }
+export interface Clock {
+  now(): Date;
+}
 
-export interface Secrets { get(name: string): Promise<string> }
+export interface Secrets {
+  get(name: string): Promise<string>;
+}
 
 /** Encrypts and decrypts fields as `v1.<keyId>.<iv>.<ct+tag>` envelopes. */
 export interface Crypto {
@@ -21,35 +25,113 @@ export interface KeyProvider {
   dataKey(agencyId: Id, keyId: string): Promise<Uint8Array>;
 }
 
-export interface PatientInput { name: string; dob?: string; address?: string; notes?: string }
-export interface Patient { id: Id; agencyId: Id; name: string; createdAt: Date }
+export interface PatientInput {
+  name: string;
+  dob?: string;
+  address?: string;
+  notes?: string;
+}
+export interface Patient {
+  id: Id;
+  agencyId: Id;
+  name: string;
+  createdAt: Date;
+}
 
-export interface ClaimRow { id: Id; agencyId: Id; visitId: Id | null; amountCents: number; status: ClaimStatus; createdAt: Date }
+export interface ClaimRow {
+  id: Id;
+  agencyId: Id;
+  visitId: Id | null;
+  amountCents: number;
+  status: ClaimStatus;
+  createdAt: Date;
+}
 /** A claim with the visit it bills for (label and start are decrypted). */
-export interface ClaimDetail extends ClaimRow { visitLabel: string | null; visitStart: Date | null }
-export interface PatientSummary { id: Id; name: string; createdAt: Date }
-export interface PatientDetail extends PatientSummary { dob: string | null; address: string | null; notes: string | null }
-export interface Page { limit: number; offset: number }
+export interface ClaimDetail extends ClaimRow {
+  visitLabel: string | null;
+  visitStart: Date | null;
+}
+export interface PatientSummary {
+  id: Id;
+  name: string;
+  createdAt: Date;
+}
+export interface PatientDetail extends PatientSummary {
+  dob: string | null;
+  address: string | null;
+  notes: string | null;
+}
+export interface Page {
+  limit: number;
+  offset: number;
+}
 
 export interface CarePlanSummary {
-  id: Id; patientId: Id; patientName: string; title: string; status: CarePlanStatus; reviewOn: string | null; taskCount: number; updatedAt: Date;
+  id: Id;
+  patientId: Id;
+  patientName: string;
+  title: string;
+  status: CarePlanStatus;
+  reviewOn: string | null;
+  taskCount: number;
+  updatedAt: Date;
 }
-export interface CarePlanDetail extends CarePlanSummary { instructions: string | null; tasks: string[] }
-export interface CarePlanInput { patientId: Id; title: string; instructions?: string; tasks?: string[]; status?: CarePlanStatus; reviewOn?: string }
-export interface CarePlanPatch { title?: string; instructions?: string | null; tasks?: string[]; status?: CarePlanStatus; reviewOn?: string | null }
+export interface CarePlanDetail extends CarePlanSummary {
+  instructions: string | null;
+  tasks: string[];
+}
+export interface CarePlanInput {
+  patientId: Id;
+  title: string;
+  instructions?: string;
+  tasks?: string[];
+  status?: CarePlanStatus;
+  reviewOn?: string;
+}
+export interface CarePlanPatch {
+  title?: string;
+  instructions?: string | null;
+  tasks?: string[];
+  status?: CarePlanStatus;
+  reviewOn?: string | null;
+}
 
-export interface CredentialRow { id: Id; caregiverId: Id; caregiverName: string; kind: string; issuedOn: string | null; expiresOn: string }
-export interface CredentialInput { caregiverId: Id; kind: string; issuedOn?: string; expiresOn: string }
+export interface CredentialRow {
+  id: Id;
+  caregiverId: Id;
+  caregiverName: string;
+  kind: string;
+  issuedOn: string | null;
+  expiresOn: string;
+}
+export interface CredentialInput {
+  caregiverId: Id;
+  kind: string;
+  issuedOn?: string;
+  expiresOn: string;
+}
 
-export interface VisitQuery { from: Date; to: Date; caregiverId?: Id }
+export interface VisitQuery {
+  from: Date;
+  to: Date;
+  caregiverId?: Id;
+}
 
-export interface SearchHit { kind: "patient" | "caregiver" | "claim"; id: Id; title: string; subtitle?: string }
+export interface SearchHit {
+  kind: "patient" | "caregiver" | "claim";
+  id: Id;
+  title: string;
+  subtitle?: string;
+}
 
 /** Every method is scoped by agencyId. A method without it is a bug. */
 export interface Repository {
   agency(agencyId: Id): Promise<{ id: Id; name: string } | null>;
   renameAgency(agencyId: Id, name: string): Promise<void>;
-  carePlans(agencyId: Id, q: Page & { status?: CarePlanStatus; patientId?: Id; reviewBefore?: string }): Promise<{ items: CarePlanSummary[]; total: number }>;
+  carePlans(
+    agencyId: Id,
+    q: Page & { status?: CarePlanStatus; patientId?: Id; reviewBefore?: string },
+  ): Promise<{ items: CarePlanSummary[]; total: number }>;
   carePlan(agencyId: Id, id: Id): Promise<CarePlanDetail | null>;
   /** Throws when the patient is not in this agency. */
   createCarePlan(agencyId: Id, input: CarePlanInput): Promise<CarePlanDetail>;
@@ -78,9 +160,21 @@ export interface Repository {
   transaction<T>(agencyId: Id, fn: (tx: Repository) => Promise<T>): Promise<T>;
 }
 
-export interface AuditEntry { agencyId: Id; userId: string | null; action: string; entity: string; entityId?: string; meta?: Record<string, unknown> }
+export interface AuditEntry {
+  agencyId: Id;
+  userId: string | null;
+  action: string;
+  entity: string;
+  entityId?: string;
+  meta?: Record<string, unknown>;
+}
 export interface AuditRecord {
-  seq: number; at: Date; userId: string | null; action: string; entity: string; entityId: string | null;
+  seq: number;
+  at: Date;
+  userId: string | null;
+  action: string;
+  entity: string;
+  entityId: string | null;
   meta: Record<string, unknown> | null;
 }
 export interface Audit {
@@ -91,7 +185,11 @@ export interface Audit {
   verify(agencyId: Id): Promise<number | null>;
 }
 
-export interface AppEvent { type: "visit.updated" | "suggestions.changed" | "patient.created" | "claim.updated" | "careplan.updated" | "credential.updated"; agencyId: Id; entityId?: Id }
+export interface AppEvent {
+  type: "visit.updated" | "suggestions.changed" | "patient.created" | "claim.updated" | "careplan.updated" | "credential.updated";
+  agencyId: Id;
+  entityId?: Id;
+}
 export interface Realtime {
   publish(event: AppEvent): Promise<void>;
   /** Stream events for one agency. Returns an unsubscribe function. */

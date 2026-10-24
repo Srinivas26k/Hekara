@@ -43,7 +43,9 @@ export function createCrypto(keys: KeyProvider): Crypto {
       try {
         const key = await aesKey(agencyId, keyId, ["decrypt"]);
         const pt = await crypto.subtle.decrypt(
-          { name: "AES-GCM", iv: unb64u(iv), additionalData: enc.encode(agencyId) }, key, unb64u(ct),
+          { name: "AES-GCM", iv: unb64u(iv), additionalData: enc.encode(agencyId) },
+          key,
+          unb64u(ct),
         );
         return dec.decode(pt);
       } catch {
@@ -56,7 +58,10 @@ export function createCrypto(keys: KeyProvider): Crypto {
       const hk = await crypto.subtle.importKey("raw", raw, "HKDF", false, ["deriveKey"]);
       const mac = await crypto.subtle.deriveKey(
         { name: "HKDF", hash: "SHA-256", salt: enc.encode(agencyId), info: enc.encode("hekara-blind-index") },
-        hk, { name: "HMAC", hash: "SHA-256", length: 256 }, false, ["sign"],
+        hk,
+        { name: "HMAC", hash: "SHA-256", length: 256 },
+        false,
+        ["sign"],
       );
       return b64u(new Uint8Array(await crypto.subtle.sign("HMAC", mac, enc.encode(normalized))));
     },
@@ -80,7 +85,9 @@ export function masterKeyProvider(masters: Record<string, string>, currentKeyId:
       if (!master) throw new CryptoError("Unknown key id");
       const base = await crypto.subtle.importKey("raw", unb64u(master), "HKDF", false, ["deriveBits"]);
       const bits = await crypto.subtle.deriveBits(
-        { name: "HKDF", hash: "SHA-256", salt: enc.encode(agencyId), info: enc.encode(`hekara-data-key:${keyId}`) }, base, 256,
+        { name: "HKDF", hash: "SHA-256", salt: enc.encode(agencyId), info: enc.encode(`hekara-data-key:${keyId}`) },
+        base,
+        256,
       );
       const key = new Uint8Array(bits);
       cache.set(cacheKey, key);

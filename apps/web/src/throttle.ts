@@ -21,12 +21,17 @@ export class FailureThrottle {
   fail(key: string): void {
     const t = this.now();
     let e = this.hits.get(key);
-    if (!e || t - e.first > this.opts.windowMs) { e = { n: 0, first: t, lockedUntil: 0 }; this.hits.set(key, e); }
+    if (!e || t - e.first > this.opts.windowMs) {
+      e = { n: 0, first: t, lockedUntil: 0 };
+      this.hits.set(key, e);
+    }
     if (++e.n >= this.opts.maxFailures) e.lockedUntil = t + this.opts.lockMs;
     if (this.hits.size > (this.opts.maxEntries ?? 10_000)) this.sweep(t);
   }
 
-  succeed(key: string): void { this.hits.delete(key); }
+  succeed(key: string): void {
+    this.hits.delete(key);
+  }
 
   private sweep(t: number): void {
     for (const [k, e] of this.hits) if (e.lockedUntil <= t && t - e.first > this.opts.windowMs) this.hits.delete(k);

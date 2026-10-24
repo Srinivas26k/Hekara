@@ -1,0 +1,66 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. **Never include real patient or staff data.** Use the synthetic demo data for examples and screenshots. For security problems, do not file an issue; see SECURITY.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as ...
+        2. Open ...
+        3. Click ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v0.1.0 or a commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        [
+          Schedule,
+          Visits,
+          Patients,
+          Care plans,
+          Caregivers,
+          Compliance,
+          Billing and claims,
+          Reports,
+          Sign-in and accounts,
+          API,
+          Database or migrations,
+          Docs,
+          Other,
+        ]
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, browser, how you run it
+      placeholder: Ubuntu 24.04, Node 24.1, Chrome 130, Docker Postgres 17
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or console output
+      description: Remove anything sensitive first.
+      render: shell

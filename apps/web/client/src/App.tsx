@@ -21,7 +21,6 @@ import { Toasts } from "./components/Toasts";
 import { Topbar } from "./components/Topbar";
 import { store } from "./store";
 
-
 export function App() {
   let canvas!: HTMLDivElement;
   const [view, setView] = createSignal({ s: 1, w: 1850, h: 900 });
@@ -40,31 +39,63 @@ export function App() {
     void store.loadMe();
     const clock = setInterval(() => store.tick(), 15_000);
     const poll = setInterval(() => void store.refresh(), 60_000); // safety net if the event stream is down
-    onCleanup(() => { window.removeEventListener("resize", fit); clearInterval(clock); clearInterval(poll); });
+    onCleanup(() => {
+      window.removeEventListener("resize", fit);
+      clearInterval(clock);
+      clearInterval(poll);
+    });
   });
 
   return (
     <div id="stage">
-      <Show when={store.auth() === "out"}><Login /></Show>
+      <Show when={store.auth() === "out"}>
+        <Login />
+      </Show>
       <Show when={store.auth() === "in"}>
-        <div id="canvas" ref={canvas} style={{ width: `${view().w}px`, height: `${view().h}px`, transform: `scale(${view().s})` }}>
+        <div
+          id="canvas"
+          ref={canvas}
+          style={{ width: `${view().w}px`, height: `${view().h}px`, transform: `scale(${view().s})` }}
+        >
           <div class="app">
             <Sidebar onAddPatient={() => setAdding(true)} />
             <div class="main">
               <Topbar onAddPatient={() => setAdding(true)} onAccount={() => setAccount(true)} />
               <main class="panel" classList={{ solo: router.route() !== "schedule" || !store.isStaff() }}>
                 <Switch>
-                  <Match when={router.route() === "patients"}><PatientsPage onAdd={() => setAdding(true)} /></Match>
-                  <Match when={router.route() === "caregivers"}><CaregiversPage /></Match>
-                  <Match when={router.route() === "billing"}><BillingPage /></Match>
-                  <Match when={router.route() === "overview"}><OverviewPage /></Match>
-                  <Match when={router.route() === "visits"}><VisitsPage /></Match>
-                  <Match when={router.route() === "careplans"}><CarePlansPage /></Match>
-                  <Match when={router.route() === "copilot"}><CopilotPage /></Match>
-                  <Match when={router.route() === "compliance"}><CompliancePage /></Match>
-                  <Match when={router.route() === "reports"}><ReportsPage /></Match>
-                  <Match when={router.route() === "settings"}><SettingsPage onAccount={() => setAccount(true)} /></Match>
-                  <Match when={router.route() === "team"}><TeamPage /></Match>
+                  <Match when={router.route() === "patients"}>
+                    <PatientsPage onAdd={() => setAdding(true)} />
+                  </Match>
+                  <Match when={router.route() === "caregivers"}>
+                    <CaregiversPage />
+                  </Match>
+                  <Match when={router.route() === "billing"}>
+                    <BillingPage />
+                  </Match>
+                  <Match when={router.route() === "overview"}>
+                    <OverviewPage />
+                  </Match>
+                  <Match when={router.route() === "visits"}>
+                    <VisitsPage />
+                  </Match>
+                  <Match when={router.route() === "careplans"}>
+                    <CarePlansPage />
+                  </Match>
+                  <Match when={router.route() === "copilot"}>
+                    <CopilotPage />
+                  </Match>
+                  <Match when={router.route() === "compliance"}>
+                    <CompliancePage />
+                  </Match>
+                  <Match when={router.route() === "reports"}>
+                    <ReportsPage />
+                  </Match>
+                  <Match when={router.route() === "settings"}>
+                    <SettingsPage onAccount={() => setAccount(true)} />
+                  </Match>
+                  <Match when={router.route() === "team"}>
+                    <TeamPage />
+                  </Match>
                   <Match when={true}>
                     <ScheduleCard />
                     <Show when={store.isStaff()}>
@@ -77,11 +108,19 @@ export function App() {
               </main>
             </div>
           </div>
-          <Show when={!store.online()}><div class="offline" role="alert">Offline. Reconnecting…</div></Show>
+          <Show when={!store.online()}>
+            <div class="offline" role="alert">
+              Offline. Reconnecting…
+            </div>
+          </Show>
         </div>
         <ReviewModal />
-        <Show when={adding()}><AddPatientModal onClose={() => setAdding(false)} /></Show>
-        <Show when={account()}><AccountModal onClose={() => setAccount(false)} /></Show>
+        <Show when={adding()}>
+          <AddPatientModal onClose={() => setAdding(false)} />
+        </Show>
+        <Show when={account()}>
+          <AccountModal onClose={() => setAccount(false)} />
+        </Show>
       </Show>
       <Toasts />
     </div>

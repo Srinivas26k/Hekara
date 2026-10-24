@@ -3,8 +3,16 @@ import type { DayScheduleDto, MeDto, OverviewDto, PersonDto, SuggestionDto, Week
 import { authClient } from "./auth";
 import { api, ApiError } from "./api";
 
-export interface Toast { id: number; message: string; undo?: () => void }
-export interface Activity { id: number; text: string; at: Date }
+export interface Toast {
+  id: number;
+  message: string;
+  undo?: () => void;
+}
+export interface Activity {
+  id: number;
+  text: string;
+  at: Date;
+}
 
 const params = new URLSearchParams(location.search);
 /** `?at=HH:MM` pins the clock, to compare against the design at 10:45. The server only honors it in development. */
@@ -12,7 +20,10 @@ const pinned = /^\d{2}:\d{2}$/.test(params.get("at") ?? "") ? params.get("at")! 
 
 const clock = (): Date => {
   const d = new Date();
-  if (pinned) { const [h, m] = pinned.split(":").map(Number) as [number, number]; d.setHours(h, m, 0, 0); }
+  if (pinned) {
+    const [h, m] = pinned.split(":").map(Number) as [number, number];
+    d.setHours(h, m, 0, 0);
+  }
   return d;
 };
 
@@ -49,8 +60,19 @@ function createStore() {
   const isStaff = () => me()?.role === "admin" || me()?.role === "scheduler";
   /** Drops all data and shows the sign-in screen. */
   const signedOut = () => {
-    events?.close(); events = undefined;
-    batch(() => { setMe(null); setOverview(null); setDay(null); setWeek(null); setEveryone([]); setSuggestions(null); setFilterSig(null); setActivity([]); setAuth("out"); });
+    events?.close();
+    events = undefined;
+    batch(() => {
+      setMe(null);
+      setOverview(null);
+      setDay(null);
+      setWeek(null);
+      setEveryone([]);
+      setSuggestions(null);
+      setFilterSig(null);
+      setActivity([]);
+      setAuth("out");
+    });
   };
 
   const toast = (message: string, undo?: () => void) => {
@@ -70,20 +92,31 @@ function createStore() {
       batch(() => {
         setOverview(o);
         if (s.view === "day") {
-          setDay(s); setWeek(null);
+          setDay(s);
+          setWeek(null);
           if (!filter()) setEveryone(s.rows.map((r) => ({ id: r.id, name: r.name, avatarUrl: r.avatarUrl })));
-        } else { setWeek(s); setDay(null); }
+        } else {
+          setWeek(s);
+          setDay(null);
+        }
         setNow(clock());
         setOnline(true);
       });
     } catch (e) {
-      if (e instanceof ApiError && e.status === 401) { signedOut(); toast("Please sign in again"); return; }
+      if (e instanceof ApiError && e.status === 401) {
+        signedOut();
+        toast("Please sign in again");
+        return;
+      }
       setOnline(false);
     }
   }
 
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const scheduleRefresh = () => { clearTimeout(timer); timer = setTimeout(refresh, 150); };
+  const scheduleRefresh = () => {
+    clearTimeout(timer);
+    timer = setTimeout(refresh, 150);
+  };
 
   function connect() {
     events?.close();
@@ -105,31 +138,69 @@ function createStore() {
   async function loadMe() {
     try {
       const m = await api.me();
-      batch(() => { setMe(m); setAuth("in"); });
+      batch(() => {
+        setMe(m);
+        setAuth("in");
+      });
       connect();
       await refresh();
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) setAuth("out");
-      else { setAuth("out"); toast("Couldn't reach the server"); }
+      else {
+        setAuth("out");
+        toast("Couldn't reach the server");
+      }
     }
   }
 
   async function signOut() {
-    try { await authClient.signOut(); } catch { /* the cookie may already be gone */ }
+    try {
+      await authClient.signOut();
+    } catch {
+      /* the cookie may already be gone */
+    }
     signedOut();
   }
 
   const markBusy = (id: string, on: boolean) =>
-    setBusy((s) => { const n = new Set(s); on ? n.add(id) : n.delete(id); return n; });
+    setBusy((s) => {
+      const n = new Set(s);
+      on ? n.add(id) : n.delete(id);
+      return n;
+    });
 
   return {
-    me, auth, version, isStaff, loadMe, signOut,
-    now, overview, day, week, everyone, view, filter, suggestions, toasts, activity, unread, busy, online,
-    toast, refresh,
+    me,
+    auth,
+    version,
+    isStaff,
+    loadMe,
+    signOut,
+    now,
+    overview,
+    day,
+    week,
+    everyone,
+    view,
+    filter,
+    suggestions,
+    toasts,
+    activity,
+    unread,
+    busy,
+    online,
+    toast,
+    refresh,
     pinned,
     tick: () => setNow(clock()),
-    setView(v: "day" | "week") { setViewSig(v); void refresh(); },
-    setFilter(p: PersonDto | null) { setFilterSig(p); void refresh(); },
+    setView(v: "day" | "week") {
+      setViewSig(v);
+      void refresh();
+    },
+    setFilter(p: PersonDto | null) {
+      setFilterSig(p);
+      void refresh();
+    },
     clearUnread: () => setUnread(0),
     dismissToast: (id: number) => setToasts((t) => t.filter((x) => x.id !== id)),
 
@@ -138,19 +209,43 @@ function createStore() {
       try {
         const r = await api.fill(id);
         toast(`Assigned to ${r.caregiver.name}`, async () => {
-          try { await api.unfill(id); toast("Shift reopened"); await refresh(); } catch (e) { fail(e, "Couldn't undo"); }
+          try {
+            await api.unfill(id);
+            toast("Shift reopened");
+            await refresh();
+          } catch (e) {
+            fail(e, "Couldn't undo");
+          }
         });
         await refresh();
-      } catch (e) { fail(e, "Couldn't fill this shift"); await refresh(); } finally { markBusy(id, false); }
+      } catch (e) {
+        fail(e, "Couldn't fill this shift");
+        await refresh();
+      } finally {
+        markBusy(id, false);
+      }
     },
 
     async optimize() {
       markBusy("optimize", true);
-      try { const r = await api.optimize(); setSuggestions(r.items); await refresh(); return r.items; }
-      catch (e) { fail(e, "Couldn't compute suggestions"); return null; } finally { markBusy("optimize", false); }
+      try {
+        const r = await api.optimize();
+        setSuggestions(r.items);
+        await refresh();
+        return r.items;
+      } catch (e) {
+        fail(e, "Couldn't compute suggestions");
+        return null;
+      } finally {
+        markBusy("optimize", false);
+      }
     },
-    openReview() { setSuggestions(overview()?.suggestions.items ?? []); },
-    closeReview() { setSuggestions(null); },
+    openReview() {
+      setSuggestions(overview()?.suggestions.items ?? []);
+    },
+    closeReview() {
+      setSuggestions(null);
+    },
 
     async apply(visitIds?: string[]) {
       markBusy("apply", true);
@@ -160,13 +255,26 @@ function createStore() {
         await refresh();
         setSuggestions(overview()?.suggestions.items ?? []);
         return true;
-      } catch (e) { fail(e, "Couldn't apply suggestions"); await refresh(); setSuggestions(overview()?.suggestions.items ?? []); return false; }
-      finally { markBusy("apply", false); }
+      } catch (e) {
+        fail(e, "Couldn't apply suggestions");
+        await refresh();
+        setSuggestions(overview()?.suggestions.items ?? []);
+        return false;
+      } finally {
+        markBusy("apply", false);
+      }
     },
 
     async createPatient(input: { name: string; dob?: string; address?: string; notes?: string }) {
-      try { await api.createPatient(input); toast("Patient added"); await refresh(); return true; }
-      catch (e) { fail(e, "Couldn't add the patient"); return false; }
+      try {
+        await api.createPatient(input);
+        toast("Patient added");
+        await refresh();
+        return true;
+      } catch (e) {
+        fail(e, "Couldn't add the patient");
+        return false;
+      }
     },
   };
 }

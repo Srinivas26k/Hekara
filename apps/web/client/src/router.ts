@@ -3,10 +3,30 @@ import type { Role } from "@hekara/core";
 import { store } from "./store";
 
 export type Route =
-  | "overview" | "schedule" | "patients" | "caregivers" | "visits" | "careplans" | "copilot"
-  | "billing" | "compliance" | "reports" | "settings" | "team";
+  | "overview"
+  | "schedule"
+  | "patients"
+  | "caregivers"
+  | "visits"
+  | "careplans"
+  | "copilot"
+  | "billing"
+  | "compliance"
+  | "reports"
+  | "settings"
+  | "team";
 
-const STAFF: Route[] = ["overview", "schedule", "patients", "caregivers", "visits", "careplans", "copilot", "compliance", "reports"];
+const STAFF: Route[] = [
+  "overview",
+  "schedule",
+  "patients",
+  "caregivers",
+  "visits",
+  "careplans",
+  "copilot",
+  "compliance",
+  "reports",
+];
 const ALLOWED: Record<Role, Route[]> = {
   admin: [...STAFF, "billing", "settings", "team"],
   scheduler: STAFF,
@@ -30,7 +50,9 @@ function create() {
   return {
     route,
     can: (r: Route) => !!store.me() && ALLOWED[store.me()!.role].includes(r),
-    go: (r: Route) => { location.hash = `#/${r}`; },
+    go: (r: Route) => {
+      location.hash = `#/${r}`;
+    },
   };
 }
 

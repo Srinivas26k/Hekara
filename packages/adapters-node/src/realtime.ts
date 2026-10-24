@@ -11,7 +11,11 @@ export function createPgRealtime(sql: ReturnType<typeof postgres>): Realtime {
   const ensureListening = () =>
     (listening ??= sql.listen(CHANNEL, (payload) => {
       let e: AppEvent;
-      try { e = JSON.parse(payload) as AppEvent; } catch { return; }
+      try {
+        e = JSON.parse(payload) as AppEvent;
+      } catch {
+        return;
+      }
       subs.get(e.agencyId)?.forEach((fn) => fn(e));
     }));
 

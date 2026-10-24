@@ -16,11 +16,21 @@ export function identifyFromSession(auth: AuthInstance) {
       await auth.api.signOut({ headers: c.req.raw.headers }).catch(() => undefined);
       throw new HttpError(401, "session_expired", "Session expired");
     }
-    const u = s.user as typeof s.user & { role?: string; agencyId?: string; caregiverId?: string | null; twoFactorEnabled?: boolean };
+    const u = s.user as typeof s.user & {
+      role?: string;
+      agencyId?: string;
+      caregiverId?: string | null;
+      twoFactorEnabled?: boolean;
+    };
     if (!u.agencyId || !u.role || !ROLES.has(u.role as Role)) throw new HttpError(403, "no_access", "No access");
     return {
-      agencyId: u.agencyId, userId: u.id, role: u.role as Role, caregiverId: u.caregiverId ?? null,
-      name: u.name, email: u.email, twoFactorEnabled: !!u.twoFactorEnabled,
+      agencyId: u.agencyId,
+      userId: u.id,
+      role: u.role as Role,
+      caregiverId: u.caregiverId ?? null,
+      name: u.name,
+      email: u.email,
+      twoFactorEnabled: !!u.twoFactorEnabled,
     };
   };
 }

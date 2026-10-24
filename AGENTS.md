@@ -32,8 +32,6 @@ packages/db              Drizzle schemas and migrations (one per dialect, kept i
 packages/ui              Shared UI components and design tokens
 packages/contract-tests  One test suite every adapter must pass
 docs/                    PRD, TRD, architecture, security, portability, ADRs
-Assets/                  Design reference image
-web/                     Static prototype (source for the live UI; remove once ported)
 ```
 
 Directories marked adapters beyond Cloudflare and Node are added on demand; the contract tests define what they must do.

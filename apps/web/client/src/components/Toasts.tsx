@@ -8,7 +8,16 @@ export function Toasts() {
         {(t) => (
           <div class="toast">
             <span>{t.message}</span>
-            {t.undo ? <button onClick={() => { t.undo!(); store.dismissToast(t.id); }}>Undo</button> : null}
+            {t.undo ? (
+              <button
+                onClick={() => {
+                  t.undo!();
+                  store.dismissToast(t.id);
+                }}
+              >
+                Undo
+              </button>
+            ) : null}
           </div>
         )}
       </For>

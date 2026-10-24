@@ -23,14 +23,14 @@ Hekara uses **ports and adapters** (hexagonal architecture). The domain and HTTP
 
 ## Package responsibilities
 
-| Package | Contains | May import |
-|---|---|---|
-| `core` | Types, Valibot schemas, pure scheduling logic | nothing platform-specific |
-| `ports` | TypeScript interfaces only | `core` types |
-| `apps/web` | Hono routes, middleware, Solid client | `core`, `ports` |
-| `adapters-*` | Platform code implementing ports | `core`, `ports`, platform SDKs |
-| `db` | Drizzle schemas per dialect, migrations | `drizzle-orm` |
-| `contract-tests` | Tests that run against any adapter | `ports` |
+| Package          | Contains                                      | May import                     |
+| ---------------- | --------------------------------------------- | ------------------------------ |
+| `core`           | Types, Valibot schemas, pure scheduling logic | nothing platform-specific      |
+| `ports`          | TypeScript interfaces only                    | `core` types                   |
+| `apps/web`       | Hono routes, middleware, Solid client         | `core`, `ports`                |
+| `adapters-*`     | Platform code implementing ports              | `core`, `ports`, platform SDKs |
+| `db`             | Drizzle schemas per dialect, migrations       | `drizzle-orm`                  |
+| `contract-tests` | Tests that run against any adapter            | `ports`                        |
 
 Dependency rule: arrows point inward. `core` imports nothing from other packages. Only adapters import cloud SDKs. A lint rule enforces this.
 
@@ -40,10 +40,10 @@ Each deployable has one small entry file that builds the adapters and hands them
 
 ```ts
 // entries/cloudflare.ts
-export default createApp({ repo: cfRepo(env), realtime: cfRealtime(env), crypto: webCrypto(cfKeys(env)), /* ... */ });
+export default createApp({ repo: cfRepo(env), realtime: cfRealtime(env), crypto: webCrypto(cfKeys(env)) /* ... */ });
 
 // entries/node.ts
-serve(createApp({ repo: pgRepo(url), realtime: sseRealtime(pg), crypto: webCrypto(envKeys()), /* ... */ }));
+serve(createApp({ repo: pgRepo(url), realtime: sseRealtime(pg), crypto: webCrypto(envKeys()) /* ... */ }));
 ```
 
 `createApp(deps)` is the same function everywhere. Moving platforms means changing the entry file and infrastructure config, not the app.
@@ -82,10 +82,10 @@ De-identification happens in the consumer: names and free text are dropped; ids 
 
 ## Where things must not go
 
-| Don't | Do instead |
-|---|---|
-| Call `env.MY_BUCKET` in a route | Call `blob.put()` |
-| Use `pg` types in `core` | Return plain domain objects |
-| Read `process.env` in handlers | Use the `Secrets` port |
-| Log a patient name | Log ids only |
-| Query without `agencyId` | Use scoped repository methods |
+| Don't                           | Do instead                    |
+| ------------------------------- | ----------------------------- |
+| Call `env.MY_BUCKET` in a route | Call `blob.put()`             |
+| Use `pg` types in `core`        | Return plain domain objects   |
+| Read `process.env` in handlers  | Use the `Secrets` port        |
+| Log a patient name              | Log ids only                  |
+| Query without `agencyId`        | Use scoped repository methods |

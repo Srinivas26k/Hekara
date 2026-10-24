@@ -4,15 +4,15 @@ Goal: **no lock-in**. An agency can move between Cloudflare, AWS, GCP, Azure, Ku
 
 ## 1. What makes this possible
 
-| Mechanism | Effect |
-|---|---|
-| Ports and adapters | Platform code is isolated in `packages/adapters-*` |
-| Web-standard runtime APIs | Hono, `fetch`, WebCrypto and `URL` run on every JS runtime |
-| Portable ciphertext envelope | `v1.<keyId>.<iv>.<ct+tag>` needs no re-encryption when data moves; only the key provider changes |
-| Dialect-neutral SQL | Schemas for SQLite and Postgres are kept in sync and checked in CI |
-| Portable export format | Versioned, platform-neutral archive (below) |
-| Contract tests | Every adapter must pass the same suite, so a new platform is verified, not assumed |
-| Infrastructure as code per platform | `deploy/<platform>/` holds the config; none leaks into app code |
+| Mechanism                           | Effect                                                                                           |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Ports and adapters                  | Platform code is isolated in `packages/adapters-*`                                               |
+| Web-standard runtime APIs           | Hono, `fetch`, WebCrypto and `URL` run on every JS runtime                                       |
+| Portable ciphertext envelope        | `v1.<keyId>.<iv>.<ct+tag>` needs no re-encryption when data moves; only the key provider changes |
+| Dialect-neutral SQL                 | Schemas for SQLite and Postgres are kept in sync and checked in CI                               |
+| Portable export format              | Versioned, platform-neutral archive (below)                                                      |
+| Contract tests                      | Every adapter must pass the same suite, so a new platform is verified, not assumed               |
+| Infrastructure as code per platform | `deploy/<platform>/` holds the config; none leaks into app code                                  |
 
 ## 2. Portable export format
 
@@ -37,16 +37,16 @@ hekara-export-v1/
 
 ## 3. Adapter matrix
 
-| Port | Cloudflare | AWS | GCP | Azure | Kubernetes / self-host |
-|---|---|---|---|---|---|
-| Compute | Workers | Lambda or ECS Fargate | Cloud Run | Container Apps or Functions | Deployment (Node image) |
-| Repository | DO SQLite | RDS or Aurora Postgres | Cloud SQL Postgres | Azure Database for PostgreSQL | Postgres (managed or in-cluster) |
-| Realtime | DO WebSockets | API Gateway WebSockets or AppSync Events | Cloud Run SSE with `LISTEN/NOTIFY` | Web PubSub or SSE | SSE with `LISTEN/NOTIFY` |
-| Queue | Queues | SQS | Pub/Sub | Service Bus | Postgres queue or NATS |
-| Blob | R2 | S3 | GCS | Blob Storage | MinIO or any S3 API |
-| Keys | Secrets Store | KMS | Cloud KMS | Key Vault | Vault or env with `0600` file |
-| Scheduler | Cron Triggers | EventBridge | Cloud Scheduler | Timer trigger | CronJob |
-| Edge/WAF | Cloudflare WAF | CloudFront + AWS WAF | Cloud Armor | Front Door + WAF | Ingress + ModSecurity or Cloudflare in front |
+| Port       | Cloudflare     | AWS                                      | GCP                                | Azure                         | Kubernetes / self-host                       |
+| ---------- | -------------- | ---------------------------------------- | ---------------------------------- | ----------------------------- | -------------------------------------------- |
+| Compute    | Workers        | Lambda or ECS Fargate                    | Cloud Run                          | Container Apps or Functions   | Deployment (Node image)                      |
+| Repository | DO SQLite      | RDS or Aurora Postgres                   | Cloud SQL Postgres                 | Azure Database for PostgreSQL | Postgres (managed or in-cluster)             |
+| Realtime   | DO WebSockets  | API Gateway WebSockets or AppSync Events | Cloud Run SSE with `LISTEN/NOTIFY` | Web PubSub or SSE             | SSE with `LISTEN/NOTIFY`                     |
+| Queue      | Queues         | SQS                                      | Pub/Sub                            | Service Bus                   | Postgres queue or NATS                       |
+| Blob       | R2             | S3                                       | GCS                                | Blob Storage                  | MinIO or any S3 API                          |
+| Keys       | Secrets Store  | KMS                                      | Cloud KMS                          | Key Vault                     | Vault or env with `0600` file                |
+| Scheduler  | Cron Triggers  | EventBridge                              | Cloud Scheduler                    | Timer trigger                 | CronJob                                      |
+| Edge/WAF   | Cloudflare WAF | CloudFront + AWS WAF                     | Cloud Armor                        | Front Door + WAF              | Ingress + ModSecurity or Cloudflare in front |
 
 Any S3-compatible store works for `Blob`; any Postgres works for the Node repository. Platforms not listed need one new adapter that passes the contract tests.
 
@@ -54,17 +54,17 @@ Any S3-compatible store works for `Blob`; any Postgres works for the Node reposi
 
 Preconditions: target environment provisioned from `deploy/<target>/`, contract tests green against the target adapters, and a restore drill completed on the target.
 
-| Step | Action | Notes |
-|---|---|---|
-| 1 | Announce a maintenance window | Short; read-only mode is available earlier |
-| 2 | Enable read-only mode on the source | `POST /api/admin/readonly` |
-| 3 | Export the agency | `hekara export --agency <id> --out file.age` |
-| 4 | Move the key material | Key provider migration below; never send keys and data together |
-| 5 | Import on the target | `hekara import file.age`; verifies checksums and audit chain |
-| 6 | Validate | `hekara verify --source <id> --target <id>` compares counts, checksums and a sample decrypt |
-| 7 | Switch DNS | Low TTL set in advance |
-| 8 | Smoke test, then lift read-only on the target | |
-| 9 | Keep the source read-only for the retention period, then securely delete | Delete keys last |
+| Step | Action                                                                   | Notes                                                                                       |
+| ---- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| 1    | Announce a maintenance window                                            | Short; read-only mode is available earlier                                                  |
+| 2    | Enable read-only mode on the source                                      | `POST /api/admin/readonly`                                                                  |
+| 3    | Export the agency                                                        | `hekara export --agency <id> --out file.age`                                                |
+| 4    | Move the key material                                                    | Key provider migration below; never send keys and data together                             |
+| 5    | Import on the target                                                     | `hekara import file.age`; verifies checksums and audit chain                                |
+| 6    | Validate                                                                 | `hekara verify --source <id> --target <id>` compares counts, checksums and a sample decrypt |
+| 7    | Switch DNS                                                               | Low TTL set in advance                                                                      |
+| 8    | Smoke test, then lift read-only on the target                            |                                                                                             |
+| 9    | Keep the source read-only for the retention period, then securely delete | Delete keys last                                                                            |
 
 Rollback before step 9: point DNS back to the source and lift its read-only flag. No data was altered there.
 
@@ -81,13 +81,13 @@ Keys are never written to logs, tickets or chat.
 
 ## 5. Platform-to-platform notes
 
-| Move | Specific points |
-|---|---|
-| Cloudflare to AWS | Shard layout becomes one Postgres schema per branch or row-level `agencyId` scoping; realtime moves to API Gateway WebSockets; backups move from R2 to S3 with object lock |
-| AWS to Cloudflare | Postgres rows become per-shard SQLite databases through the import; check each shard stays under the size cap before cutting over |
-| Any cloud to self-host | Use the Node entry and Docker image; terminate TLS at a reverse proxy; run `pg_dump` plus the portable export as backups |
-| Any to Kubernetes | Same container; use a Secrets store CSI driver for keys; HorizontalPodAutoscaler on CPU; a managed Postgres is recommended |
-| Region to region | Import into a shard pinned to the new jurisdiction; prove deletion on the old one |
+| Move                   | Specific points                                                                                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cloudflare to AWS      | Shard layout becomes one Postgres schema per branch or row-level `agencyId` scoping; realtime moves to API Gateway WebSockets; backups move from R2 to S3 with object lock |
+| AWS to Cloudflare      | Postgres rows become per-shard SQLite databases through the import; check each shard stays under the size cap before cutting over                                          |
+| Any cloud to self-host | Use the Node entry and Docker image; terminate TLS at a reverse proxy; run `pg_dump` plus the portable export as backups                                                   |
+| Any to Kubernetes      | Same container; use a Secrets store CSI driver for keys; HorizontalPodAutoscaler on CPU; a managed Postgres is recommended                                                 |
+| Region to region       | Import into a shard pinned to the new jurisdiction; prove deletion on the old one                                                                                          |
 
 ## 6. Keeping it portable (rules for contributors)
 

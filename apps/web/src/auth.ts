@@ -27,10 +27,17 @@ export function createAuth(deps: AuthDeps) {
 
   /** 10 wrong passwords in 15 minutes lock that account for 15 minutes, from any address. */
   const throttle = new FailureThrottle({ maxFailures: 10, windowMs: 15 * 60_000, lockMs: 15 * 60_000 });
-  const emailKey = (body: unknown) => String((body as { email?: unknown } | null)?.email ?? "").trim().toLowerCase();
+  const emailKey = (body: unknown) =>
+    String((body as { email?: unknown } | null)?.email ?? "")
+      .trim()
+      .toLowerCase();
 
   const agencyOf = async (userId: string) => {
-    const [u] = await deps.db.select({ agencyId: schema.user.agencyId }).from(schema.user).where(eq(schema.user.id, userId)).limit(1);
+    const [u] = await deps.db
+      .select({ agencyId: schema.user.agencyId })
+      .from(schema.user)
+      .where(eq(schema.user.id, userId))
+      .limit(1);
     return u?.agencyId ?? null;
   };
   const record = async (userId: string | undefined, action: string, entity: string) => {
@@ -46,8 +53,12 @@ export function createAuth(deps: AuthDeps) {
     database: drizzleAdapter(deps.db, {
       provider: "pg",
       schema: {
-        user: schema.user, session: schema.session, account: schema.account, verification: schema.verification,
-        twoFactor: schema.twoFactor, passkey: schema.passkey,
+        user: schema.user,
+        session: schema.session,
+        account: schema.account,
+        verification: schema.verification,
+        twoFactor: schema.twoFactor,
+        passkey: schema.passkey,
       },
     }),
     emailAndPassword: {
@@ -58,7 +69,9 @@ export function createAuth(deps: AuthDeps) {
       password: { hash: (p) => deps.hasher.hash(p), verify: (d) => deps.hasher.verify(d) },
       resetPasswordTokenExpiresIn: INVITE_TTL_SECONDS,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: async ({ user, url: link }) => { links.set(user.email.toLowerCase(), link); },
+      sendResetPassword: async ({ user, url: link }) => {
+        links.set(user.email.toLowerCase(), link);
+      },
     },
     user: {
       additionalFields: {
@@ -68,10 +81,7 @@ export function createAuth(deps: AuthDeps) {
       },
     },
     session: { expiresIn: IDLE_SECONDS, updateAge: 60, disableSessionRefresh: false },
-    plugins: [
-      twoFactor({ issuer: "Hekara" }),
-      passkey({ rpID: url.hostname, rpName: "Hekara", origin: url.origin }),
-    ],
+    plugins: [twoFactor({ issuer: "Hekara" }), passkey({ rpID: url.hostname, rpName: "Hekara", origin: url.origin })],
     advanced: {
       // The address comes from a header only our server sets (see withClientIp), so clients can't spoof it.
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
@@ -80,7 +90,9 @@ export function createAuth(deps: AuthDeps) {
       defaultCookieAttributes: { httpOnly: true, secure, sameSite: "strict", path: "/" },
     },
     rateLimit: {
-      enabled: true, window: 60, max: 120,
+      enabled: true,
+      window: 60,
+      max: 120,
       customRules: {
         "/sign-in/email": { window: 60, max: 5 },
         "/two-factor/verify-totp": { window: 60, max: 5 },
@@ -108,13 +120,17 @@ export function createAuth(deps: AuthDeps) {
       after: createAuthMiddleware(async (ctx) => {
         if (ctx.path === "/sign-in/email") {
           const key = emailKey(ctx.body);
-          if (ctx.context.returned instanceof APIError) throttle.fail(key); else throttle.succeed(key);
+          if (ctx.context.returned instanceof APIError) throttle.fail(key);
+          else throttle.succeed(key);
           return;
         }
         const audited: Record<string, string> = {
-          "/two-factor/enable": "auth.2fa.enable", "/two-factor/disable": "auth.2fa.disable",
-          "/passkey/verify-registration": "auth.passkey.add", "/passkey/delete-passkey": "auth.passkey.remove",
-          "/reset-password": "auth.password.reset", "/change-password": "auth.password.change",
+          "/two-factor/enable": "auth.2fa.enable",
+          "/two-factor/disable": "auth.2fa.disable",
+          "/passkey/verify-registration": "auth.passkey.add",
+          "/passkey/delete-passkey": "auth.passkey.remove",
+          "/reset-password": "auth.password.reset",
+          "/change-password": "auth.password.change",
         };
         const action = audited[ctx.path];
         if (!action) return;

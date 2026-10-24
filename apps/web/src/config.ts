@@ -14,7 +14,10 @@ export interface Config {
 /** DATA_KEYS="k1:<base64>,k2:<base64>" and DATA_KEY_ID="k2" (the key used for new writes). */
 export function parseKeys(raw: string, currentId: string) {
   const masters: Record<string, string> = {};
-  for (const part of raw.split(",").map((s) => s.trim()).filter(Boolean)) {
+  for (const part of raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)) {
     const i = part.indexOf(":");
     if (i < 1) throw new Error("DATA_KEYS entries must look like id:base64");
     masters[part.slice(0, i)] = part.slice(i + 1);
@@ -37,7 +40,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   if (production && new URL(appUrl).protocol !== "https:") throw new Error("APP_URL must be https in production");
   return {
-    production, appUrl, authSecret, trustProxy: env.TRUST_PROXY === "1",
+    production,
+    appUrl,
+    authSecret,
+    trustProxy: env.TRUST_PROXY === "1",
     databaseUrl: need("DATABASE_URL"),
     port,
     keys: parseKeys(need("DATA_KEYS"), need("DATA_KEY_ID")),

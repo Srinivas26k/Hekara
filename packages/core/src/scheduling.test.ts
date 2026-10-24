@@ -4,12 +4,28 @@ import type { Caregiver, Visit } from "./index";
 
 const at = (h: number) => new Date(Date.UTC(2026, 8, 30, Math.floor(h), (h % 1) * 60));
 const cg = (id: string, over: Partial<Caregiver> = {}): Caregiver => ({
-  id, agencyId: "a", name: id, avatarUrl: null, weeklyHours: 20, weeklyLimit: 40,
-  skills: ["HHA", "Companion"], onShift: false, flagged: false, ...over,
+  id,
+  agencyId: "a",
+  name: id,
+  avatarUrl: null,
+  weeklyHours: 20,
+  weeklyLimit: 40,
+  skills: ["HHA", "Companion"],
+  onShift: false,
+  flagged: false,
+  ...over,
 });
 const visit = (id: string, s: number, e: number, over: Partial<Visit> = {}): Visit => ({
-  id, agencyId: "a", caregiverId: null, patientId: null, label: id,
-  startsAt: at(s), endsAt: at(e), status: "scheduled", requirement: null, ...over,
+  id,
+  agencyId: "a",
+  caregiverId: null,
+  patientId: null,
+  label: id,
+  startsAt: at(s),
+  endsAt: at(e),
+  status: "scheduled",
+  requirement: null,
+  ...over,
 });
 
 describe("deriveStatus", () => {
@@ -37,7 +53,11 @@ describe("eligibility", () => {
     expect(isEligible(cg("x", { weeklyHours: 38 }), open, [])).toBe(true);
   });
   it("ranks lowest hours first, name as tiebreak", () => {
-    const ranked = rankCandidates(open, [cg("b", { weeklyHours: 30 }), cg("c", { weeklyHours: 10 }), cg("a", { weeklyHours: 10 })], []);
+    const ranked = rankCandidates(
+      open,
+      [cg("b", { weeklyHours: 30 }), cg("c", { weeklyHours: 10 }), cg("a", { weeklyHours: 10 })],
+      [],
+    );
     expect(ranked.map((c) => c.id)).toEqual(["a", "c", "b"]);
   });
 });
@@ -52,10 +72,7 @@ describe("overtimeWatch", () => {
 describe("buildSuggestions", () => {
   it("fills open shifts and moves visits off an overloaded caregiver", () => {
     const caregivers = [cg("rosa", { weeklyHours: 38 }), cg("aisha", { weeklyHours: 10 })];
-    const remaining = [
-      visit("joan", 11, 14, { caregiverId: "rosa" }),
-      visit("george", 16, 18, { status: "open" }),
-    ];
+    const remaining = [visit("joan", 11, 14, { caregiverId: "rosa" }), visit("george", 16, 18, { status: "open" })];
     const s = buildSuggestions(caregivers, remaining);
     expect(s).toEqual([
       { kind: "fill", visitId: "george", caregiverId: "aisha", hoursSaved: 0 },

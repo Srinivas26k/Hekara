@@ -5,7 +5,6 @@ Build order. Each milestone ends with typecheck, lint, tests and docs updated.
 ## Done
 
 - pnpm monorepo, Postgres 17 in Docker, Drizzle schema and migration `0000`.
-- Static UI prototype matching `Assets/image.png`.
 - PRD, TRD, architecture, portability, deployment, security, HIPAA and decision docs.
 
 ## M1: Foundation (portable core)

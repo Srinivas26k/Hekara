@@ -5,11 +5,25 @@ export function Pager(props: { total: number; limit: number; offset: number; onP
   const to = () => Math.min(props.offset + props.limit, props.total);
   return (
     <div class="pager">
-      <span>{from()}–{to()} of {props.total}</span>
+      <span>
+        {from()}–{to()} of {props.total}
+      </span>
       <Show when={props.total > props.limit}>
         <div>
-          <button class="ghost" disabled={props.offset === 0} onClick={() => props.onPage(Math.max(0, props.offset - props.limit))}>Previous</button>
-          <button class="ghost" disabled={props.offset + props.limit >= props.total} onClick={() => props.onPage(props.offset + props.limit)}>Next</button>
+          <button
+            class="ghost"
+            disabled={props.offset === 0}
+            onClick={() => props.onPage(Math.max(0, props.offset - props.limit))}
+          >
+            Previous
+          </button>
+          <button
+            class="ghost"
+            disabled={props.offset + props.limit >= props.total}
+            onClick={() => props.onPage(props.offset + props.limit)}
+          >
+            Next
+          </button>
         </div>
       </Show>
     </div>

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question or share an idea
+    url: https://github.com/Srinivas26k/Hekara/discussions
+    about: For help, ideas and general discussion, use Discussions rather than an issue.
+  - name: Report a security vulnerability
+    url: https://github.com/Srinivas26k/Hekara/security/advisories/new
+    about: Report privately. Please do not open a public issue for security problems.
+  - name: Enterprise, custom builds and paid support
+    url: https://github.com/Srinivas26k/Hekara/blob/main/COMMERCIAL.md
+    about: HIPAA-oriented deployments, SOC 2 readiness, integrations and commercial licensing.
