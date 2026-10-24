@@ -8,6 +8,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as schema from "@hekara/db/schema";
 import type { Audit, PasswordHasher } from "@hekara/ports";
 import { FailureThrottle } from "./throttle";
+import { IDLE_SECONDS, INVITE_TTL_SECONDS, MIN_PASSWORD_LENGTH } from "./policy";
 
 export type Role = "admin" | "scheduler" | "caregiver" | "billing";
 
@@ -20,11 +21,7 @@ export interface AuthDeps {
   secret: string;
 }
 
-/** Session policy: 30 minutes idle (rolling), 12 hours absolute. */
-export const IDLE_SECONDS = 30 * 60;
-export const ABSOLUTE_MS = 12 * 60 * 60 * 1000;
-/** How long an invite or reset link works. */
-export const INVITE_TTL_SECONDS = 48 * 60 * 60;
+export { ABSOLUTE_MS, IDLE_SECONDS, INVITE_TTL_SECONDS } from "./policy";
 
 export function createAuth(deps: AuthDeps) {
   const url = new URL(deps.appUrl);
@@ -60,7 +57,7 @@ export function createAuth(deps: AuthDeps) {
     emailAndPassword: {
       enabled: true,
       disableSignUp: true, // invite-only: accounts are created by an admin
-      minPasswordLength: 12,
+      minPasswordLength: MIN_PASSWORD_LENGTH,
       maxPasswordLength: 128,
       password: { hash: (p) => deps.hasher.hash(p), verify: (d) => deps.hasher.verify(d) },
       resetPasswordTokenExpiresIn: INVITE_TTL_SECONDS,
@@ -121,7 +118,7 @@ export function createAuth(deps: AuthDeps) {
         const audited: Record<string, string> = {
           "/two-factor/enable": "auth.2fa.enable", "/two-factor/disable": "auth.2fa.disable",
           "/passkey/verify-registration": "auth.passkey.add", "/passkey/delete-passkey": "auth.passkey.remove",
-          "/reset-password": "auth.password.reset",
+          "/reset-password": "auth.password.reset", "/change-password": "auth.password.change",
         };
         const action = audited[ctx.path];
         if (!action) return;
