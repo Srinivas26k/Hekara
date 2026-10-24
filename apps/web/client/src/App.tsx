@@ -19,9 +19,10 @@ export function App() {
   const [view, setView] = createSignal({ s: 1, w: 1850, h: 900 });
   const [adding, setAdding] = createSignal(false);
   const [account, setAccount] = createSignal(false);
-  // Scale the design to the screen, then give the fluid layout whatever room is left, so the app always fills the viewport.
+  // The design tokens come from a 2000px-wide mock-up, so at 1:1 they look zoomed on a real screen. Scale them to normal
+  // density (about 0.8 on a 1080p display), then let the fluid layout use the remaining room.
   const fit = () => {
-    const s = Math.min(1.5, Math.max(0.5, Math.min(window.innerWidth / 1850, window.innerHeight / 900)));
+    const s = Math.min(1.4, Math.max(0.7, Math.min(window.innerWidth / 2400, window.innerHeight / 1100)));
     setView({ s, w: window.innerWidth / s, h: window.innerHeight / s });
   };
 
