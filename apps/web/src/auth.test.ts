@@ -9,7 +9,7 @@ import { createCrypto, generateMasterKey, masterKeyProvider } from "@hekara/cryp
 import * as s from "@hekara/db/schema";
 import type { Ports } from "@hekara/ports";
 import { createApp } from "./app";
-import { createAuth } from "./auth";
+import { createAuth, withClientIp } from "./auth";
 import { identifyFromSession } from "./identity";
 import { createInvites } from "./invites";
 
@@ -26,9 +26,9 @@ const ports: Ports = {
 };
 const { auth, links } = createAuth({ db, hasher, audit: ports.audit, appUrl: APP, secret: "x".repeat(40) });
 const app = createApp({
-  ports, identify: identifyFromSession(auth), authHandler: (r) => auth.handler(r),
+  ports, identify: identifyFromSession(auth), authHandler: withClientIp(auth),
   userNames: async (agencyId, ids) => new Map((await db.select({ id: s.user.id, name: s.user.name }).from(s.user).where(eq(s.user.agencyId, agencyId))).filter((u) => ids.includes(u.id)).map((u) => [u.id, u.name])),
-  invites: createInvites({ auth, links, db, appUrl: APP }), clientKey: () => "test", allowedOrigin: APP, allowTimeTravel: true,
+  invites: createInvites({ auth, links, db, appUrl: APP }), clientKey: (c) => c.req.header("x-forwarded-for") ?? "test", allowedOrigin: APP, allowTimeTravel: true,
 });
 
 let A = "", B = "";
@@ -131,6 +131,17 @@ describe("sign-in", () => {
     for (let i = 0; i < 8; i++) codes.push((await signIn(users.admin!.email, "wrong-password-12345", ip)).status);
     expect(codes.slice(0, 5)).toEqual([401, 401, 401, 401, 401]);
     expect(codes.slice(5).every((c) => c === 429)).toBe(true);
+  });
+
+  it("rate limits each address separately and ignores a spoofed client-address header", async () => {
+    const who = await mkUser("spoofy", "scheduler"); // own account, so the account lockout used elsewhere isn't affected
+    const busy = "198.51.100.5", other = "198.51.100.6";
+    for (let i = 0; i < 5; i++) await signIn(who, "wrong-password-12345", busy);
+    expect((await signIn(who, "wrong-password-12345", busy)).status).toBe(429);
+    expect((await signIn(who, PASSWORD, other)).status).toBe(200); // a different address is not affected
+    const spoofed = await post("/api/auth/sign-in/email", { email: who, password: PASSWORD },
+      { "x-forwarded-for": busy, "x-hekara-client-ip": "203.0.113.200" }); // trying to pose as someone else
+    expect(spoofed.status).toBe(429);
   });
 
   it("locks an account after repeated failures even when the attacker rotates addresses", async () => {

@@ -15,7 +15,7 @@ import type { Ports } from "@hekara/ports";
 import { createApp } from "../app";
 import { securityHeaders } from "../security";
 import { loadConfig } from "../config";
-import { createAuth } from "../auth";
+import { createAuth, withClientIp } from "../auth";
 import { identifyFromSession } from "../identity";
 import { createInvites } from "../invites";
 
@@ -49,10 +49,16 @@ const { auth, links } = createAuth({ db, hasher: argon2idHasher(), audit: ports.
 const api = createApp({
   ports,
   identify: identifyFromSession(auth),
-  authHandler: (req) => auth.handler(req),
+  authHandler: withClientIp(auth),
   invites: createInvites({ auth, links, db, appUrl: cfg.appUrl }),
   userNames,
-  clientKey: (c) => getConnInfo(c).remote.address ?? "unknown",
+  clientKey: (c) => {
+    if (cfg.trustProxy) {
+      const h = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
+      if (h) return h;
+    }
+    return getConnInfo(c).remote.address ?? "unknown";
+  },
   allowedOrigin: new URL(cfg.appUrl).origin,
   allowTimeTravel: !cfg.production, // dev only: ?at=HH:MM pins the clock
 });

@@ -6,6 +6,8 @@ export interface Config {
   appUrl: string;
   authSecret: string;
   production: boolean;
+  /** Trust CF-Connecting-IP / X-Forwarded-For. Only enable behind a proxy that sets them (Cloudflare Tunnel, a load balancer). */
+  trustProxy: boolean;
   keys: ReturnType<typeof masterKeyProvider>;
 }
 
@@ -35,7 +37,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   if (production && new URL(appUrl).protocol !== "https:") throw new Error("APP_URL must be https in production");
   return {
-    production, appUrl, authSecret,
+    production, appUrl, authSecret, trustProxy: env.TRUST_PROXY === "1",
     databaseUrl: need("DATABASE_URL"),
     port,
     keys: parseKeys(need("DATA_KEYS"), need("DATA_KEY_ID")),

@@ -23,7 +23,7 @@ export interface AppDeps {
   identify(c: Context): Promise<Identity>;
   clientKey(c: Context): string;
   /** Handles /api/auth/* (sign-in, passkeys, two-factor, password reset). Mounted ahead of the session check. */
-  authHandler?: (req: Request) => Promise<Response>;
+  authHandler?: (req: Request, clientIp: string) => Promise<Response>;
   invites?: Invites;
   /** Resolves user ids to names for the audit viewer. */
   userNames?: (agencyId: string, ids: string[]) => Promise<Map<string, string>>;
@@ -52,7 +52,7 @@ export function createApp(deps: AppDeps): Hono<Env> {
     const authHandler = deps.authHandler;
     const authLimit = rateLimit({ limit: 60, windowMs: 60_000, key: (c) => `auth:${deps.clientKey(c as Context)}` });
     app.all("/api/auth/*", authLimit, sameOriginOnly(deps.allowedOrigin), async (c) => {
-      const res = await authHandler(c.req.raw);
+      const res = await authHandler(c.req.raw, deps.clientKey(c));
       res.headers.set("Cache-Control", "no-store");
       return res;
     });

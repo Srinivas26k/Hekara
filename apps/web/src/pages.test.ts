@@ -9,7 +9,7 @@ import { createCrypto, generateMasterKey, masterKeyProvider } from "@hekara/cryp
 import * as s from "@hekara/db/schema";
 import type { Ports } from "@hekara/ports";
 import { createApp } from "./app";
-import { createAuth } from "./auth";
+import { createAuth, withClientIp } from "./auth";
 import { identifyFromSession } from "./identity";
 
 const url = process.env.DATABASE_URL ?? "postgres://hekara:hekara@localhost:5442/hekara";
@@ -24,7 +24,7 @@ const ports: Ports = {
   realtime: createPgRealtime(sql), queue: memoryQueue(), blob: fsBlob("./.data/test-blobs"), scheduler: intervalScheduler(),
 };
 const { auth } = createAuth({ db, hasher, audit: ports.audit, appUrl: APP, secret: "y".repeat(40) });
-const app = createApp({ ports, identify: identifyFromSession(auth), authHandler: (r) => auth.handler(r), clientKey: () => "t", allowedOrigin: APP, allowTimeTravel: true });
+const app = createApp({ ports, identify: identifyFromSession(auth), authHandler: withClientIp(auth), clientKey: (c) => c.req.header("x-forwarded-for") ?? "t", allowedOrigin: APP, allowTimeTravel: true });
 
 let A = "", B = "";
 const emails: Record<string, string> = {};

@@ -80,6 +80,8 @@ export function createAuth(deps: AuthDeps) {
       passkey({ rpID: url.hostname, rpName: "Hekara", origin: url.origin }),
     ],
     advanced: {
+      // The address comes from a header only our server sets (see withClientIp), so clients can't spoof it.
+      ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
       cookiePrefix: "hekara",
       useSecureCookies: secure,
       defaultCookieAttributes: { httpOnly: true, secure, sameSite: "strict", path: "/" },
@@ -131,5 +133,15 @@ export function createAuth(deps: AuthDeps) {
 
   return { auth, links };
 }
+
+/** Internal header carrying the client address resolved by the server. Always overwritten, never trusted from the client. */
+export const CLIENT_IP_HEADER = "x-hekara-client-ip";
+
+/** Wraps the auth handler so Better Auth rate-limits per real client address instead of one shared bucket. */
+export const withClientIp = (auth: { handler(req: Request): Promise<Response> }) => (req: Request, ip: string) => {
+  const headers = new Headers(req.headers);
+  headers.set(CLIENT_IP_HEADER, ip);
+  return auth.handler(new Request(req, { headers }));
+};
 
 export type AuthInstance = ReturnType<typeof createAuth>["auth"];
