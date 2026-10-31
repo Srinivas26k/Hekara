@@ -16,7 +16,7 @@
     "demo:avatars": "tsx src/fetch-avatars.ts"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.7.12",
+    "@better-auth/passkey": "^1.7.14",
     "@carbon/icons": "^11.91.0",
     "@fontsource-variable/inter": "^5.2.5",
     "@hekara/adapters-node": "workspace:*",
@@ -25,9 +25,9 @@
     "@hekara/db": "workspace:*",
     "@hekara/ports": "workspace:*",
     "@hono/node-server": "^1.14.4",
-    "better-auth": "^1.7.12",
+    "better-auth": "^1.7.14",
     "drizzle-orm": "^0.45.4",
-    "hono": "^4.8.5",
+    "hono": "^4.13.14",
     "postgres": "^3.4.9",
     "solid-js": "^1.9.7",
     "valibot": "^1.1.0"
