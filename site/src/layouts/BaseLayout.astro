@@ -1,0 +1,120 @@
+---
+import "../styles/styles.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Hekara - Secure, portable health-tech scheduling software for home health agencies." } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eef5f7" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+    <link rel="icon" href="/Hekara/favicon.svg" type="image/svg+xml" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://srinivas26k.github.io/Hekara/social-preview.png" />
+    <meta property="og:url" content={canonical} />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://srinivas26k.github.io/Hekara/social-preview.png" />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Hekara",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web, self-hosted",
+      url: "https://srinivas26k.github.io/Hekara/",
+      description,
+      license: "https://www.gnu.org/licenses/agpl-3.0.html",
+      author: { "@type": "Person", name: "Nampalli Srinivas", url: "https://github.com/Srinivas26k" }
+    })} />
+  </head>
+  <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <div class="announcement">
+      <span class="announcement-dot"></span>
+      Open source · Self-hosted · Currently in alpha
+      <a href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noreferrer">Explore the project <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <header class="site-header" id="top">
+      <a class="brand" href="/Hekara/" aria-label="Hekara home">
+        <span class="brand-mark"><img src="/Hekara/logo-symbol.svg" alt="Hekara" width="34" height="34" style="display: block;" /></span>
+        <span>hekara<span class="brand-period">.</span></span>
+      </a>
+      <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="/Hekara/#platform">Platform</a>
+        <a href="/Hekara/#workflow">How it works</a>
+        <a href="/Hekara/#features">Features</a>
+        <a href="/Hekara/#security">Security</a>
+        <a href="/Hekara/#services">Work with me</a>
+        <a href="/Hekara/#open-source">Open source</a>
+      </nav>
+      <div class="header-actions">
+        <a class="ph-badge-small" href="https://www.producthunt.com/products/hekara?utm_source=badge-follow&utm_medium=badge&utm_source=badge-hekara" target="_blank" rel="noopener noreferrer"><img src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1389418&theme=light&size=small" alt="Follow Hekara on Product Hunt" width="86" height="32" /></a>
+        <a class="login-link" href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noreferrer">GitHub</a>
+      <a class="button button-dark button-small" href="https://github.com/Srinivas26k/Hekara#quick-start" target="_blank" rel="noreferrer">Get started <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer style="background: var(--cream); border-top: 1px solid var(--line); padding: 60px max(7%, calc((100% - 1160px)/2)); margin-top: 60px;">
+      <div style="max-width: 1160px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
+          <div>
+            <h4 style="margin: 0 0 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8a9b96;">About</h4>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              <li><a href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noopener" style="color: #526761; text-decoration: none; font-size: 14px;">GitHub Repository</a></li>
+              <li><a href="https://github.com/Srinivas26k/Hekara/blob/main/README.md" target="_blank" rel="noopener" style="color: #526761; text-decoration: none; font-size: 14px;">Documentation</a></li>
+              <li><a href="https://github.com/Srinivas26k/Hekara/blob/main/SECURITY.md" target="_blank" rel="noopener" style="color: #526761; text-decoration: none; font-size: 14px;">Security</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="margin: 0 0 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8a9b96;">Legal</h4>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              <li><a href="/Hekara/terms" style="color: #526761; text-decoration: none; font-size: 14px;">Terms of Service</a></li>
+              <li><a href="/Hekara/privacy" style="color: #526761; text-decoration: none; font-size: 14px;">Privacy Policy</a></li>
+              <li><a href="/Hekara/refunds" style="color: #526761; text-decoration: none; font-size: 14px;">Refund Policy</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="margin: 0 0 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8a9b96;">Contact</h4>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              <li><a href="/Hekara/contact" style="color: #526761; text-decoration: none; font-size: 14px;">Get in touch</a></li>
+              <li><a href="/Hekara/sponsor" style="color: #526761; text-decoration: none; font-size: 14px;">Sponsorship</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="ph-badges" aria-label="Hekara on Product Hunt">
+          <a href="https://www.producthunt.com/products/hekara/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-hekara" target="_blank" rel="noopener noreferrer"><img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1389418&theme=light" alt="Review Hekara on Product Hunt" width="250" height="54" loading="lazy" /></a>
+          <a href="https://www.producthunt.com/products/hekara?utm_source=badge-follow&utm_medium=badge&utm_source=badge-hekara" target="_blank" rel="noopener noreferrer"><img src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1389418&theme=light" alt="Follow Hekara on Product Hunt" width="250" height="54" loading="lazy" /></a>
+        </div>
+        <div style="border-top: 1px solid var(--line); padding-top: 30px; color: #8a9b96; font-size: 12px;">
+          <p style="margin: 0;">Hekara is maintained by <strong>Nampalli Srinivas</strong> under the <a href="https://github.com/Srinivas26k/Hekara/blob/main/LICENSE" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">AGPL-3.0 license</a>.</p>
+          <p style="margin: 8px 0 0;">&copy; <span id="year">2026</span> Hekara. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline src="/Hekara/script.js" defer></script>
+  </body>
+</html>

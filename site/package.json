@@ -1,0 +1,19 @@
+{
+  "name": "hekara-site",
+  "version": "1.0.0",
+  "description": "Professional website for Hekara - secure health-tech scheduling software",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.3.0",
+    "typescript": "^5.0.0"
+  }
+}

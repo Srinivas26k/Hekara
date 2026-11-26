@@ -1,0 +1,193 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout 
+  title="Privacy Policy"
+  description="Privacy policy for Hekara and this website."
+>
+  <section class="section">
+    <div class="container">
+      <h1>Privacy Policy</h1>
+      <p class="text-muted mb-4">Last updated: November 2024</p>
+
+      <h2>1. Overview</h2>
+      
+      <p>
+        This website (hekara.io and GitHub pages) collects minimal personal data. Hekara itself is designed to handle sensitive health information (PHI) with strong privacy protections.
+      </p>
+
+      <h2>2. This Website (hekara.io)</h2>
+
+      <h3>What we collect</h3>
+      
+      <ul>
+        <li><strong>No tracking:</strong> This site does not use Google Analytics, Mixpanel, or other tracking services</li>
+        <li><strong>No cookies:</strong> No cookies are set for tracking or identification</li>
+        <li><strong>No third-party scripts:</strong> No ads, analytics, or embed scripts from external services</li>
+        <li><strong>Contact form data:</strong> If you fill out the contact form, we receive your name, email, subject, and message</li>
+      </ul>
+
+      <h3>Contact form data</h3>
+      
+      <ul>
+        <li>Your email and message are sent to <strong>srinivasvarma764@gmail.com</strong></li>
+        <li>We use this only to respond to your inquiry</li>
+        <li>We do not share it with third parties</li>
+        <li>We do not use it for marketing without permission</li>
+        <li>Emails are stored according to Gmail's retention policy</li>
+      </ul>
+
+      <h3>Server logs</h3>
+      
+      <p>
+        GitHub Pages may store server logs (IP addresses, timestamps, page requests) for security and performance. See <a href="https://docs.github.com/en/github-ae@latest/admin/privacy-and-security" target="_blank" rel="noopener">GitHub's privacy policy</a>.
+      </p>
+
+      <h2>3. Hekara Software Itself</h2>
+
+      <p>
+        <strong>Important:</strong> This privacy policy describes the website. The Hekara software is a separate application you deploy and control. Data privacy for Hekara depends on how <strong>you</strong> deploy and secure it.
+      </p>
+
+      <h3>Hekara's privacy architecture</h3>
+
+      <ul>
+        <li><strong>Application-layer encryption:</strong> PHI fields are encrypted before storage</li>
+        <li><strong>No plaintext PHI in logs:</strong> Audit logs record actions (who accessed what) but not the data itself</li>
+        <li><strong>No third-party data sharing:</strong> Hekara never sends PHI to external services by default</li>
+        <li><strong>Your control:</strong> You control the database, encryption keys, access logs, and backups</li>
+      </ul>
+
+      <h3>What Hekara logs</h3>
+
+      <ul>
+        <li>User login/logout with timestamps</li>
+        <li>Actions performed (visit created, status changed, assignment made) with user and timestamp</li>
+        <li>Field changes with before/after values (<strong>except encrypted fields</strong>, which are masked)</li>
+      </ul>
+
+      <p>
+        <strong>Audit logs do not contain PHI.</strong> This design allows you to investigate security incidents without compromising privacy.
+      </p>
+
+      <h3>What Hekara does NOT do</h3>
+
+      <ul>
+        <li>Does not phone home or send data to external servers</li>
+        <li>Does not use analytics or telemetry</li>
+        <li>Does not share data with vendors (except those you explicitly integrate)</li>
+        <li>Does not build user profiles or sell data</li>
+        <li>Does not use AI/ML models on your data (except locally if you deploy ML yourself)</li>
+      </ul>
+
+      <h2>4. Integrations & Third Parties</h2>
+
+      <p>
+        If you integrate Hekara with EHR systems, payroll services, or other third parties:
+      </p>
+
+      <ul>
+        <li>You are responsible for reviewing their privacy policies</li>
+        <li>Hekara will only send data you explicitly configure it to send</li>
+        <li>That integration is your decision and your responsibility</li>
+      </ul>
+
+      <h2>5. Your Data Rights</h2>
+
+      <p>
+        Since you control the Hekara deployment:
+      </p>
+
+      <ul>
+        <li><strong>Access:</strong> You have direct access to your database</li>
+        <li><strong>Portability:</strong> You can export your data via SQL queries or API</li>
+        <li><strong>Deletion:</strong> You can delete records directly or use Hekara's deletion features</li>
+        <li><strong>No restrictions from Hekara:</strong> We don't prevent you from accessing or deleting your data</li>
+      </ul>
+
+      <h2>6. HIPAA & GDPR Compliance</h2>
+
+      <h3>HIPAA</h3>
+
+      <p>
+        Hekara provides technical safeguards (encryption, audit logs) that support HIPAA compliance. However:
+      </p>
+
+      <ul>
+        <li>Hekara is not a "HIPAA-compliant SaaS" or Business Associate (BA)</li>
+        <li>Your organization is responsible for HIPAA compliance</li>
+        <li>Your BAA (Business Associate Agreement) is with your cloud provider, not Hekara</li>
+        <li>See <a href="https://github.com/Srinivas26k/Hekara/blob/main/HIPAA.md" target="_blank" rel="noopener">HIPAA.md</a> for technical details</li>
+      </ul>
+
+      <h3>GDPR (EU users)</h3>
+
+      <p>
+        Since you control Hekara:
+      </p>
+
+      <ul>
+        <li>Your organization is the Data Controller</li>
+        <li>You can honor data subject requests (access, deletion, portability) directly</li>
+        <li>Hekara does not restrict this</li>
+      </ul>
+
+      <p>
+        For EU users of this website, see <a href="https://docs.github.com/en/github-ae@latest/admin/privacy-and-security" target="_blank" rel="noopener">GitHub's privacy policy</a>.
+      </p>
+
+      <h2>7. Security</h2>
+
+      <p>
+        <strong>Hekara's security design:</strong>
+      </p>
+
+      <ul>
+        <li>Encryption at rest (application-layer encryption)</li>
+        <li>Encryption in transit (HTTPS/TLS)</li>
+        <li>Access control (role-based, agency-scoped)</li>
+        <li>Audit logging of all actions</li>
+        <li>No hardcoded secrets or default passwords</li>
+      </ul>
+
+      <p>
+        <strong>Your responsibility:</strong>
+      </p>
+
+      <ul>
+        <li>Secure your database (firewall, strong credentials, backups)</li>
+        <li>Keep Hekara updated with security patches</li>
+        <li>Use HTTPS with valid certificates</li>
+        <li>Implement network-level access controls</li>
+        <li>Manage encryption keys securely</li>
+      </ul>
+
+      <p>
+        See <a href="https://github.com/Srinivas26k/Hekara/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md</a> for security best practices and known limitations.
+      </p>
+
+      <h2>8. Cookies & Tracking</h2>
+
+      <p>
+        <strong>This website:</strong> No cookies or tracking scripts.
+      </p>
+
+      <p>
+        <strong>Hekara app:</strong> Session cookies may be used for authentication (login state). No tracking or profiling cookies.
+      </p>
+
+      <h2>9. Changes to This Policy</h2>
+
+      <p>
+        We may update this privacy policy. Changes take effect when posted. Continued use of Hekara or this website constitutes acceptance.
+      </p>
+
+      <h2>10. Contact</h2>
+
+      <p>
+        For privacy questions or data requests, <a href="/Hekara/contact">contact us</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

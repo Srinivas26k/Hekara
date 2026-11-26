@@ -1,0 +1,214 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout 
+  title="Contact"
+  description="Get in touch with the Hekara maintainer for custom solutions, support, or compliance help."
+>
+  <section class="section">
+    <div class="container">
+      <h1>Get in Touch</h1>
+      <p class="lead">
+        Have questions about Hekara? Want to discuss custom solutions, integrations, or compliance help? Let's talk.
+      </p>
+
+      <div class="grid grid-cols-2 mt-4">
+        <!-- Contact Form -->
+        <div>
+          <div class="card">
+            <h2 style="margin-top: 0;">📧 Send a Message</h2>
+            <div class="contact-form" aria-describedby="contact-note">
+              <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" id="name" name="name" class="form-control" required />
+              </div>
+              
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required />
+              </div>
+              
+              <div class="form-group mb-3">
+                <label for="organization" class="form-label">Organization (optional)</label>
+                <input type="text" id="organization" name="organization" class="form-control" />
+              </div>
+              
+              <div class="form-group mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <select id="subject" name="subject" class="form-control" required>
+                  <option value="">Select a topic...</option>
+                  <option value="custom-solution">Custom Solution / Implementation</option>
+                  <option value="integration">Integration or Feature Request</option>
+                  <option value="compliance">Compliance & GRC Help</option>
+                  <option value="support">Support or Bug Report</option>
+                  <option value="sponsorship">Sponsorship or Funding</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+              </div>
+              
+              <a class="btn btn-primary btn-lg" style="width: 100%;" href="mailto:srinivasvarma764@gmail.com?subject=Hekara%20inquiry">Email the Hekara maintainer</a>
+            </div>
+            <p class="text-muted mt-3" id="contact-note">Please don’t include patient information or other sensitive health data in an email. For bugs, use the GitHub repository.</p>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <div class="card">
+            <h2 style="margin-top: 0;">💬 Other Ways to Reach Out</h2>
+            
+            <h4 class="mt-4">Email</h4>
+            <p>
+              <a href="mailto:srinivasvarma764@gmail.com">srinivasvarma764@gmail.com</a>
+            </p>
+            <p class="text-muted">Response time: typically within 24 hours.</p>
+            
+            <h4 class="mt-4">GitHub</h4>
+            <p>
+              <a href="https://github.com/Srinivas26k/Hekara/issues" target="_blank" rel="noopener">
+                Open an issue on GitHub
+              </a>
+            </p>
+            <p class="text-muted">Best for bugs, feature requests, and technical discussions.</p>
+            
+            <h4 class="mt-4">Documentation</h4>
+            <p>
+              <a href="https://github.com/Srinivas26k/Hekara/blob/main/README.md" target="_blank" rel="noopener">
+                README & Documentation
+              </a>
+            </p>
+            <p class="text-muted">Answers to common questions, setup guides, and architecture docs.</p>
+            
+            <h4 class="mt-4">Commercial Inquiries</h4>
+            <p>
+              <a href="https://github.com/Srinivas26k/Hekara/blob/main/COMMERCIAL.md" target="_blank" rel="noopener">
+                COMMERCIAL.md
+              </a>
+            </p>
+            <p class="text-muted">Learn about custom solutions, integrations, managed hosting, and GRC consulting.</p>
+          </div>
+
+          <!-- Quick Help -->
+          <div class="card mt-4">
+            <h3 style="margin-top: 0;">❓ Quick Help</h3>
+            
+            <h5>Getting started?</h5>
+            <p class="text-muted mb-2">
+              Start with the <a href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noopener">GitHub README</a>. It has setup instructions for every deployment platform.
+            </p>
+            
+            <h5>Have a bug to report?</h5>
+            <p class="text-muted mb-2">
+              <a href="https://github.com/Srinivas26k/Hekara/issues/new" target="_blank" rel="noopener">Create a GitHub issue</a> with as much detail as possible.
+            </p>
+            
+            <h5>Want a feature?</h5>
+            <p class="text-muted mb-2">
+              Discuss in a GitHub issue or check the <a href="https://github.com/Srinivas26k/Hekara/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener">roadmap</a>.
+            </p>
+            
+            <h5>Need custom work?</h5>
+            <p class="text-muted">
+              <a href="/Hekara/sponsor">Learn about custom solutions</a> or email to discuss your needs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <section class="mt-4">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+          <h4>How long does it take to respond?</h4>
+          <p>Typically within 24 hours for general inquiries. Custom solution requests may take 2-3 days as they require a discovery conversation.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Do you offer free consulting?</h4>
+          <p>Free answers to questions about using Hekara. For enterprise consulting (compliance, architecture, GRC), that's part of paid custom solutions. See <a href="https://github.com/Srinivas26k/Hekara/blob/main/COMMERCIAL.md" target="_blank" rel="noopener">COMMERCIAL.md</a>.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>What about support SLAs?</h4>
+          <p>Free Hekara doesn't include SLAs. Paid custom solutions do. The agreement is made in writing before work starts.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Can you help with HIPAA compliance?</h4>
+          <p>Yes. Hekara provides technical safeguards (encryption, audit logs, access control). I can also help with governance, risk, and compliance (GRC) consulting including control mapping, policy templates, and audit prep. This is part of enterprise custom solutions.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Do you do integrations?</h4>
+          <p>Yes, as part of custom solutions. Common integrations include EHR (Epic, Cerner, Athena), payroll (ADP, Paylocity), clearinghouses, and SSO (SAML, OIDC).</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>What's the response time on GitHub vs. email?</h4>
+          <p><strong>Email:</strong> 24 hours (general inquiries). <strong>GitHub issues:</strong> 48-72 hours (bugs and features). Both are monitored actively.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-control {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: white;
+    transition: border-color var(--transition-fast);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(61, 99, 234, 0.1);
+  }
+
+  .faq-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .faq-item h4 {
+    margin-top: 0;
+    color: var(--primary);
+  }
+
+  .faq-item p {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    .grid.grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
