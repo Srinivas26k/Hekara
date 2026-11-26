@@ -85,6 +85,43 @@ const faqs = [
     </div>
   </section>
 
+
+  <section class="band" id="what-is-hekara">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="label">In plain words</span>
+          <h2 class="h2">What is Hekara?</h2>
+        </div>
+        <p class="lede">Hekara is free software that a home health agency uses to plan which caregiver visits which patient, and when. It also tracks staff certificates, billing and patient records, and keeps all of it private.</p>
+      </div>
+      <div class="cards cards-4 reveal">
+        <article class="card"><h3>Who is it for?</h3><p>Home health and home care agencies: the owner, the people who build the schedule, the caregivers in the field and the billing team.</p></article>
+        <article class="card"><h3>What does it replace?</h3><p>Spreadsheets, whiteboards, group chats and phone calls, or expensive software that charges for every user.</p></article>
+        <article class="card"><h3>What does it cost?</h3><p>The software is free. You only pay for the server it runs on, or for our help if you want it set up for you.</p></article>
+        <article class="card"><h3>Where does it run?</h3><p>On a server you control: your own machine, or your agency's account at AWS, Azure or Google Cloud. Your data never sits with us.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="how-it-works">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="label">Getting started</span>
+          <h2 class="h2">How does Hekara work?</h2>
+        </div>
+        <p class="lede">Three steps from nothing to a live schedule your whole team shares.</p>
+      </div>
+      <ol class="steps reveal" style="list-style:none;margin:0;padding-left:0">
+        <li class="step"><h3>Install it</h3><p>Run Hekara on your own server or cloud account, or have us install it for you.</p></li>
+        <li class="step"><h3>Add your people</h3><p>Invite schedulers, caregivers and billing staff. Each one only sees what their role needs.</p></li>
+        <li class="step"><h3>Plan the day</h3><p>Add patients and visits. Hekara shows who goes where, flags gaps and helps you fill them.</p></li>
+        <li class="step"><h3>Stay on top of it</h3><p>Get warned about overtime and expiring certificates, and send claims for completed visits.</p></li>
+      </ol>
+    </div>
+  </section>
+
   <section class="band-tight">
     <div class="wrap">
       <div class="facts">
@@ -96,12 +133,12 @@ const faqs = [
     </div>
   </section>
 
-  <section class="band" id="why">
+  <section class="band band-alt" id="why">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <span class="label">Why agencies switch</span>
-          <h2 class="h2">Spreadsheets, group chats and phone tag cost more than they look.</h2>
+          <span class="label">The problem</span>
+          <h2 class="h2">What problems does Hekara solve?</h2>
         </div>
         <p class="lede">The cost shows up as late-found open shifts, overtime discovered after payroll, missed credential renewals and an hour on the phone for every callout.</p>
       </div>
@@ -114,12 +151,12 @@ const faqs = [
     </div>
   </section>
 
-  <section class="band band-alt" id="product">
+  <section class="band" id="product">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <span class="label">The product</span>
-          <h2 class="h2">Everything a coordinator touches before lunch.</h2>
+          <span class="label">Features</span>
+          <h2 class="h2">What can you do with Hekara?</h2>
         </div>
         <p class="lede">Scheduling, staffing, compliance and billing in one system, so nothing falls between four tools.</p>
       </div>
@@ -143,7 +180,7 @@ const faqs = [
     <div class="wrap arch-grid">
       <div class="reveal">
         <span class="label">Security &amp; architecture</span>
-        <h2 class="h2" style="margin-top:18px">Built for patient data <span class="hl">from the first line.</span></h2>
+        <h2 class="h2" style="margin-top:18px">How does Hekara keep patient data safe?</h2>
         <p style="margin-top:20px;max-width:520px">Patient fields are encrypted before they reach storage. Every read and write of patient data is audited. Every query is scoped to one agency.</p>
         <dl class="safeguards">
           <div><dt>Encryption</dt><dd>AES-256-GCM per field with a random IV and versioned key IDs</dd></div>
@@ -174,7 +211,7 @@ const faqs = [
       <div class="section-head reveal">
         <div>
           <span class="label">How it compares</span>
-          <h2 class="h2">Control without starting from scratch.</h2>
+          <h2 class="h2">How does Hekara compare to other options?</h2>
         </div>
         <p class="lede">Hekara isn't the right fit if you need a certified vendor-run service today. If you want control, and help when you need it, it's built for you.</p>
       </div>
@@ -200,9 +237,9 @@ const faqs = [
       <div class="section-head reveal">
         <div>
           <span class="label">Services</span>
-          <h2 class="h2">Need it running in your agency, your way?</h2>
+          <h2 class="h2">Can you set up Hekara for us?</h2>
         </div>
-        <p class="lede">Work directly with the people who build Hekara. Fixed-scope engagements, written up front.</p>
+        <p class="lede">Yes. We install, customise and support Hekara inside your own cloud account or servers, with a written scope up front.</p>
       </div>
       <div class="cards cards-4 reveal">
         <a class="card" href={`${base}services#build`}><div class="card-num">01</div><h3>Custom builds</h3><p>Features, workflows and integrations shaped around how your agency runs.</p><span class="meta">EHR · payroll · SSO →</span></a>
@@ -217,8 +254,8 @@ const faqs = [
     <div class="wrap split">
       <div class="reveal stack-lg">
         <span class="label">Open source</span>
-        <h2 class="h2">Built in public. Yours to run, read and change.</h2>
-        <p class="lede">Every line is on GitHub under the AGPL-3.0. Run the demo on your laptop in about ten minutes, then decide.</p>
+        <h2 class="h2">Is Hekara really open source?</h2>
+        <p class="lede">Yes. Every line is on GitHub under the AGPL-3.0 licence. You can use it for free, read it, change it and run it yourself. Try the demo on your laptop, then decide.</p>
         <ul class="ticks">
           <li>Strict TypeScript, unit and contract tests on every change</li>
           <li>Architecture, security and portability decisions written down in <code>docs/</code></li>
@@ -247,7 +284,7 @@ const faqs = [
     <div class="wrap faq-grid">
       <div class="reveal">
         <span class="label">Questions</span>
-        <h2 class="h2" style="margin-top:18px">Straight answers.</h2>
+        <h2 class="h2" style="margin-top:18px">Frequently asked questions</h2>
         <p class="muted" style="margin-top:18px">Something else? <a href={`${base}contact`}>Ask us directly</a>.</p>
       </div>
       <div class="faq reveal">
@@ -265,7 +302,7 @@ const faqs = [
     <div class="wrap">
       <div class="cta on-dark reveal">
         <div>
-          <h2 class="h2">Tell us how your agency runs. We'll show you what Hekara can do for it.</h2>
+          <h2 class="h2">Ready to run your agency on Hekara?</h2>
           <p>A short form, a personal reply, and a written scope before any work starts.</p>
         </div>
         <div class="actions">
