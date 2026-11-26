@@ -1,0 +1,8 @@
+# The site is its own pnpm project, separate from the app workspace at the repo root.
+packages: []
+
+allowBuilds:
+  # esbuild verifies its platform binary on install; Astro needs it.
+  esbuild: true
+  # sharp is only used for image optimisation, which this site does not use.
+  sharp: false
