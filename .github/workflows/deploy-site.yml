@@ -35,11 +35,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: site
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Build site
         working-directory: site
-        run: pnpm build
+        run: pnpm --ignore-workspace run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
