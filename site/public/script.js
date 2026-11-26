@@ -1,55 +1,65 @@
-document.documentElement.classList.add('js');
+document.documentElement.classList.add("js");
 
-const header = document.querySelector('.site-header');
-const toggle = document.querySelector('.menu-toggle');
-const nav = document.querySelector('.nav');
+const header = document.querySelector(".site-header");
+const toggle = document.querySelector(".menu-toggle");
+const nav = document.querySelector(".nav");
 
 if (header) {
-  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+  const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 8);
   onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 if (toggle && nav) {
   const close = () => {
-    nav.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
+    nav.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
   };
-  toggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', String(open));
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
   });
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
 }
 
-const year = document.getElementById('year');
+const year = document.getElementById("year");
 if (year) year.textContent = String(new Date().getFullYear());
 
-const targets = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-  targets.forEach(t => io.observe(t));
+const targets = document.querySelectorAll(".reveal");
+if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
+  );
+  targets.forEach((t) => io.observe(t));
 } else {
-  targets.forEach(t => t.classList.add('in'));
+  targets.forEach((t) => t.classList.add("in"));
 }
 
 // Remember where this visit came from (?ref=, utm_*) so the project form can
 // include it. Stored only in this browser tab; nothing is sent anywhere.
 try {
   const params = new URLSearchParams(location.search);
-  const keys = ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const keys = ["ref", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
   const found = {};
-  keys.forEach(k => { const v = params.get(k); if (v) found[k] = v.slice(0, 100); });
-  if (Object.keys(found).length && !sessionStorage.getItem('hekara_src')) {
+  keys.forEach((k) => {
+    const v = params.get(k);
+    if (v) found[k] = v.slice(0, 100);
+  });
+  if (Object.keys(found).length && !sessionStorage.getItem("hekara_src")) {
     found.landing = location.pathname;
-    sessionStorage.setItem('hekara_src', JSON.stringify(found));
+    sessionStorage.setItem("hekara_src", JSON.stringify(found));
   }
-} catch (_) { /* storage unavailable: ignore */ }
+} catch (_) {
+  /* storage unavailable: ignore */
+}

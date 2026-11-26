@@ -7,6 +7,7 @@ The Hekara website has been successfully rebuilt with **Astro static site genera
 ### What Was Built
 
 **6 Complete Pages:**
+
 1. **Homepage** (`index.astro`) – Hero, features, tech stack, use cases, comparison, CTAs
 2. **Sponsor/Funding** (`sponsor.astro`) – Sponsorship info, personas, custom work
 3. **Contact** (`contact.astro`) – Contact form, channels, FAQ
@@ -42,6 +43,7 @@ site/
 ### GitHub Actions Workflow
 
 Created `.github/workflows/deploy-site.yml` for automatic deployment:
+
 - Triggers on push to `main` when files in `site/` change
 - Builds with pnpm in CI
 - Deploys to GitHub Pages automatically
@@ -50,6 +52,7 @@ Created `.github/workflows/deploy-site.yml` for automatic deployment:
 ### Design System
 
 **Comprehensive CSS** (`src/styles/global.css`):
+
 - **Color Tokens**: Primary (#3d63ea), Accent (#d9f15a), Text, Background
 - **Spacing**: Consistent 0.5rem to 4rem increments
 - **Typography**: System fonts, 6 sizes, responsive scaling
@@ -66,7 +69,7 @@ Created `.github/workflows/deploy-site.yml` for automatic deployment:
 ✅ **Professional Design**: Clean, modern UI with consistent branding  
 ✅ **Responsive**: Mobile-first design works on all devices  
 ✅ **Lightweight**: Only 104KB for entire site (7 files)  
-✅ **Portable**: Pure static HTML, works anywhere  
+✅ **Portable**: Pure static HTML, works anywhere
 
 ### Build Status
 
@@ -113,24 +116,28 @@ pnpm build            # generates dist/
 ### Professional Value Props
 
 **Homepage** showcases:
+
 - 6 key differentiators (security, portability, compliance, etc.)
 - Real-world use cases (agencies, clinics, startups)
 - Tech stack (Astro, SolidJS, TypeScript, WebCrypto, etc.)
 - Competitive comparison table (vs. other home health software)
 
 **Sponsorship Page** highlights:
+
 - 4 target personas (startups, agencies, integrators, GRC consultants)
 - What sponsorship funds (development, support, infrastructure)
 - Paid custom solutions (integrations, compliance, managed hosting)
 - Transparent about expectations (not a business relationship)
 
 **Contact Page** provides:
+
 - Simple contact form for inquiries
 - Multiple contact channels (email, GitHub, documentation)
 - FAQ addressing common questions about support, compliance, SLAs
 - Quick help links for self-service (GitHub issues, README, roadmap)
 
 **Legal Pages** are comprehensive:
+
 - **Terms**: AGPL-3.0 license, sponsorship policy, liability limits, HIPAA/compliance disclaimers
 - **Privacy**: Data collection, encryption architecture, audit logging, GDPR/HIPAA info
 - **Refunds**: Non-refundable sponsorship, custom work refund windows, dispute resolution
@@ -138,6 +145,7 @@ pnpm build            # generates dist/
 ## Navigation
 
 All pages link together via:
+
 - **Header**: Logo (home), main nav (Home, Sponsor, GitHub, Contact)
 - **Footer**: About, Resources, Legal (Terms, Privacy, Refunds)
 - **Internal links**: Pages reference each other contextually
@@ -145,6 +153,7 @@ All pages link together via:
 ## Files Modified/Created
 
 **Site Package:**
+
 - `site/astro.config.mjs` ✅ Created
 - `site/package.json` ✅ Created
 - `site/tsconfig.json` ✅ Created
@@ -160,14 +169,17 @@ All pages link together via:
 - `site/src/pages/refunds.astro` ✅ Created
 
 **GitHub Actions:**
+
 - `.github/workflows/deploy-site.yml` ✅ Created
 
 **Build Output:**
+
 - `site/dist/` ✅ Generated (104KB, 6 HTML pages + assets)
 
 ## Next Steps
 
 1. ✅ **Review the site locally:**
+
    ```bash
    cd site
    pnpm install
@@ -181,6 +193,7 @@ All pages link together via:
    - Choose branch if needed
 
 3. **Push to GitHub:**
+
    ```bash
    git add site/ .github/workflows/deploy-site.yml
    git commit -m "chore: add professional Astro website"

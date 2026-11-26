@@ -39,6 +39,7 @@ site/
 ## Installation & Development
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm (or npm/yarn)
 
@@ -65,6 +66,7 @@ This site is configured for GitHub Pages at `https://srinivas26k.github.io/Hekar
 ### Automatic Deployment
 
 A GitHub Actions workflow (`.github/workflows/deploy-site.yml`) automatically:
+
 1. Builds when code is pushed to `main` in the `site/` folder
 2. Deploys to GitHub Pages
 3. Publishes live at the GitHub Pages URL
@@ -79,6 +81,7 @@ pnpm build
 ## Design System
 
 ### Modern Blue SaaS Colors
+
 - **Primary**: #0066cc (Deep blue) → #1a7de5 (Light blue)
 - **Secondary**: #00d4ff (Cyan)
 - **Accent**: #ffa500 (Orange)
@@ -86,12 +89,14 @@ pnpm build
 - **Background**: #ffffff / #f5f5f5
 
 ### Responsive Breakpoints
+
 - **Desktop**: 1024px and up
 - **Tablet**: 768px
 - **Mobile**: 480px
 - Mobile-first CSS approach
 
 ### Component Library
+
 - **Buttons**: Primary, secondary, dark, ghost, sizes (sm, lg)
 - **Cards**: Hover effects, featured variant
 - **Forms**: Input, textarea, labels, validation states
@@ -131,11 +136,12 @@ pnpm build
 ### Adding a New Page
 
 1. Create `.astro` file in `src/pages/`:
+
    ```astro
    ---
    import BaseLayout from "../layouts/BaseLayout.astro";
    ---
-   
+
    <BaseLayout title="Page Title" description="Description">
      <section class="section">
        <div class="container">
@@ -151,10 +157,11 @@ pnpm build
 ### Updating Design Tokens
 
 Edit `src/styles/global.css` and change CSS variables:
+
 ```css
---primary: #0066cc;        /* Blue */
---accent: #ffa500;         /* Orange */
---text-primary: #0f1419;   /* Text color */
+--primary: #0066cc; /* Blue */
+--accent: #ffa500; /* Orange */
+--text-primary: #0f1419; /* Text color */
 ```
 
 ### Updating Content
@@ -187,4 +194,3 @@ The Hekara website is part of the Hekara project, licensed under AGPL-3.0. See t
 - 📖 [Astro Docs](https://docs.astro.build)
 - 🐛 [GitHub Issues](https://github.com/Srinivas26k/Hekara/issues)
 - 📧 [Contact](https://hekara.io/contact)
-

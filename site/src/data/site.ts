@@ -43,7 +43,16 @@ export const GRAPH = {
       jobTitle: "Creator and maintainer of Hekara; Chief Technology Officer, CyberArcMSP Consulting Services",
       worksFor: { "@type": "Organization", name: "CyberArcMSP Consulting Services" },
       award: "Winner, IBM Qiskit Fall Fest 2025",
-      knowsAbout: ["Cybersecurity", "Governance, risk and compliance", "HIPAA", "SOC 2", "ISO 27001", "Rust", "TypeScript", "AI systems"],
+      knowsAbout: [
+        "Cybersecurity",
+        "Governance, risk and compliance",
+        "HIPAA",
+        "SOC 2",
+        "ISO 27001",
+        "Rust",
+        "TypeScript",
+        "AI systems",
+      ],
       sameAs: ["https://www.linkedin.com/in/srinivas-nampalli/", "https://github.com/Srinivas26k", "https://x.com/Srinivas26k"],
     },
     {
@@ -94,10 +103,26 @@ export const GRAPH = {
       targetProduct: { "@id": id("software") },
     },
     ...[
-      ["implementation", "Hekara implementation in your cloud tenant", "Production deployment of Hekara inside the client's own AWS, Azure, Google Cloud, Kubernetes or on-premises environment, with encryption keys, backups, SSO and a handover runbook."],
-      ["custom", "Hekara custom development and integrations", "Custom features, workflows, SSO (SAML, OIDC, SCIM), EHR, payroll and claims integrations built on Hekara."],
-      ["compliance", "HIPAA, SOC 2 and ISO 27001 readiness", "Gap assessment, risk assessment, policies, control mapping and audit evidence preparation. Advisory; audit reports are issued by independent firms."],
-      ["support", "Hekara support plans and commercial licensing", "Response-time support, upgrades, training, and a commercial licence for use without the AGPL network clause."],
+      [
+        "implementation",
+        "Hekara implementation in your cloud tenant",
+        "Production deployment of Hekara inside the client's own AWS, Azure, Google Cloud, Kubernetes or on-premises environment, with encryption keys, backups, SSO and a handover runbook.",
+      ],
+      [
+        "custom",
+        "Hekara custom development and integrations",
+        "Custom features, workflows, SSO (SAML, OIDC, SCIM), EHR, payroll and claims integrations built on Hekara.",
+      ],
+      [
+        "compliance",
+        "HIPAA, SOC 2 and ISO 27001 readiness",
+        "Gap assessment, risk assessment, policies, control mapping and audit evidence preparation. Advisory; audit reports are issued by independent firms.",
+      ],
+      [
+        "support",
+        "Hekara support plans and commercial licensing",
+        "Response-time support, upgrades, training, and a commercial licence for use without the AGPL network clause.",
+      ],
     ].map(([key, name, description]) => ({
       "@type": "Service",
       "@id": id(`service-${key}`),

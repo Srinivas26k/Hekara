@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'site/**'
-      - '.github/workflows/deploy-site.yml'
+      - "site/**"
+      - ".github/workflows/deploy-site.yml"
   workflow_dispatch:
 
 permissions:
@@ -33,9 +33,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'pnpm'
-          cache-dependency-path: 'site/pnpm-lock.yaml'
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: "site/pnpm-lock.yaml"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
