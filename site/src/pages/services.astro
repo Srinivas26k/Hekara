@@ -1,0 +1,133 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const repo = "https://github.com/Srinivas26k/Hekara";
+
+const offers = [
+  { id: "build", n: "01", title: "Custom applications", body: "Features and workflows built for your agency or your product, on Hekara or alongside it.", items: ["Agency-specific scheduling rules", "Patient and family portals", "Custom reports and dashboards"] },
+  { id: "integrations", n: "02", title: "Integrations", body: "Connect Hekara to the systems your agency already depends on.", items: ["SSO: SAML, OIDC, SCIM", "EHR and payroll systems", "Claim formats, clearinghouses, data warehouses"] },
+  { id: "deploy", n: "03", title: "Hardened deployment", body: "A hosting design built for patient data and the agreements that come with it.", items: ["Encryption and key management", "Backup, recovery and access reviews", "AWS, GCP, Azure, Kubernetes or on-premises"] },
+  { id: "migration", n: "04", title: "Hosting & migration", body: "Move onto Hekara, or move Hekara between platforms, using its portable design.", items: ["Data import from spreadsheets and legacy tools", "Platform-to-platform moves", "Cut-over planning with rollback"] },
+  { id: "security", n: "05", title: "Security review", body: "A targeted look at your deployment and configuration before real data goes in.", items: ["Configuration and access review", "Threat model walkthrough", "Coordination of an independent penetration test"] },
+  { id: "support", n: "06", title: "Support plans & licensing", body: "Someone to call, and terms that fit how you use Hekara.", items: ["Response-time commitments and upgrades", "Training for your team", "Commercial licence without the AGPL network clause"] },
+];
+
+const compliance = [
+  ["Gap assessment", "Against the HIPAA Security Rule, the SOC 2 Trust Services Criteria or ISO 27001 Annex A."],
+  ["Risk assessment", "A documented assessment and a risk register you keep maintaining."],
+  ["Policies & procedures", "Access control, incident response, vendor management, retention, acceptable use."],
+  ["Control mapping", "Tie Hekara's safeguards and your operations to each requirement you must meet."],
+  ["Evidence & audit prep", "Collect the evidence your auditor will ask for, and work alongside them."],
+  ["Vendor risk & BAAs", "Vendor reviews and Business Associate Agreement checklists."],
+];
+---
+
+<BaseLayout title="Services: custom builds, deployments and compliance readiness | Hekara" description="Custom features, integrations, hardened deployments, support plans and HIPAA, SOC 2 and ISO 27001 readiness for home health agencies and health-tech teams building on Hekara.">
+  <section class="page-hero">
+    <div class="wrap split">
+      <div>
+        <span class="label">Services</span>
+        <h1 class="display" style="margin-top:24px;font-size:clamp(40px,6vw,76px)">Hekara, fitted to <span class="hl">your agency.</span></h1>
+      </div>
+      <div class="stack-lg" style="align-self:end">
+        <p class="lede">The software is free. When you need it customised, integrated, deployed for real patient data or made ready for an audit, work directly with the people who build it.</p>
+        <div class="actions">
+          <a class="btn btn-primary btn-lg" href={`${base}contact`}>Start a project <span class="arrow">→</span></a>
+          <a class="btn btn-ghost btn-lg" href="#compliance">Compliance readiness</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band-tight">
+    <div class="wrap">
+      <div class="facts">
+        <div class="fact"><strong>Agencies</strong><span>Home health and home care operators running or piloting Hekara</span></div>
+        <div class="fact"><strong>Health-tech teams</strong><span>Products built on Hekara that need features, licensing or hardening</span></div>
+        <div class="fact"><strong>Fixed scope</strong><span>A written statement of work before any work starts</span></div>
+        <div class="fact"><strong>Your code</strong><span>Everything we build is yours, and generic fixes go back upstream</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="label">What we do</span>
+          <h2 class="h2">Six ways to get from repo to running agency.</h2>
+        </div>
+        <p class="lede">Pick one, or combine them into a single engagement.</p>
+      </div>
+      <div class="cards">
+        {offers.map((o) => (
+          <article class="card" id={o.id}>
+            <div class="card-num">{o.n}</div>
+            <h3>{o.title}</h3>
+            <p>{o.body}</p>
+            <ul class="ticks" style="margin-top:20px">{o.items.map((i) => <li>{i}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-dark" id="compliance">
+    <div class="wrap split split-wide">
+      <div class="sticky">
+        <span class="label">Compliance readiness</span>
+        <h2 class="h2" style="margin-top:18px">HIPAA, SOC 2, ISO 27001, HITRUST. <span class="hl">Walk into the audit ready.</span></h2>
+        <p style="margin-top:20px">Certification is something your organisation earns, through its own policies, operations and an independent auditor. We do the preparation that gets you there, with software whose safeguards are already documented.</p>
+        <p class="note">What this is not: we are not an audit firm or a law firm. We cannot issue a SOC 2 report or an ISO certificate, HIPAA has no official certificate, and no one can guarantee an audit outcome. Where the next step needs an auditor or a lawyer, we'll tell you.</p>
+      </div>
+      <dl class="safeguards" style="margin-top:0">
+        {compliance.map(([t, d]) => (<div><dt>{t}</dt><dd>{d}</dd></div>))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="label">How an engagement works</span>
+          <h2 class="h2">Clear scope. No surprises.</h2>
+        </div>
+        <p class="lede">Every paid engagement runs under a signed statement of work. See the <a href={`${base}terms`}>terms</a>.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Tell us what you need</h3><p>Use the project form: your agency, your systems, and what has to change.</p></div>
+        <div class="step"><h3>Intro call</h3><p>A short call to understand your operation and what “done” looks like.</p></div>
+        <div class="step"><h3>Written scope &amp; quote</h3><p>Deliverables, milestones, timeline and price, agreed before work starts.</p></div>
+        <div class="step"><h3>Build, hand over, support</h3><p>Delivered in milestones, documented, and handed to your team, with optional support after.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-alt">
+    <div class="wrap split">
+      <div class="stack-lg">
+        <span class="label">Not ready for a project?</span>
+        <h2 class="h2">Other ways to move Hekara forward.</h2>
+      </div>
+      <div class="cards cards-2">
+        <a class="card" href={`${base}sponsor`}><h3>Sponsor a feature</h3><p>Fund something on the roadmap and get it sooner, credited if you wish.</p><span class="meta">Sponsor →</span></a>
+        <a class="card" href={`${base}sponsor`}><h3>Fund a security audit</h3><p>Help pay for an independent review that every user benefits from.</p><span class="meta">Sponsor →</span></a>
+        <a class="card" href={`${repo}/blob/main/COMMERCIAL.md`} target="_blank" rel="noopener"><h3>Commercial licence</h3><p>Embed Hekara in a closed-source product without the AGPL network clause.</p><span class="meta">Read the terms →</span></a>
+        <a class="card" href={`${repo}/discussions`} target="_blank" rel="noopener"><h3>Community help</h3><p>Ask questions and share what you're building, in public.</p><span class="meta">GitHub →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" style="padding-bottom:0">
+    <div class="wrap">
+      <div class="cta on-dark">
+        <div>
+          <h2 class="h2">Have a project in mind?</h2>
+          <p>Tell us about your agency and what you need. You'll get a reply and, if it's a fit, a written scope.</p>
+        </div>
+        <div class="actions"><a class="btn btn-primary btn-lg" href={`${base}contact`}>Start a project <span class="arrow">→</span></a></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
