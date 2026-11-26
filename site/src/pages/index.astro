@@ -1,325 +1,278 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const repo = "https://github.com/Srinivas26k/Hekara";
+
+const problems = [
+  ["“Who is covering the 4 PM visit?”", "One live timeline of every caregiver and visit, updating in every open tab.", "The whole team sees the same day."],
+  ["A caregiver calls out", "One-click Fill picks someone with the right skill, no overlap and room in their week. With Undo.", "Shifts covered in seconds, not an hour of calls."],
+  ["Overtime found after payroll", "Overtime watch and Copilot suggestions move visits before the limit.", "Lower overtime cost, fewer surprises."],
+  ["A CPR card or TB test lapses", "Credentials bucketed into expired, 30 days, 90 days and valid.", "Audit-ready records."],
+  ["“What changed, and who did it?”", "A tamper-evident audit log with an integrity check.", "Evidence for reviews and auditors."],
+  ["Per-seat fees and lock-in", "Self-hosted, portable, open source.", "You own your data and your costs."],
+];
+
+const features = [
+  {
+    id: "schedule",
+    title: "A live schedule the whole agency shares",
+    body: "Every caregiver and visit on one timeline, with a moving “now” marker and statuses that follow the clock.",
+    ticks: ["Day and week views, filterable by caregiver", "Done, in progress, scheduled and needs-attention computed from the clock", "Updates in every open tab, no refresh"],
+    img: "schedule.png",
+    alt: "Hekara schedule timeline with caregivers, visits and open shifts",
+  },
+  {
+    id: "shifts",
+    title: "Fill open shifts in one click",
+    body: "Hekara checks skill, overlap and the weekly limit before it suggests anyone. Copilot explains every suggestion, and the server checks it again when you apply it.",
+    ticks: ["Eligibility checked on the server, with Undo", "Rule-based suggestions: no patient data leaves your server", "Overtime watch before payroll, not after"],
+    img: "caregivers.png",
+    alt: "Hekara caregiver list with skills, weekly load and availability",
+  },
+  {
+    id: "compliance",
+    title: "Credentials and care plans, never quietly expired",
+    body: "Track CPR, TB tests, background checks and more. Care plans carry tasks, instructions and review dates, all encrypted.",
+    ticks: ["Expired, 30-day, 90-day and valid buckets", "Overdue care-plan reviews flagged", "An attention list for the morning huddle"],
+    img: "compliance.png",
+    alt: "Hekara compliance tracker grouping credentials by expiry",
+  },
+  {
+    id: "billing",
+    title: "Billing and reports that match the schedule",
+    body: "Claims move through a guarded workflow. Reports cover hours, fill rate, visits per day and claim totals.",
+    ticks: ["Draft, submitted, paid or denied, with no skipped steps", "7, 14 and 30-day reports", "CSV export that neutralises spreadsheet formulas"],
+    img: "billing.png",
+    alt: "Hekara billing and claims workflow",
+  },
+];
+
+const faqs = [
+  ["What does Hekara cost?", "The software is free under the AGPL-3.0. You pay for your own hosting, which for a small agency can be a single modest server. Paid help with setup, custom features and compliance readiness is available."],
+  ["Is it ready for production?", "Hekara is an alpha (v0.1). It runs end to end on Node and Postgres and is ready to evaluate, pilot and build on. It has not had an independent security audit. If you want to run it with real patient data, talk to us about a hardened deployment."],
+  ["Is Hekara HIPAA compliant?", "No software is HIPAA compliant on its own; compliance is something your organisation achieves. Hekara provides technical safeguards: field-level encryption, audit logging, roles and strong sign-in. We can help with the rest of the program."],
+  ["Can you get us a SOC 2 or ISO 27001 report?", "Reports are issued by independent audit firms. We do the readiness work: gap assessment, control mapping, policies, technical fixes and evidence, so you walk into the audit prepared."],
+  ["Where can it run?", "Today: anywhere Node and Postgres run, including your own server, AWS, GCP, Azure or on-premises. A native Cloudflare adapter is next on the roadmap. The app talks to interfaces, not a specific cloud."],
+  ["Can we change it, or use it in our own product?", "Yes. Change anything. The AGPL asks that network services built on a modified Hekara share their source; if that doesn't suit you, a commercial licence is available."],
+];
 ---
 
-<BaseLayout 
-  title="Hekara — Run your home health agency on software you own"
-  description="Hekara is open-source home health agency software. Schedule visits, coordinate caregivers, track credentials and billing, and self-host your data."
->
-  <main>
-    <section class="hero" id="platform">
-      <div class="hero-photo" role="img" aria-label="Abstract green Hekara product backdrop"></div>
-      <div class="hero-shade"></div>
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <div class="eyebrow eyebrow-light"><span class="eyebrow-line"></span> OPEN-SOURCE HOME HEALTH OPERATIONS</div>
-          <h1>Care moves fast.<br /><em>Your software should, too.</em></h1>
-          <p>Hekara brings schedules, staffing, compliance and billing into one calm operating system—on infrastructure you control.</p>
-          <div class="hero-buttons">
-            <a class="button button-dark" href="https://github.com/Srinivas26k/Hekara#quick-start" target="_blank" rel="noreferrer">Explore the project <span>↗</span></a>
-            <a class="button button-glass" href="#workflow"><span class="play-icon">↓</span> See the workflow</a>
+<BaseLayout title="Hekara: open-source home health agency software" >
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <span class="label">Open source · Home health operations · v0.1 alpha</span>
+          <h1 class="display" style="margin-top:24px">Run your agency on software <span class="hl">you own.</span></h1>
+          <p class="lede">See every caregiver and visit on one live screen, fill open shifts in a click, catch overtime and expiring credentials early, and keep patient data encrypted on your own servers.</p>
+          <div class="actions">
+            <a class="btn btn-primary btn-lg" href={`${repo}#quick-start`} target="_blank" rel="noopener">Get the code <span class="arrow">→</span></a>
+            <a class="btn btn-ghost btn-lg" href={`${base}services`}>Custom builds &amp; compliance</a>
           </div>
           <a class="ph-featured" href="https://www.producthunt.com/products/hekara?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-hekara" target="_blank" rel="noopener noreferrer"><img alt="Hekara - Home health agency operations you can self-host | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1328941&amp;theme=light&amp;t=1795690059248" /></a>
-          <div class="hero-proof">
-            <span class="proof-icon">⌘</span>
-            <span>Self-hosted · AGPL-3.0 · Alpha</span>
-          </div>
         </div>
-        <div class="hero-note">
-          <span class="note-spark">✳</span>
-          <span>Made for teams<br /><strong>who show up.</strong></span>
-        </div>
+        <dl class="hero-aside">
+          <div><dt>For</dt><dd>Agency owners, schedulers, caregivers and billing teams</dd></div>
+          <div><dt>Runs on</dt><dd>Node and Postgres on a server you control</dd></div>
+          <div><dt>Patient data</dt><dd>AES-256-GCM per field, before it reaches the database</dd></div>
+          <div><dt>Licence</dt><dd>AGPL-3.0, commercial licence available</dd></div>
+        </dl>
       </div>
+      <figure class="shot" style="margin-bottom:0">
+        <div class="shot-bar"><i></i><i></i><i></i><span>Schedule · Juniper Home Health (demo data)</span></div>
+        <img src={`${base}images/schedule.png`} alt="Hekara schedule: a live timeline of caregivers and visits with open shifts, Copilot suggestions and overtime watch" width="1600" height="1000" />
+      </figure>
+    </div>
+  </section>
 
-      <div class="dashboard-wrap">
-        <div class="dashboard-window">
-          <div class="window-topbar">
-            <div class="window-brand"><span class="mini-mark">h</span> Hekara <span class="window-divider">/</span> Schedule</div>
-            <div class="window-controls"><span class="window-live"><i></i> Live view</span><span>•••</span></div>
-          </div>
-          <img class="dashboard-image" src="/Hekara/images/schedule.png" alt="Hekara caregiver schedule dashboard showing visits, open shifts and staffing timeline" />
-          <div class="window-caption"><span class="caption-check">✓</span> A shared view of the day, for the whole team.</div>
-        </div>
-        <div class="floating-card floating-card-left">
-          <span class="float-icon float-green">↗</span><span><small>Open shifts</small><strong>Find the right cover</strong></span>
-        </div>
-        <div class="floating-card floating-card-right">
-          <span class="float-icon float-blue">⌁</span><span><small>Team overview</small><strong>Always in sync</strong></span>
-        </div>
+  <section class="band-tight">
+    <div class="wrap">
+      <div class="facts">
+        <div class="fact"><strong>4 roles</strong><span>Admin, scheduler, caregiver and billing, enforced on the server</span></div>
+        <div class="fact"><strong>~50 KB</strong><span>Gzipped client. No Redis, no message broker</span></div>
+        <div class="fact"><strong>0 per-seat</strong><span>fees. Add caregivers without adding cost</span></div>
+        <div class="fact"><strong>1 test suite</strong><span>every hosting adapter must pass, so you can move</span></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="trust-strip">
-      <span>MADE FOR THE PEOPLE BEHIND EVERY VISIT</span>
-      <div class="trust-items"><span>Agency owners</span><b>·</b><span>Schedulers</span><b>·</b><span>Caregivers</span><b>·</b><span>Billing teams</span></div>
-    </section>
-
-    <section class="intro section-pad" id="workflow">
-      <div class="section-kicker"><span class="kicker-square">✳</span> A CALMER WAY TO COORDINATE</div>
-      <div class="intro-grid">
-        <h2>Every moving part<br /><em>in one place.</em></h2>
-        <div class="intro-text">
-          <p>Home health work moves across people, schedules and paperwork. Hekara brings the daily operation together, so your team can spend less time tracking things down and more time focused on care.</p>
-          <a class="text-link" href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noreferrer">Take a closer look <span>↗</span></a>
-        </div>
-      </div>
-      <div class="feature-grid">
-        <article class="feature-card feature-card-large">
-          <div class="feature-image-wrap">
-            <img src="/Hekara/images/overview.png" alt="Hekara overview dashboard" loading="lazy" />
-            <span class="image-chip"><span class="chip-dot"></span> Your agency at a glance</span>
-          </div>
-          <div class="feature-card-bottom">
-            <div>
-              <span class="feature-number">01</span>
-              <h3>Dashboard</h3>
-              <p>Agency owners see their whole operation at once—visits, schedules, staffing, and compliance.</p>
-            </div>
-          </div>
-        </article>
-        <article class="feature-card">
-          <div class="feature-image-wrap">
-            <img src="/Hekara/images/caregivers.png" alt="Hekara caregiver management" loading="lazy" />
-            <span class="image-chip"><span class="chip-dot"></span> Who's available</span>
-          </div>
-          <div class="feature-card-bottom">
-            <div>
-              <span class="feature-number">02</span>
-              <h3>Caregivers</h3>
-              <p>Assign staff, track skills and certifications, and manage availability in real time.</p>
-            </div>
-          </div>
-        </article>
-        <article class="feature-card">
-          <div class="feature-image-wrap">
-            <img src="/Hekara/images/reports.png" alt="Hekara analytics and reporting" loading="lazy" />
-            <span class="image-chip"><span class="chip-dot"></span> Measure and improve</span>
-          </div>
-          <div class="feature-card-bottom">
-            <div>
-              <span class="feature-number">03</span>
-              <h3>Reports</h3>
-              <p>Get insights on staffing, revenue, compliance and care quality from your data.</p>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="workflow-section" id="features">
-      <div class="section-pad">
-        <div class="workflow-heading">
-          <div>
-            <div class="section-kicker"><span class="kicker-square">✳</span> WHAT WORKS</div>
-            <h2>See a workflow<br />that makes<br /><em>sense</em></h2>
-          </div>
-          <p>Hekara handles the day-to-day that takes the most time and brain power. It scales as your agency grows.</p>
-        </div>
-
-        <div class="workflow-panel">
-          <div class="workflow-steps">
-            <button class="workflow-step active" data-step="0">
-              <span class="step-index">01</span>
-              <div>
-                <strong>Schedule the visits</strong>
-                <small>Assign caregivers to patient visits</small>
-              </div>
-            </button>
-            <button class="workflow-step" data-step="1">
-              <span class="step-index">02</span>
-              <div>
-                <strong>Fill open shifts</strong>
-                <small>Get coverage for last-minute changes</small>
-              </div>
-            </button>
-            <button class="workflow-step" data-step="2">
-              <span class="step-index">03</span>
-              <div>
-                <strong>Track compliance</strong>
-                <small>Keep certifications and training current</small>
-              </div>
-            </button>
-            <button class="workflow-step" data-step="3">
-              <span class="step-index">04</span>
-              <div>
-                <strong>Generate billing</strong>
-                <small>Automate invoices and revenue reports</small>
-              </div>
-            </button>
-          </div>
-          <div class="workflow-visual">
-            <img src="/Hekara/images/schedule.png" alt="Schedule visits in Hekara" class="workflow-image active" data-step="0" />
-            <img src="/Hekara/images/caregivers.png" alt="Fill open shifts in Hekara" class="workflow-image" data-step="1" loading="lazy" />
-            <img src="/Hekara/images/compliance.png" alt="Track compliance in Hekara" class="workflow-image" data-step="2" loading="lazy" />
-            <img src="/Hekara/images/billing.png" alt="Generate billing in Hekara" class="workflow-image" data-step="3" loading="lazy" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="department-section section-pad">
-      <div class="department-head">
+  <section class="band" id="why">
+    <div class="wrap">
+      <div class="section-head reveal">
         <div>
-          <div class="section-kicker"><span class="kicker-square">✳</span> BUILT FOR TEAMS</div>
-          <h2>Every team member<br />gets a view built for<br /><em>their workflow.</em></h2>
+          <span class="label">Why agencies switch</span>
+          <h2 class="h2">Spreadsheets, group chats and phone tag cost more than they look.</h2>
         </div>
-        <p>Hekara adapts to how your agency actually works. Each role sees the information that matters most.</p>
+        <p class="lede">The cost shows up as late-found open shifts, overtime discovered after payroll, missed credential renewals and an hour on the phone for every callout.</p>
       </div>
-
-      <div class="departments-grid">
-        <article class="department-card">
-          <div class="dept-icon">👩‍💼</div>
-          <h3>Agency owners</h3>
-          <p>Monitor staffing, compliance and revenue across your whole operation. Spot trends and make data-driven decisions.</p>
-        </article>
-        <article class="department-card">
-          <div class="dept-icon">📋</div>
-          <h3>Schedulers</h3>
-          <p>Assign visits, manage caregiver availability, and quickly fill open shifts without the chaos of email chains.</p>
-        </article>
-        <article class="department-card">
-          <div class="dept-icon">🏥</div>
-          <h3>Caregivers</h3>
-          <p>See your schedule, patient details, and get updates in real time. Mobile-friendly, designed for the field.</p>
-        </article>
-        <article class="department-card">
-          <div class="dept-icon">💰</div>
-          <h3>Billing teams</h3>
-          <p>Generate accurate invoices, track claims and revenue. Compliance-ready reports with encrypted patient data.</p>
-        </article>
+      <div class="ptable reveal">
+        <div class="prow head"><span>The everyday problem</span><span>What Hekara does</span><span>What you gain</span></div>
+        {problems.map(([q, a, g]) => (
+          <div class="prow"><div class="q">{q}</div><div class="a">{a}</div><div class="g">{g}</div></div>
+        ))}
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="services-section section-pad" id="services">
-      <div class="services-heading">
+  <section class="band band-alt" id="product">
+    <div class="wrap">
+      <div class="section-head reveal">
         <div>
-          <div class="section-kicker"><span class="kicker-square">✳</span> FROM OPEN SOURCE TO YOUR OPERATION</div>
-          <h2>Need Hekara to fit<br /><em>your agency?</em></h2>
+          <span class="label">The product</span>
+          <h2 class="h2">Everything a coordinator touches before lunch.</h2>
         </div>
-        <p>Work directly with the maintainer on a practical deployment, integrations, security-focused architecture, or a tailored workflow.</p>
+        <p class="lede">Scheduling, staffing, compliance and billing in one system, so nothing falls between four tools.</p>
       </div>
-      <div class="services-grid">
-        <article class="service-card"><span class="service-number">01</span><h3>Implementation</h3><p>Plan a self-hosted rollout, configure the foundation, and give your team a clear path to launch.</p></article>
-        <article class="service-card"><span class="service-number">02</span><h3>Custom workflows</h3><p>Adapt Hekara to the scheduling, billing, reporting, and operating realities of your agency.</p></article>
-        <article class="service-card"><span class="service-number">03</span><h3>Security &amp; compliance support</h3><p>Get help mapping technical safeguards, documenting controls, and preparing a more defensible deployment.</p></article>
-      </div>
-      <div class="services-cta"><div><strong>Have a project in mind?</strong><span>Start with a short, no-pressure conversation.</span></div><a class="button button-dark" href="/Hekara/contact">Talk about your project <span aria-hidden="true">→</span></a></div>
-    </section>
-
-    <section class="security-section section-pad" id="security">
-      <div class="security-layout">
-        <div class="security-copy">
-          <div class="section-kicker"><span class="kicker-square">✳</span> BUILT WITH TRUST</div>
-          <h2>Your data stays<br /><em>your data.</em></h2>
-          <p>Open source. No vendor lock-in. Encrypted at the application layer. Deploy anywhere.</p>
-          <ul class="security-list">
-            <li><strong>Application-layer encryption.</strong> Protected health information is encrypted before storage.</li>
-            <li><strong>Self-hosted.</strong> Run on your servers. No SaaS dependency. Full control and portability.</li>
-            <li><strong>Open source.</strong> Audit the code. AGPL-3.0 licensed. No black boxes.</li>
-            <li><strong>Standards-based.</strong> PostgreSQL, WebCrypto, Web-standard APIs. Easy to integrate.</li>
-          </ul>
-        </div>
-        <div class="security-visual">
-          <div class="security-card">
-            <span class="security-icon">🔐</span>
-            <strong>Encrypted</strong>
-            <small>Security-focused technical safeguards</small>
-          </div>
-          <div class="security-card">
-            <span class="security-icon">🛡</span>
-            <strong>Portable</strong>
-            <small>Deploy on your infrastructure</small>
-          </div>
-          <div class="security-card">
-            <span class="security-icon">📖</span>
-            <strong>Open</strong>
-            <small>100% source code transparency</small>
-          </div>
-          <div class="security-card">
-            <span class="security-icon">⚡</span>
-            <strong>Lightweight</strong>
-            <small>Designed for lightweight self-hosting</small>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="open-source-section section-pad" id="open-source">
-      <div class="open-source-layout">
-        <div class="open-source-left">
-          <div class="section-kicker"><span class="kicker-square">✳</span> THE CODE IS YOURS</div>
-          <h2>Built in the open.<br /><em>For you.</em></h2>
-          <p>No proprietary licensing. No surprise costs. No black boxes. Full AGPL-3.0 source code on GitHub. You own it, modify it, and deploy it anywhere.</p>
-          <a class="text-link" href="https://github.com/Srinivas26k/Hekara" target="_blank" rel="noreferrer">See the code on GitHub <span>↗</span></a>
-        </div>
-        <div class="open-source-right">
-          <div class="code-block">
-            <div class="code-header">$ quick start</div>
-            <div class="code-content">
-              <code>git clone https://github.com/Srinivas26k/Hekara.git<br/>
-cd Hekara &amp;&amp; cp .env.example .env<br/>
-pnpm install &amp;&amp; pnpm keygen<br/>
-docker compose up -d db<br/>
-pnpm db:migrate &amp;&amp; pnpm db:seed<br/>
-pnpm build &amp;&amp; pnpm start<br/>
-<span class="code-ready">✓ http://localhost:3000</span></code>
+      <div class="tour">
+        {features.map((f, i) => (
+          <article class={`feature reveal${i % 2 ? " flip" : ""}`} id={f.id}>
+            <div class="copy">
+              <span class="feature-num">0{i + 1}</span>
+              <h3 class="h3">{f.title}</h3>
+              <p>{f.body}</p>
+              <ul class="ticks">{f.ticks.map((t) => <li>{t}</li>)}</ul>
             </div>
-          </div>
+            <div class="frame"><img src={`${base}images/${f.img}`} alt={f.alt} loading="lazy" width="1600" height="1000" /></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-dark" id="security">
+    <div class="wrap arch-grid">
+      <div class="reveal">
+        <span class="label">Security &amp; architecture</span>
+        <h2 class="h2" style="margin-top:18px">Built for patient data <span class="hl">from the first line.</span></h2>
+        <p style="margin-top:20px;max-width:520px">Patient fields are encrypted before they reach storage. Every read and write of patient data is audited. Every query is scoped to one agency.</p>
+        <dl class="safeguards">
+          <div><dt>Encryption</dt><dd>AES-256-GCM per field with a random IV and versioned key IDs</dd></div>
+          <div><dt>Sign-in</dt><dd>Passkeys by default; Argon2id passwords and TOTP as fallbacks</dd></div>
+          <div><dt>Audit log</dt><dd>Hash-chained per agency, with an integrity check and a daily verify</dd></div>
+          <div><dt>Access</dt><dd>Invite-only accounts; caregivers see only their own visits</dd></div>
+          <div><dt>Browser</dt><dd>Strict CSP; no third-party requests from the app</dd></div>
+        </dl>
+        <p class="note">Honest status: Hekara has not been independently audited or certified yet. <a href={`${repo}/blob/main/docs/SECURITY.md`} target="_blank" rel="noopener" style="color:#fff">Read the threat model →</a></p>
+      </div>
+      <div class="diagram reveal" aria-label="Architecture: the app depends on ports, adapters implement them per platform">
+        <div class="layer"><b>Hekara app</b><small>Hono server + SolidJS client. Pure scheduling logic, Valibot validation at every boundary.</small></div>
+        <div class="connector"></div>
+        <div class="layer accent"><b>Ports</b><small>Repository · Realtime · Queue · Blob · Crypto · Secrets · Audit · Clock</small></div>
+        <div class="connector"></div>
+        <div class="adapters">
+          <div class="layer accent"><b>Node · shipping</b><div class="chips"><span class="chip">Postgres</span><span class="chip">SSE</span><span class="chip">S3 / disk</span></div></div>
+          <div class="layer"><b>Cloudflare · next</b><div class="chips"><span class="chip">Durable Objects</span><span class="chip">R2</span><span class="chip">Queues</span></div></div>
+          <div class="layer"><b>AWS · planned</b><div class="chips"><span class="chip">RDS</span><span class="chip">SQS</span><span class="chip">KMS</span></div></div>
+        </div>
+        <p class="small" style="margin-top:18px;color:#8fb0a6">One contract test suite every adapter must pass, so a new platform is an adapter, not a rewrite.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="label">How it compares</span>
+          <h2 class="h2">Control without starting from scratch.</h2>
+        </div>
+        <p class="lede">Hekara isn't the right fit if you need a certified vendor-run service today. If you want control, and help when you need it, it's built for you.</p>
+      </div>
+      <div class="table-scroll reveal">
+        <table class="compare">
+          <thead><tr><th></th><th>Spreadsheets &amp; chat</th><th>Hosted per-seat software</th><th class="us">Hekara</th></tr></thead>
+          <tbody>
+            <tr><th>Live shared view of the day</th><td>No</td><td>Yes</td><td class="us">Yes</td></tr>
+            <tr><th>One-click shift filling and overtime checks</th><td>No</td><td>Varies</td><td class="us">Yes</td></tr>
+            <tr><th>You own the data and where it runs</th><td>Scattered</td><td>No</td><td class="us">Yes</td></tr>
+            <tr><th>Cost grows with every user</th><td>No</td><td>Yes</td><td class="us">No</td></tr>
+            <tr><th>Read, change and extend the code</th><td>n/a</td><td>No</td><td class="us">Yes</td></tr>
+            <tr><th>Independent certifications</th><td>n/a</td><td>Often</td><td class="us">Not yet · <a href={`${base}services#compliance`}>readiness help</a></td></tr>
+            <tr><th>Someone to call when it breaks</th><td>No</td><td>Yes</td><td class="us">Community or <a href={`${base}services`}>paid support</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="label">Services</span>
+          <h2 class="h2">Need it running in your agency, your way?</h2>
+        </div>
+        <p class="lede">Work directly with the people who build Hekara. Fixed-scope engagements, written up front.</p>
+      </div>
+      <div class="cards cards-4 reveal">
+        <a class="card" href={`${base}services#build`}><div class="card-num">01</div><h3>Custom builds</h3><p>Features, workflows and integrations shaped around how your agency runs.</p><span class="meta">EHR · payroll · SSO →</span></a>
+        <a class="card" href={`${base}services#deploy`}><div class="card-num">02</div><h3>Hardened deployment</h3><p>Hosting, keys, backups and access reviews designed for patient data.</p><span class="meta">AWS · GCP · Azure · on-prem →</span></a>
+        <a class="card" href={`${base}services#compliance`}><div class="card-num">03</div><h3>Compliance readiness</h3><p>HIPAA, SOC 2, ISO 27001 and HITRUST gap work, policies and evidence.</p><span class="meta">Audit preparation →</span></a>
+        <a class="card card-dark" href={`${base}services#support`}><div class="card-num" style="color:var(--lime)">04</div><h3>Support &amp; licensing</h3><p>Response-time plans, upgrades, training, or a commercial licence.</p><span class="meta" style="color:#8fb0a6">Plans and terms →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="open-source">
+    <div class="wrap split">
+      <div class="reveal stack-lg">
+        <span class="label">Open source</span>
+        <h2 class="h2">Built in public. Yours to run, read and change.</h2>
+        <p class="lede">Every line is on GitHub under the AGPL-3.0. Run the demo on your laptop in about ten minutes, then decide.</p>
+        <ul class="ticks">
+          <li>Strict TypeScript, unit and contract tests on every change</li>
+          <li>Architecture, security and portability decisions written down in <code>docs/</code></li>
+          <li>20% of sponsorship funds paid bounties for merged contributions</li>
+        </ul>
+        <div class="actions">
+          <a class="btn btn-primary" href={repo} target="_blank" rel="noopener">Star on GitHub <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href={`${repo}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener">Contribute</a>
+          <a class="btn btn-ghost" href={`${base}sponsor`}>Sponsor</a>
         </div>
       </div>
-    </section>
+      <pre class="terminal reveal" aria-label="Quick start commands"><span class="c"># Node 24+, pnpm and Docker</span>
+<span class="p">$ </span>git clone https://github.com/Srinivas26k/Hekara.git
+<span class="p">$ </span>cd Hekara &amp;&amp; cp .env.example .env
+<span class="p">$ </span>pnpm install
+<span class="p">$ </span>pnpm keygen            <span class="c"># paste keys into .env</span>
+<span class="p">$ </span>docker compose up -d db
+<span class="p">$ </span>pnpm db:migrate
+<span class="p">$ </span>DEMO_PASSWORD='…' pnpm db:seed
+<span class="p">$ </span>pnpm build &amp;&amp; pnpm start
+<span class="c"># → http://localhost:3000</span></pre>
+    </div>
+  </section>
 
-    <section class="faq-section section-pad">
-      <div class="faq-heading">
-        <h2>Got questions?<br /><em>We have answers.</em></h2>
+  <section class="band band-alt">
+    <div class="wrap faq-grid">
+      <div class="reveal">
+        <span class="label">Questions</span>
+        <h2 class="h2" style="margin-top:18px">Straight answers.</h2>
+        <p class="muted" style="margin-top:18px">Something else? <a href={`${base}contact`}>Ask us directly</a>.</p>
       </div>
-      <div class="faq-grid">
-        <details class="faq-item">
-          <summary><strong>How much does Hekara cost?</strong></summary>
-          <p>Hekara is free and open source. No licensing fees. You pay only for your hosting infrastructure (cloud or on-premise). One server can handle hundreds of users.</p>
-        </details>
-        <details class="faq-item">
-          <summary><strong>Can I self-host?</strong></summary>
-          <p>Yes. Deploy on your own servers, AWS, Azure, Cloudflare, or anywhere you like. The code is yours. Full portability with no vendor lock-in.</p>
-        </details>
-        <details class="faq-item">
-          <summary><strong>Is Hekara HIPAA compliant?</strong></summary>
-          <p>Software alone cannot be HIPAA compliant. Hekara provides technical safeguards such as application-layer encryption, audit logging, and access controls; your organization remains responsible for its complete compliance program.</p>
-        </details>
-        <details class="faq-item">
-          <summary><strong>What about data portability?</strong></summary>
-          <p>All data uses standard SQL schemas. Export to any format. Migrate to another system anytime. No proprietary data formats that lock you in.</p>
-        </details>
-        <details class="faq-item">
-          <summary><strong>What support is available?</strong></summary>
-          <p>Community support on GitHub. Documentation, quick-start guide, and architecture docs included. For enterprise support, sponsorship and custom development are available.</p>
-        </details>
-        <details class="faq-item">
-          <summary><strong>Can I modify the code?</strong></summary>
-          <p>Yes. AGPL-3.0 license means you can modify, distribute, and run modified versions. Contributing back to the project is encouraged.</p>
-        </details>
+      <div class="faq reveal">
+        {faqs.map(([q, a]) => (<details><summary>{q}</summary><p>{a}</p></details>))}
       </div>
-    </section>
-    <script type="application/ld+json" is:inline set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: [
-        { "@type": "Question", name: "How much does Hekara cost?", acceptedAnswer: { "@type": "Answer", text: "Hekara is free and open source. You pay only for your hosting infrastructure." } },
-        { "@type": "Question", name: "Can I self-host Hekara?", acceptedAnswer: { "@type": "Answer", text: "Yes. Hekara is designed to be deployed on infrastructure you control." } },
-        { "@type": "Question", name: "Is Hekara HIPAA compliant?", acceptedAnswer: { "@type": "Answer", text: "Software alone cannot be HIPAA compliant. Hekara provides technical safeguards, while each organization is responsible for its complete compliance program." } }
-      ]
-    })} />
+    </div>
+  </section>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+  })} />
 
-    <section class="final-cta" id="cta">
-      <div class="section-pad cta-inner">
-        <h2>Run your agency<br />on software you<br /><em>own.</em></h2>
-        <p>Hekara is open, secure, and yours.</p>
-        <div class="cta-buttons">
-          <a class="button button-dark" href="https://github.com/Srinivas26k/Hekara#quick-start" target="_blank" rel="noreferrer">Get started on GitHub <span>↗</span></a>
-          <a class="button button-light" href="#top">Back to top</a>
+  <section class="band" style="padding-bottom:0">
+    <div class="wrap">
+      <div class="cta on-dark reveal">
+        <div>
+          <h2 class="h2">Tell us how your agency runs. We'll show you what Hekara can do for it.</h2>
+          <p>A short form, a reply within two business days, and a written scope before any work starts.</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary btn-lg" href={`${base}contact`}>Start a project <span class="arrow">→</span></a>
+          <a class="btn btn-ghost btn-lg" href={repo} target="_blank" rel="noopener">View on GitHub</a>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 </BaseLayout>
-
