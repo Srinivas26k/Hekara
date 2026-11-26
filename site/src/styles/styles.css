@@ -341,3 +341,23 @@ textarea.input { min-height: 140px; resize: vertical; line-height: 1.5 }
 .split-form { grid-template-columns: 1.2fr .8fr } @media (max-width: 900px) { .split-form { grid-template-columns: 1fr } }
 .container .card > :is(h2, h3):first-child { margin-top: 0 }
 .card .h4 { font-size: 15px; letter-spacing: 0; color: var(--muted); font-weight: 600 }
+
+/* About */
+.avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; background: var(--teal); color: var(--lime); display: grid; place-items: center; font: 650 32px/1 var(--sans); letter-spacing: -0.03em }
+.avatar.sm { width: 48px; height: 48px; font-size: 17px; flex: none }
+.about-facts { margin: 24px 0 0; border-top: 1px solid var(--line) }
+.about-facts div { padding: 12px 0; border-bottom: 1px solid var(--line) }
+.about-facts dt { font: 500 12px/1 var(--mono); color: var(--muted) }
+.about-facts dd { margin: 6px 0 0; font-size: 15px; color: var(--ink-2) }
+.people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px }
+.person { flex-direction: row; gap: 16px; align-items: center; padding: 20px }
+.person img { width: 48px; height: 48px; border-radius: 10px; object-fit: contain; flex: none }
+.person a { text-decoration: none }
+.card.empty { border-style: dashed; background: transparent; max-width: 720px }
+.maint { display: flex; gap: 16px; align-items: center }
+.hero-h1 { font-size: clamp(38px, 4.6vw, 64px); max-width: 17ch }
+.hero-points { list-style: none; margin: 0 }
+.hero-points li strong { display: block; font-size: 16px; font-weight: 620; letter-spacing: -0.01em }
+.hero-points li span { display: block; margin-top: 4px; font-size: 14.5px; color: var(--muted) }
+.hero-points li strong::before { content: ""; display: inline-block; width: 10px; height: 6px; margin: 0 10px 3px 0; border-left: 1.5px solid var(--teal); border-bottom: 1.5px solid var(--teal); transform: rotate(-45deg) }
+.hero { padding-top: clamp(40px, 6vw, 80px) }

@@ -17,6 +17,7 @@ Key facts:
 - [Home](https://srinivas26k.github.io/Hekara/): what Hekara is, features, security, comparison, FAQ
 - [Services](https://srinivas26k.github.io/Hekara/services/): implementation in the client's own cloud tenant, custom development, integrations, compliance readiness, support and commercial licensing
 - [Start a project](https://srinivas26k.github.io/Hekara/contact/): enquiry form for agencies and health-tech teams
+- [About](https://srinivas26k.github.io/Hekara/about/): the maintainer, Nampalli Srinivas, and project contributors
 - [Sponsor](https://srinivas26k.github.io/Hekara/sponsor/): fund maintenance, features or an independent audit
 
 ## Documentation

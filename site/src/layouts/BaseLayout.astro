@@ -21,6 +21,7 @@ const nav = [
   { href: `${base}#security`, label: "Security" },
   { href: `${base}#open-source`, label: "Open source" },
   { href: `${base}services`, label: "Services" },
+  { href: `${base}about`, label: "About" },
   { href: `${base}sponsor`, label: "Sponsor" },
 ];
 const current = (href: string) => href.replace(/\/$/, "") === path;
@@ -111,6 +112,7 @@ const current = (href: string) => href.replace(/\/$/, "") === path;
             <h2 class="footer-h">Work with us</h2>
             <ul>
               <li><a href={`${base}services`}>Services</a></li>
+              <li><a href={`${base}about`}>About the maintainer</a></li>
               <li><a href={`${base}services#compliance`}>Compliance readiness</a></li>
               <li><a href={`${base}contact`}>Start a project</a></li>
               <li><a href={`${base}sponsor`}>Sponsor</a></li>
@@ -128,7 +130,7 @@ const current = (href: string) => href.replace(/\/$/, "") === path;
         </div>
         <div class="footer-bottom">
           <span>© <span id="year">2026</span> Hekara · <a href={`${repo}/blob/main/LICENSE`} target="_blank" rel="noopener">AGPL-3.0</a></span>
-          <span>No cookies. No analytics. Fonts served from this site.</span>
+          <span>Built and maintained by <a href={`${base}about`}>Nampalli Srinivas</a> · No cookies, no analytics</span>
         </div>
       </div>
     </footer>

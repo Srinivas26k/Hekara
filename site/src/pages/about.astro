@@ -1,0 +1,132 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { MAINTAINER as M, CONTRIBUTORS, SPONSORS, type Contributor } from "../data/people";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const repo = "https://github.com/Srinivas26k/Hekara";
+const initials = (n: string) => n.split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+const href = (c: Contributor) => c.url || (c.github ? `https://github.com/${c.github}` : undefined);
+
+const personLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  mainEntity: {
+    "@type": "Person",
+    "@id": "https://srinivas26k.github.io/Hekara/#maintainer",
+    name: M.name,
+    jobTitle: M.role,
+    homeLocation: M.location,
+    sameAs: M.links.map((l) => l.href),
+    knowsAbout: ["Home health software", "Healthcare data security", "HIPAA", "SOC 2", "Open source", "TypeScript"],
+  },
+};
+---
+
+<BaseLayout title="About Hekara and its maintainer, Nampalli Srinivas" description="Who builds Hekara, why it exists, and the contributors and sponsors behind the open-source home health agency software.">
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="label">About</span>
+      <h1 class="display" style="margin-top:24px;font-size:clamp(40px,6vw,76px)">Who builds Hekara, <span class="hl">and why.</span></h1>
+      <p class="lede">Hekara is an independent open-source project. It is built in public, funded by sponsors and paid projects, and shaped by the agencies that use it.</p>
+    </div>
+  </section>
+
+  <section class="band" style="padding-top:0" id="maintainer">
+    <div class="wrap split split-wide">
+      <aside class="card sticky about-card">
+        {M.photo
+          ? <img class="avatar" src={`${base}${M.photo}`} alt={M.name} width="96" height="96" />
+          : <div class="avatar" aria-hidden="true">{initials(M.name)}</div>}
+        <h2 class="h3" style="margin-top:20px">{M.name}</h2>
+        <p class="muted" style="margin-top:6px">{M.role} · {M.location}</p>
+        <dl class="about-facts">
+          {M.facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+        </dl>
+        <div class="actions" style="margin-top:20px">
+          {M.links.map((l) => <a class="btn btn-ghost btn-sm" href={l.href} target="_blank" rel="noopener me">{l.label}</a>)}
+        </div>
+      </aside>
+      <div class="stack-lg">
+        <h2 class="h2">Meet the maintainer</h2>
+        <div class="prose" style="max-width:none">{M.bio.map((p) => <p>{p}</p>)}</div>
+        <div class="actions">
+          <a class="btn btn-primary" href={`${base}contact`}>Work with me <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href={`${base}services`}>See services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="why">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="label">The project</span>
+          <h2 class="h2">Why does Hekara exist?</h2>
+        </div>
+        <p class="lede">Because the agencies that send caregivers into people's homes deserve software as careful as they are.</p>
+      </div>
+      <div class="cards">
+        <article class="card"><h3>Owned, not rented</h3><p>Agencies should own their data and their software, not pay more every time they hire a caregiver.</p></article>
+        <article class="card"><h3>Secure by default</h3><p>Patient data is encrypted before it is stored, every access is audited, and the security model is written down for anyone to check.</p></article>
+        <article class="card"><h3>Honest about status</h3><p>Hekara is alpha and not yet independently audited. We say so plainly, and we say what it would take to get there.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="contributors">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="label">Community</span>
+          <h2 class="h2">Contributors</h2>
+        </div>
+        <p class="lede">Everyone who ships code, docs or design to Hekara is credited here, with their name and logo.</p>
+      </div>
+      {CONTRIBUTORS.length > 0 ? (
+        <ul class="people">
+          {CONTRIBUTORS.map((c) => (
+            <li class="card person">
+              {c.logo ? <img src={`${base}${c.logo}`} alt="" width="48" height="48" /> : <span class="avatar sm" aria-hidden="true">{initials(c.name)}</span>}
+              <div>
+                <h3 class="h4">{href(c) ? <a href={href(c)} target="_blank" rel="noopener">{c.name}</a> : c.name}</h3>
+                <p class="small muted">{c.contribution}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="card empty">
+          <h3>Be the first contributor</h3>
+          <p>Fix a bug, improve the docs or build an adapter. Merged work is credited here and in release notes, and 20% of sponsorship funds paid bounties.</p>
+          <div class="actions" style="margin-top:20px">
+            <a class="btn btn-primary btn-sm" href={`${repo}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener">How to contribute</a>
+            <a class="btn btn-ghost btn-sm" href={`${repo}/issues`} target="_blank" rel="noopener">Open issues</a>
+          </div>
+        </div>
+      )}
+
+      <h2 class="h3" style="margin-top:64px">Sponsors</h2>
+      {SPONSORS.length > 0 ? (
+        <ul class="people" style="margin-top:24px">
+          {SPONSORS.map((c) => (
+            <li class="card person">
+              {c.logo ? <img src={`${base}${c.logo}`} alt="" width="48" height="48" /> : <span class="avatar sm" aria-hidden="true">{initials(c.name)}</span>}
+              <div>
+                <h3 class="h4">{href(c) ? <a href={href(c)} target="_blank" rel="noopener">{c.name}</a> : c.name}</h3>
+                <p class="small muted">{c.contribution}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="card empty" style="margin-top:24px">
+          <h3>Your organisation's logo could be here</h3>
+          <p>Sponsors are thanked on this page and in release notes, unless they prefer to stay anonymous.</p>
+          <div class="actions" style="margin-top:20px"><a class="btn btn-primary btn-sm" href={`${base}sponsor`}>Become a sponsor</a></div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(personLd)} />
+</BaseLayout>
