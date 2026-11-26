@@ -52,6 +52,11 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
           </fieldset>
         </div>
 
+        <fieldset class="fieldset">
+          <legend>How would you like to contract?</legend>
+          <div class="options">{["Freelance, directly with Srinivas", "We need a company contract (NDA, MSA, vendor onboarding)", "Not sure yet"].map((s) => <label class="option"><input type="radio" name="contract" value={s} /><span>{s}</span></label>)}</div>
+        </fieldset>
+
         <label class="field"><span>How did you hear about Hekara?</span>
           <select class="input" name="heard" id="heard">
             <option value="">Choose one</option>
@@ -129,12 +134,14 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
         `Agency size: ${d.get('size') || '-'}`,
         `Timeline: ${d.get('timeline') || '-'}`,
         `Budget: ${d.get('budget') || '-'}`,
+        `Contract: ${d.get('contract') || '-'}`,
         `Heard via: ${d.get('heard') || '-'}`,
         `Source: ${source || '-'}`,
         '',
         msg,
       ];
-      const subject = `Hekara project: ${org || name} (${interests.split(',')[0]})`;
+      const tag = String(d.get('contract') || '').startsWith('We need') ? 'Company' : 'Freelance';
+      const subject = `Hekara lead [${tag}]: ${org || name} (${interests.split(',')[0]})`;
       window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
       status.textContent = 'Your email app should open with everything filled in. Just press send.';
     });
