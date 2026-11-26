@@ -1,0 +1,27 @@
+# Hekara: open-source home health agency software
+# Note: crawlers read robots.txt only at the domain root. This copy documents
+# intent and is mirrored at https://srinivas26k.github.io/robots.txt when available.
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+
+# AI and answer-engine crawlers are welcome
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://srinivas26k.github.io/Hekara/sitemap.xml

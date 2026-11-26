@@ -1,0 +1,11 @@
+{
+  "name": "Hekara",
+  "short_name": "Hekara",
+  "description": "Open-source, self-hosted operations software for home health agencies.",
+  "start_url": "/Hekara/",
+  "scope": "/Hekara/",
+  "display": "browser",
+  "background_color": "#f6f4ef",
+  "theme_color": "#0f4c45",
+  "icons": [{ "src": "/Hekara/app-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

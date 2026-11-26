@@ -1,0 +1,16 @@
+/* TEAM */
+Maintainer: Nampalli Srinivas
+GitHub: https://github.com/Srinivas26k
+
+/* THANKS */
+Everyone who has filed an issue, sent a pull request or sponsored the project.
+https://github.com/Srinivas26k/Hekara/graphs/contributors
+
+/* SITE */
+Last update: 2026/11/26
+Language: English
+Standards: HTML5, CSS3, schema.org JSON-LD
+Components: Astro
+Fonts: Inter (self-hosted)
+Tracking: none. No cookies, no analytics.
+Source: https://github.com/Srinivas26k/Hekara/tree/main/site

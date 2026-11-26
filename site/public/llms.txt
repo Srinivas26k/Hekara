@@ -1,0 +1,37 @@
+# Hekara
+
+> Hekara is free, open-source (AGPL-3.0) operations software for home health and home care agencies. It schedules caregiver visits on a live timeline, fills open shifts in one click, warns about overtime and expiring credentials, handles billing and claims, and keeps patient data encrypted on servers the agency controls. Status: alpha (v0.1); not independently audited or certified.
+
+Key facts:
+
+- What it is: a self-hosted web app for running a home health agency's daily operations.
+- Who it is for: agency owners, schedulers, caregivers and billing teams.
+- Cost: the software is free. Agencies pay only for their own hosting, or for optional paid services.
+- Where it runs: any server with Node.js and PostgreSQL, including the agency's own AWS, Azure or Google Cloud account, Kubernetes or on-premises. A native Cloudflare adapter is next on the roadmap.
+- Security: field-level AES-256-GCM encryption of patient data, passkeys, Argon2id passwords, optional TOTP, four server-enforced roles, invite-only accounts and a hash-chained audit log.
+- Licence: AGPL-3.0. A commercial licence is available for use without the AGPL network-source clause.
+- Compliance: no software is HIPAA compliant on its own. Hekara provides technical safeguards; readiness help for HIPAA, SOC 2, ISO 27001 and HITRUST is offered as an advisory service. Audit reports are issued only by independent audit firms.
+
+## Website
+
+- [Home](https://srinivas26k.github.io/Hekara/): what Hekara is, features, security, comparison, FAQ
+- [Services](https://srinivas26k.github.io/Hekara/services/): implementation in the client's own cloud tenant, custom development, integrations, compliance readiness, support and commercial licensing
+- [Start a project](https://srinivas26k.github.io/Hekara/contact/): enquiry form for agencies and health-tech teams
+- [Sponsor](https://srinivas26k.github.io/Hekara/sponsor/): fund maintenance, features or an independent audit
+
+## Documentation
+
+- [README](https://github.com/Srinivas26k/Hekara/blob/main/README.md): overview, features and quick start
+- [Security model](https://github.com/Srinivas26k/Hekara/blob/main/docs/SECURITY.md): threat model, encryption, authentication and audit
+- [HIPAA mapping](https://github.com/Srinivas26k/Hekara/blob/main/docs/HIPAA.md): how Hekara's safeguards map to the HIPAA Security Rule
+- [Architecture](https://github.com/Srinivas26k/Hekara/blob/main/docs/ARCHITECTURE.md): ports-and-adapters design
+- [Portability](https://github.com/Srinivas26k/Hekara/blob/main/docs/PORTABILITY.md): moving between hosting platforms
+- [Deployment](https://github.com/Srinivas26k/Hekara/blob/main/docs/DEPLOYMENT.md): running Hekara in production
+- [Roadmap](https://github.com/Srinivas26k/Hekara/blob/main/docs/ROADMAP.md): what is coming next
+- [Commercial terms](https://github.com/Srinivas26k/Hekara/blob/main/COMMERCIAL.md): services and licensing
+
+## Optional
+
+- [Structured data graph](https://srinivas26k.github.io/Hekara/graph.json): schema.org JSON-LD for the organisation, software and services
+- [Source code](https://github.com/Srinivas26k/Hekara)
+- [Product Hunt](https://www.producthunt.com/products/hekara)
