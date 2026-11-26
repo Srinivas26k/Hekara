@@ -204,7 +204,7 @@ importers:
         version: link:../../packages/ports
       '@hono/node-server':
         specifier: ^1.14.4
-        version: 1.19.17(hono@4.13.13)
+        version: 1.19.17(hono@4.13.16)
       better-auth:
         specifier: ^1.7.12
         version: 1.7.12(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(kysely@0.29.7)(postgres@3.4.9))(solid-js@1.9.17)(vitest@3.2.7(@types/node@26.6.5)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -212,8 +212,8 @@ importers:
         specifier: ^0.45.4
         version: 0.45.4(kysely@0.29.7)(postgres@3.4.9)
       hono:
-        specifier: ^4.8.5
-        version: 4.13.13
+        specifier: ^4.13.16
+        version: 4.13.16
       postgres:
         specifier: ^3.4.9
         version: 3.4.9
@@ -1961,8 +1961,8 @@ packages:
   get-tsconfig@4.14.3:
     resolution: {integrity: sha512-++QEw4DIY7WGoukz+/+A/8dGYPT9l9yIadnmSgZ8Rjr3YVSVDipQSO9CdnJo9ePqFqUUqh+wk9uIaoiAwsiPkA==}
 
-  hono@4.13.13:
-    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+  hono@4.13.16:
+    resolution: {integrity: sha512-AOLOEhvrV+iH92xXCnFr/5+3KjPKcI3xP63XJtX5spAnkznPdHijlIsUTpi7/9EhWqrTCekw5c5zh1K+YsVw7A==}
     engines: {node: '>=16.9.0'}
 
   html-entities@2.3.3:
@@ -2759,9 +2759,9 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@hono/node-server@1.19.17(hono@4.13.13)':
+  '@hono/node-server@1.19.17(hono@4.13.16)':
     dependencies:
-      hono: 4.13.13
+      hono: 4.13.16
 
   '@ibm/telemetry-js@1.12.0': {}
 
@@ -3482,7 +3482,7 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  hono@4.13.13: {}
+  hono@4.13.16: {}
 
   html-entities@2.3.3: {}
 
