@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const repo = "https://github.com/Srinivas26k/Hekara";
 const email = "srinivasvarma764@gmail.com";
+const formspree = "https://formspree.io/f/xbgownqd";
 
 const interests = ["Custom features", "Integrations", "Hardened deployment", "Migration", "Compliance readiness", "Security review", "Support plan", "Commercial licence", "Sponsorship"];
 const sizes = ["Just exploring", "1–25 caregivers", "26–100", "101–500", "500+", "Building a product"];
@@ -21,7 +22,10 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
 
   <section class="band" style="padding-top:clamp(40px,6vw,72px)">
     <div class="wrap split split-form">
-      <form class="form" id="lead-form" novalidate>
+      <form class="form" id="lead-form" action={formspree} method="POST" novalidate>
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
+        <input type="hidden" name="_subject" id="f-subject" value="Hekara lead" />
+        <input type="hidden" name="source" id="f-source" value="" />
         <div class="row">
           <label class="field"><span>Your name</span><input class="input" name="name" autocomplete="name" required /></label>
           <label class="field"><span>Work email</span><input class="input" name="email" type="email" autocomplete="email" required /></label>
@@ -73,7 +77,7 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
           <button class="btn btn-primary btn-lg" type="submit">Send to Hekara <span class="arrow">→</span></button>
           <span class="form-status" id="form-status" role="status"></span>
         </div>
-        <p class="small muted">Sending opens your email app with your answers filled in, so nothing is stored on this site. Prefer to write yourself? <a href={`mailto:${email}`}>{email}</a></p>
+        <p class="small muted">Your answers are sent securely through Formspree to the maintainer's inbox, and used only to reply to you. See the <a href={`${base}privacy`}>privacy policy</a>. Prefer email? <a href={`mailto:${email}`}>{email}</a></p>
       </form>
 
       <aside class="stack-lg sticky">
@@ -98,7 +102,7 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
     </div>
   </section>
 
-  <script is:inline define:vars={{ email }}>
+  <script is:inline define:vars={{ email, formspree }}>
     document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('lead-form');
     const status = document.getElementById('form-status');
@@ -142,8 +146,28 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
       ];
       const tag = String(d.get('contract') || '').startsWith('We need') ? 'Company' : 'Freelance';
       const subject = `Hekara lead [${tag}]: ${org || name} (${interests.split(',')[0]})`;
-      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
-      status.textContent = 'Your email app should open with everything filled in. Just press send.';
+      document.getElementById('f-subject').value = subject;
+      document.getElementById('f-source').value = source || '-';
+      const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
+      status.textContent = 'Sending…';
+      fetch(formspree, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+        .then((r) => {
+          if (!r.ok) throw new Error(String(r.status));
+          form.reset();
+          status.textContent = 'Thanks! Your project details were sent. You will get a personal reply by email.';
+        })
+        .catch(() => {
+          status.innerHTML = '';
+          status.append('Sending failed. ');
+          const a = document.createElement('a');
+          a.href = mailto;
+          a.textContent = 'Send it by email instead';
+          status.append(a);
+          status.append('.');
+        })
+        .finally(() => { button.disabled = false; });
     });
     });
   </script>
