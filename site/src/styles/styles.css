@@ -339,3 +339,4 @@ textarea.input { min-height: 140px; resize: vertical; line-height: 1.5 }
 .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1) }
 .js .reveal.in { opacity: 1; transform: none }
 .split-form { grid-template-columns: 1.2fr .8fr } @media (max-width: 900px) { .split-form { grid-template-columns: 1fr } }
+.container .card > :is(h2, h3):first-child { margin-top: 0 }
