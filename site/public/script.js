@@ -40,3 +40,16 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
 } else {
   targets.forEach(t => t.classList.add('in'));
 }
+
+// Remember where this visit came from (?ref=, utm_*) so the project form can
+// include it. Stored only in this browser tab; nothing is sent anywhere.
+try {
+  const params = new URLSearchParams(location.search);
+  const keys = ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const found = {};
+  keys.forEach(k => { const v = params.get(k); if (v) found[k] = v.slice(0, 100); });
+  if (Object.keys(found).length && !sessionStorage.getItem('hekara_src')) {
+    found.landing = location.pathname;
+    sessionStorage.setItem('hekara_src', JSON.stringify(found));
+  }
+} catch (_) { /* storage unavailable: ignore */ }

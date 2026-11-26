@@ -52,6 +52,13 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
           </fieldset>
         </div>
 
+        <label class="field"><span>How did you hear about Hekara?</span>
+          <select class="input" name="heard" id="heard">
+            <option value="">Choose one</option>
+            <option>Product Hunt</option><option>GitHub</option><option>Search engine</option><option>AI assistant (ChatGPT, Claude, Perplexity…)</option><option>LinkedIn</option><option>Reddit or Hacker News</option><option>A colleague</option><option>Other</option>
+          </select>
+        </label>
+
         <label class="field"><span>What should we know?</span>
           <textarea class="input" name="message" required placeholder="How you schedule today, the systems you use, what has to change, any deadline or audit coming up."></textarea>
           <small>Please don't include patient names or any health information.</small>
@@ -87,8 +94,20 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
   </section>
 
   <script is:inline define:vars={{ email }}>
+    document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('lead-form');
     const status = document.getElementById('form-status');
+    let source = '';
+    try {
+      const src = JSON.parse(sessionStorage.getItem('hekara_src') || 'null');
+      if (src) {
+        source = Object.entries(src).map(([k, v]) => `${k}=${v}`).join('; ');
+        const hint = (src.utm_source || src.ref || '').toLowerCase();
+        const map = { producthunt: 'Product Hunt', github: 'GitHub', linkedin: 'LinkedIn', reddit: 'Reddit or Hacker News', hackernews: 'Reddit or Hacker News', google: 'Search engine', bing: 'Search engine', chatgpt: 'AI assistant (ChatGPT, Claude, Perplexity…)', perplexity: 'AI assistant (ChatGPT, Claude, Perplexity…)' };
+        const sel = document.getElementById('heard');
+        if (map[hint]) sel.value = map[hint];
+      }
+    } catch (_) {}
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const d = new FormData(form);
@@ -110,12 +129,15 @@ const budgets = ["Under $5k", "$5k–$20k", "$20k–$50k", "$50k+", "Not sure ye
         `Agency size: ${d.get('size') || '-'}`,
         `Timeline: ${d.get('timeline') || '-'}`,
         `Budget: ${d.get('budget') || '-'}`,
+        `Heard via: ${d.get('heard') || '-'}`,
+        `Source: ${source || '-'}`,
         '',
         msg,
       ];
       const subject = `Hekara project: ${org || name} (${interests.split(',')[0]})`;
       window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
       status.textContent = 'Your email app should open with everything filled in. Just press send.';
+    });
     });
   </script>
 </BaseLayout>
